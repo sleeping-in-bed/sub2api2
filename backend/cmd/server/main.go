@@ -142,6 +142,9 @@ func runMainServer() {
 	if cfg.RunMode == config.RunModeSimple {
 		log.Println("⚠️  WARNING: Running in SIMPLE mode - billing and quota checks are DISABLED")
 	}
+	if err := setup.EnsureLocalDevBypassUsers(cfg); err != nil {
+		log.Fatalf("Failed to ensure local dev bypass users: %v", err)
+	}
 
 	buildInfo := handler.BuildInfo{
 		Version:   Version,

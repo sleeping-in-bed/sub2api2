@@ -17,6 +17,7 @@ func NewJWTAuthMiddleware(authService *service.AuthService, userService *service
 
 type jwtUserReader interface {
 	GetByID(ctx context.Context, id int64) (*service.User, error)
+	GetByEmail(ctx context.Context, email string) (*service.User, error)
 }
 
 type userActivityToucher interface {
@@ -26,6 +27,13 @@ type userActivityToucher interface {
 // jwtAuth JWT认证中间件实现
 func jwtAuth(authService *service.AuthService, userService jwtUserReader, activityToucher userActivityToucher) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if enabled, ok := tryApplyDevAuthBypass(c, userService, false); enabled {
+			if ok {
+				c.Next()
+			}
+			return
+		}
+
 		// 从Authorization header中提取token
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {

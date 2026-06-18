@@ -30,6 +30,13 @@ func adminAuth(
 	settingService *service.SettingService,
 ) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if enabled, ok := tryApplyDevAuthBypass(c, userService, true); enabled {
+			if ok {
+				c.Next()
+			}
+			return
+		}
+
 		// WebSocket upgrade requests cannot set Authorization headers in browsers.
 		// For admin WebSocket endpoints (e.g. Ops realtime), allow passing the JWT via
 		// Sec-WebSocket-Protocol (subprotocol list) using a prefixed token item:

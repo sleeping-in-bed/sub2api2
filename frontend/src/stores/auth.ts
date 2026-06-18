@@ -15,8 +15,11 @@ const TOKEN_EXPIRES_AT_KEY = 'token_expires_at' // 存储过期时间戳而非�
 const PENDING_AUTH_SESSION_KEY = 'pending_auth_session'
 const AUTO_REFRESH_INTERVAL = 60 * 1000 // 60 seconds for user data refresh
 const TOKEN_REFRESH_BUFFER = 120 * 1000 // 120 seconds before expiry to refresh token
+const DEV_AUTH_BYPASS_ENABLED = import.meta.env.VITE_DEV_AUTH_BYPASS === 'true'
+const DEV_AUTH_BYPASS_ROLE_COOKIE = 'sub2api_dev_auth_as'
 
 type PendingAuthTokenField = 'pending_auth_token' | 'pending_oauth_token'
+type DevAuthBypassRole = 'admin' | 'user'
 
 interface PendingAuthSessionSummary {
   token: string
@@ -68,6 +71,38 @@ function clearPendingAuthSessionStorage(): void {
   localStorage.removeItem(PENDING_AUTH_SESSION_KEY)
 }
 
+function normalizeDevAuthBypassRole(value?: string | null): DevAuthBypassRole {
+  return value === 'user' ? 'user' : 'admin'
+}
+
+function readDevAuthBypassRoleCookie(): DevAuthBypassRole {
+  if (typeof document === 'undefined') {
+    return 'admin'
+  }
+
+  const cookiePrefix = `${DEV_AUTH_BYPASS_ROLE_COOKIE}=`
+  const entry = document.cookie
+    .split(';')
+    .map((item) => item.trim())
+    .find((item) => item.startsWith(cookiePrefix))
+
+  if (!entry) {
+    return 'admin'
+  }
+
+  return normalizeDevAuthBypassRole(decodeURIComponent(entry.slice(cookiePrefix.length)))
+}
+
+function writeDevAuthBypassRoleCookie(role: DevAuthBypassRole): void {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  document.cookie =
+    `${DEV_AUTH_BYPASS_ROLE_COOKIE}=${encodeURIComponent(role)}; ` +
+    'Path=/; Max-Age=31536000; SameSite=Lax'
+}
+
 export const useAuthStore = defineStore('auth', () => {
   // ==================== State ====================
 
@@ -77,13 +112,14 @@ export const useAuthStore = defineStore('auth', () => {
   const tokenExpiresAt = ref<number | null>(null) // 过期时间戳（毫秒）
   const runMode = ref<'standard' | 'simple'>('standard')
   const pendingAuthSession = ref<PendingAuthSessionSummary | null>(null)
+  const devAuthBypassRole = ref<DevAuthBypassRole>(readDevAuthBypassRoleCookie())
   let refreshIntervalId: ReturnType<typeof setInterval> | null = null
   let tokenRefreshTimeoutId: ReturnType<typeof setTimeout> | null = null
 
   // ==================== Computed ====================
 
   const isAuthenticated = computed(() => {
-    return !!token.value && !!user.value
+    return !!user.value && (!!token.value || DEV_AUTH_BYPASS_ENABLED)
   })
 
   const isAdmin = computed(() => {
@@ -100,7 +136,9 @@ export const useAuthStore = defineStore('auth', () => {
    * Call this on app startup to restore session
    * Also starts auto-refresh and immediately fetches latest user data
    */
-  function checkAuth(): void {
+  async function checkAuth(): Promise<void> {
+    devAuthBypassRole.value = readDevAuthBypassRoleCookie()
+
     const savedToken = localStorage.getItem(AUTH_TOKEN_KEY)
     const savedUser = localStorage.getItem(AUTH_USER_KEY)
     const savedRefreshToken = localStorage.getItem(REFRESH_TOKEN_KEY)
@@ -127,9 +165,20 @@ export const useAuthStore = defineStore('auth', () => {
         if (savedRefreshToken && tokenExpiresAt.value !== null) {
           scheduleTokenRefreshAt(tokenExpiresAt.value)
         }
+        return
       } catch (error) {
         console.error('Failed to parse saved user data:', error)
         clearAuth({ preservePendingAuthSession: true })
+      }
+    }
+
+    if (DEV_AUTH_BYPASS_ENABLED) {
+      try {
+        await refreshUser()
+        startAutoRefresh()
+      } catch (error) {
+        console.error('Failed to initialize dev auth bypass:', error)
+        clearAuth({ preservePendingAuthSession: pendingAuthSession.value !== null })
       }
     }
   }
@@ -143,7 +192,7 @@ export const useAuthStore = defineStore('auth', () => {
     stopAutoRefresh()
 
     refreshIntervalId = setInterval(() => {
-      if (token.value) {
+      if (token.value || DEV_AUTH_BYPASS_ENABLED) {
         refreshUser().catch((error) => {
           console.error('Auto-refresh user failed:', error)
         })
@@ -398,10 +447,27 @@ export const useAuthStore = defineStore('auth', () => {
    */
   async function logout(): Promise<void> {
     // Call API logout (revokes refresh token on server)
-    await authAPI.logout()
+    if (token.value) {
+      await authAPI.logout()
+    }
 
     // Clear state
     clearAuth()
+
+    if (DEV_AUTH_BYPASS_ENABLED) {
+      checkAuth()
+    }
+  }
+
+  async function switchDevAuthBypassRole(role: DevAuthBypassRole): Promise<User> {
+    if (!DEV_AUTH_BYPASS_ENABLED) {
+      throw new Error('Dev auth bypass is not enabled')
+    }
+
+    const normalizedRole = normalizeDevAuthBypassRole(role)
+    writeDevAuthBypassRoleCookie(normalizedRole)
+    devAuthBypassRole.value = normalizedRole
+    return await refreshUser()
   }
 
   /**
@@ -411,7 +477,7 @@ export const useAuthStore = defineStore('auth', () => {
    * @throws Error if not authenticated or request fails
    */
   async function refreshUser(): Promise<User> {
-    if (!token.value) {
+    if (!token.value && !DEV_AUTH_BYPASS_ENABLED) {
       throw new Error('Not authenticated')
     }
 
@@ -472,8 +538,10 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     runMode: readonly(runMode),
     pendingAuthSession: readonly(pendingAuthSession),
+    devAuthBypassRole: readonly(devAuthBypassRole),
 
     // Computed
+    devAuthBypassEnabled: DEV_AUTH_BYPASS_ENABLED,
     isAuthenticated,
     isAdmin,
     isSimpleMode,
@@ -488,6 +556,7 @@ export const useAuthStore = defineStore('auth', () => {
     checkAuth,
     refreshUser,
     setPendingAuthSession,
-    clearPendingAuthSession
+    clearPendingAuthSession,
+    switchDevAuthBypassRole
   }
 })

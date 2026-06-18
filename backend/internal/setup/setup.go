@@ -6,6 +6,7 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -13,6 +14,7 @@ import (
 	"time"
 
 	"github.com/Wei-Shaw/sub2api/internal/config"
+	"github.com/Wei-Shaw/sub2api/internal/devauth"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/logger"
 	"github.com/Wei-Shaw/sub2api/internal/repository"
 	"github.com/Wei-Shaw/sub2api/internal/service"
@@ -431,6 +433,150 @@ func createAdminUser(cfg *SetupConfig) (bool, string, error) {
 		return false, "", err
 	}
 	return true, decision.reason, nil
+}
+
+type devBypassUserSpec struct {
+	Email       string
+	Password    string
+	Role        string
+	Concurrency int
+}
+
+type devBypassUserEnsureResult struct {
+	created           bool
+	updated           bool
+	generatedPassword string
+}
+
+func buildDevBypassUserSpecs() []devBypassUserSpec {
+	return []devBypassUserSpec{
+		{
+			Email:       devauth.AdminEmail(),
+			Password:    strings.TrimSpace(os.Getenv("ADMIN_PASSWORD")),
+			Role:        service.RoleAdmin,
+			Concurrency: setupDefaultAdminConcurrency(),
+		},
+		{
+			Email:       devauth.UserEmail(),
+			Password:    devauth.UserPassword(),
+			Role:        service.RoleUser,
+			Concurrency: defaultUserConcurrency,
+		},
+	}
+}
+
+func EnsureLocalDevBypassUsers(cfg *config.Config) error {
+	if cfg == nil || !devauth.IsBypassEnabled() {
+		return nil
+	}
+
+	db, err := sql.Open("postgres", cfg.Database.DSN())
+	if err != nil {
+		return fmt.Errorf("open postgres: %w", err)
+	}
+
+	defer func() {
+		if closeErr := db.Close(); closeErr != nil {
+			logger.LegacyPrintf("setup", "failed to close postgres connection: %v", closeErr)
+		}
+	}()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	for _, spec := range buildDevBypassUserSpecs() {
+		result, ensureErr := ensureDevBypassUser(ctx, db, spec)
+		if ensureErr != nil {
+			return fmt.Errorf("ensure dev bypass %s user %s: %w", spec.Role, spec.Email, ensureErr)
+		}
+
+		if result.created {
+			logger.LegacyPrintf("setup", "Dev auth bypass %s user created: %s", spec.Role, spec.Email)
+		}
+		if result.updated {
+			logger.LegacyPrintf("setup", "Dev auth bypass %s user updated: %s", spec.Role, spec.Email)
+		}
+		if result.generatedPassword != "" {
+			logger.LegacyPrintf("setup", "Dev auth bypass generated password for %s (%s): %s", spec.Role, spec.Email, result.generatedPassword)
+		}
+	}
+
+	return nil
+}
+
+func ensureDevBypassUser(ctx context.Context, db *sql.DB, spec devBypassUserSpec) (devBypassUserEnsureResult, error) {
+	result := devBypassUserEnsureResult{}
+	password := strings.TrimSpace(spec.Password)
+	if password == "" {
+		generated, err := generateSecret(16)
+		if err != nil {
+			return result, fmt.Errorf("generate password: %w", err)
+		}
+		password = generated
+		result.generatedPassword = generated
+	}
+
+	devUser := &service.User{
+		Email:       spec.Email,
+		Role:        spec.Role,
+		Status:      service.StatusActive,
+		Balance:     0,
+		Concurrency: spec.Concurrency,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+	if err := devUser.SetPassword(password); err != nil {
+		return result, err
+	}
+
+	var existingID int64
+	err := db.QueryRowContext(
+		ctx,
+		`SELECT id FROM users WHERE email = $1 AND deleted_at IS NULL LIMIT 1`,
+		spec.Email,
+	).Scan(&existingID)
+
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		_, insertErr := db.ExecContext(
+			ctx,
+			`INSERT INTO users (email, password_hash, role, balance, concurrency, status, created_at, updated_at)
+			 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+			devUser.Email,
+			devUser.PasswordHash,
+			devUser.Role,
+			devUser.Balance,
+			devUser.Concurrency,
+			devUser.Status,
+			devUser.CreatedAt,
+			devUser.UpdatedAt,
+		)
+		if insertErr != nil {
+			return result, insertErr
+		}
+		result.created = true
+		return result, nil
+	case err != nil:
+		return result, err
+	default:
+		_, updateErr := db.ExecContext(
+			ctx,
+			`UPDATE users
+			 SET password_hash = $2, role = $3, status = $4, concurrency = $5, updated_at = $6
+			 WHERE id = $1`,
+			existingID,
+			devUser.PasswordHash,
+			devUser.Role,
+			devUser.Status,
+			devUser.Concurrency,
+			devUser.UpdatedAt,
+		)
+		if updateErr != nil {
+			return result, updateErr
+		}
+		result.updated = true
+		return result, nil
+	}
 }
 
 func writeConfigFile(cfg *SetupConfig) error {

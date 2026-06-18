@@ -23,6 +23,41 @@
 
       <!-- Right: Announcements + Docs + Language + Subscriptions + Balance + User Dropdown -->
       <div class="flex items-center gap-3">
+        <div
+          v-if="user && authStore.devAuthBypassEnabled"
+          class="hidden items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-2 py-1 md:flex"
+        >
+          <span class="text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+            Dev
+          </span>
+          <div class="flex items-center rounded-lg bg-white/80 p-0.5 shadow-sm">
+            <button
+              :disabled="switchingDevAuthRole"
+              @click="handleSwitchDevAuthRole('admin')"
+              class="rounded-md px-2 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              :class="
+                authStore.devAuthBypassRole === 'admin'
+                  ? 'bg-amber-500 text-white'
+                  : 'text-amber-700 hover:bg-amber-100'
+              "
+            >
+              Admin
+            </button>
+            <button
+              :disabled="switchingDevAuthRole"
+              @click="handleSwitchDevAuthRole('user')"
+              class="rounded-md px-2 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+              :class="
+                authStore.devAuthBypassRole === 'user'
+                  ? 'bg-amber-500 text-white'
+                  : 'text-amber-700 hover:bg-amber-100'
+              "
+            >
+              User
+            </button>
+          </div>
+        </div>
+
         <!-- Announcement Bell -->
         <AnnouncementBell v-if="user" />
 
@@ -233,6 +268,7 @@ const onboardingStore = useOnboardingStore()
 
 const user = computed(() => authStore.user)
 const dropdownOpen = ref(false)
+const switchingDevAuthRole = ref(false)
 const dropdownRef = ref<HTMLElement | null>(null)
 const contactInfo = computed(() => appStore.contactInfo)
 const docUrl = computed(() => appStore.docUrl)
@@ -296,6 +332,32 @@ function toggleDropdown() {
 
 function closeDropdown() {
   dropdownOpen.value = false
+}
+
+async function handleSwitchDevAuthRole(role: 'admin' | 'user') {
+  if (
+    switchingDevAuthRole.value ||
+    !authStore.devAuthBypassEnabled ||
+    authStore.devAuthBypassRole === role
+  ) {
+    return
+  }
+
+  switchingDevAuthRole.value = true
+
+  try {
+    await authStore.switchDevAuthBypassRole(role)
+
+    const requiresAdminRoute = route.matched.some((record) => record.meta.requiresAdmin === true)
+    if (role === 'user' && requiresAdminRoute) {
+      await router.push('/dashboard')
+    }
+  } catch (error) {
+    console.error('Failed to switch dev auth role:', error)
+    appStore.showError((error as { message?: string }).message || 'Failed to switch dev auth role')
+  } finally {
+    switchingDevAuthRole.value = false
+  }
 }
 
 async function handleLogout() {
