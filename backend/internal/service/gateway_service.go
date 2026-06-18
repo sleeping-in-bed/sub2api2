@@ -9609,6 +9609,7 @@ func (s *GatewayService) buildRecordUsageLog(
 		usageLog.TotalCost = cost.TotalCost
 		usageLog.ActualCost = cost.ActualCost
 	}
+	applyAccountTokenMultiplierToUsageLog(account, usageLog)
 
 	return usageLog
 }

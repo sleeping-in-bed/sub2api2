@@ -222,3 +222,22 @@ func TestBulkUpdateAcceptsFilterTargetRequest(t *testing.T) {
 	require.NoError(t, json.Unmarshal(rec.Body.Bytes(), &resp))
 	require.Equal(t, float64(0), resp["code"])
 }
+
+func TestBulkUpdatePassesTokenMultiplier(t *testing.T) {
+	adminSvc := newStubAdminService()
+	router := setupAccountMixedChannelRouter(adminSvc)
+
+	body, _ := json.Marshal(map[string]any{
+		"account_ids":      []int64{1, 2},
+		"token_multiplier": 1.5,
+	})
+	rec := httptest.NewRecorder()
+	req := httptest.NewRequest(http.MethodPost, "/api/v1/admin/accounts/bulk-update", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	router.ServeHTTP(rec, req)
+
+	require.Equal(t, http.StatusOK, rec.Code)
+	require.NotNil(t, adminSvc.bulkUpdateAccountInput)
+	require.NotNil(t, adminSvc.bulkUpdateAccountInput.TokenMultiplier)
+	require.Equal(t, 1.5, *adminSvc.bulkUpdateAccountInput.TokenMultiplier)
+}

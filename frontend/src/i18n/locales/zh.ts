@@ -3804,6 +3804,8 @@ export default {
       priorityHint: '优先级越小的账号优先使用',
       billingRateMultiplier: '账号计费倍率',
       billingRateMultiplierHint: '0 表示不计费，仅影响账号计费',
+      tokenRateMultiplier: 'Token 倍率',
+      tokenRateMultiplierHint: '允许小数。记录和展示的 token 会按此倍率放大后四舍五入为整数',
       expiresAt: '过期时间',
       expiresAtHint: '留空表示不过期',
       higherPriorityFirst: '数值越小优先级越高',

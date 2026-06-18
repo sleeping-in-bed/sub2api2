@@ -84,6 +84,8 @@ type TempUnschedulableRule struct {
 	Description     string   `json:"description"`
 }
 
+const accountTokenMultiplierExtraKey = "token_multiplier"
+
 func (a *Account) IsActive() bool {
 	return a.Status == StatusActive
 }
@@ -100,6 +102,25 @@ func (a *Account) BillingRateMultiplier() float64 {
 		return 1.0
 	}
 	return *a.RateMultiplier
+}
+
+// TokenMultiplier 返回账号的 token 倍率。
+// 倍率保存在 extra.token_multiplier 中：
+// - 缺失 / 非法 / <= 0 时按 1.0 处理
+// - 仅影响 usage token 的记录与展示，不影响上游真实 token
+func (a *Account) TokenMultiplier() float64 {
+	if a == nil || a.Extra == nil {
+		return 1.0
+	}
+	raw, ok := a.Extra[accountTokenMultiplierExtraKey]
+	if !ok {
+		return 1.0
+	}
+	value := parseExtraFloat64(raw)
+	if value <= 0 {
+		return 1.0
+	}
+	return value
 }
 
 func (a *Account) EffectiveLoadFactor() int {

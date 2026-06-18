@@ -2499,6 +2499,11 @@
           <input v-model.number="form.rate_multiplier" type="number" min="0" step="0.001" class="input" />
           <p class="input-hint">{{ t('admin.accounts.billingRateMultiplierHint') }}</p>
         </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.tokenRateMultiplier') }}</label>
+          <input v-model.number="form.token_multiplier" type="number" min="0.001" step="0.001" class="input" />
+          <p class="input-hint">{{ t('admin.accounts.tokenRateMultiplierHint') }}</p>
+        </div>
       </div>
       <div class="border-t border-gray-200 pt-4 dark:border-dark-600">
         <label class="input-label">{{ t('admin.accounts.expiresAt') }}</label>
@@ -3692,6 +3697,7 @@ const form = reactive({
   load_factor: null as number | null,
   priority: 1,
   rate_multiplier: 1,
+  token_multiplier: 1,
   group_ids: [] as number[],
   expires_at: null as number | null
 })
@@ -4207,6 +4213,7 @@ const resetForm = () => {
   form.load_factor = null
   form.priority = 1
   form.rate_multiplier = 1
+  form.token_multiplier = 1
   form.group_ids = []
   form.expires_at = null
   accountCategory.value = 'oauth-based'
@@ -4781,6 +4788,7 @@ const createAccountAndFinish = async (
     load_factor: form.load_factor ?? undefined,
     priority: form.priority,
     rate_multiplier: form.rate_multiplier,
+    token_multiplier: form.token_multiplier,
     group_ids: form.group_ids,
     expires_at: form.expires_at,
     auto_pause_on_expired: autoPauseOnExpired.value
