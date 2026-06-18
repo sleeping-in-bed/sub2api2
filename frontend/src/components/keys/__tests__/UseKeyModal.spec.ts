@@ -46,7 +46,36 @@ describe('UseKeyModal', () => {
     expect(configToml).not.toContain('model = "gpt-5.4"')
     expect(configToml).not.toContain('model_context_window')
     expect(configToml).not.toContain('model_auto_compact_token_limit')
+    expect(configToml).toContain('base_url = "https://example.com/v1"')
     expect(configToml).toContain('[features]\ngoals = true')
+  })
+
+  it('adds /v1 to OpenAI Codex base_url when public API URL is site root', () => {
+    const wrapper = mount(UseKeyModal, {
+      props: {
+        show: true,
+        apiKey: 'sk-test',
+        baseUrl: 'https://example.com',
+        platform: 'openai'
+      },
+      global: {
+        stubs: {
+          BaseDialog: {
+            template: '<div><slot /><slot name="footer" /></div>'
+          },
+          Icon: {
+            template: '<span />'
+          }
+        }
+      }
+    })
+
+    const codeBlocks = wrapper.findAll('pre code').map((code) => code.text())
+    const configToml = codeBlocks.find((content) => content.includes('model_provider = "OpenAI"'))
+
+    expect(configToml).toBeDefined()
+    expect(configToml).toContain('base_url = "https://example.com/v1"')
+    expect(configToml).not.toContain('base_url = "https://example.com"\n')
   })
 
   it('renders GPT-5.5 and goals feature in OpenAI Codex WebSocket config', async () => {
@@ -86,6 +115,7 @@ describe('UseKeyModal', () => {
     expect(configToml).not.toContain('model = "gpt-5.4"')
     expect(configToml).not.toContain('model_context_window')
     expect(configToml).not.toContain('model_auto_compact_token_limit')
+    expect(configToml).toContain('base_url = "https://example.com/v1"')
     expect(configToml).toContain('[features]\nresponses_websockets_v2 = true\ngoals = true')
   })
 

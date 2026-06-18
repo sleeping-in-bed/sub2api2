@@ -118,6 +118,30 @@ export default defineConfig(({ mode }) => {
           target: backendUrl,
           changeOrigin: true
         },
+        '/responses': {
+          target: backendUrl,
+          changeOrigin: true
+        },
+        '/chat': {
+          target: backendUrl,
+          changeOrigin: true
+        },
+        '/embeddings': {
+          target: backendUrl,
+          changeOrigin: true
+        },
+        '/images': {
+          target: backendUrl,
+          changeOrigin: true
+        },
+        '/backend-api': {
+          target: backendUrl,
+          changeOrigin: true
+        },
+        '/antigravity': {
+          target: backendUrl,
+          changeOrigin: true
+        },
         '/setup': {
           target: backendUrl,
           changeOrigin: true
