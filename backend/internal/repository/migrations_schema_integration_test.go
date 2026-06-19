@@ -92,6 +92,10 @@ func TestMigrationsRunner_IsIdempotent_AndSchemaIsUpToDate(t *testing.T) {
 	require.NoError(t, tx.QueryRowContext(context.Background(), "SELECT to_regclass('public.settings')").Scan(&settingsRegclass))
 	require.True(t, settingsRegclass.Valid, "expected settings table to exist")
 
+	// announcements: seed_key provides idempotency for deployment-seeded announcements
+	requireColumn(t, tx, "announcements", "seed_key", "character varying", 120, true)
+	requirePartialUniqueIndexDefinition(t, tx, "announcements", "idx_announcements_seed_key_unique", "seed_key", "WHERE")
+
 	// security_secrets table should exist
 	var securitySecretsRegclass sql.NullString
 	require.NoError(t, tx.QueryRowContext(context.Background(), "SELECT to_regclass('public.security_secrets')").Scan(&securitySecretsRegclass))

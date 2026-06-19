@@ -5303,6 +5303,7 @@ type AnnouncementMutation struct {
 	content       *string
 	status        *string
 	notify_mode   *string
+	seed_key      *string
 	targeting     *domain.AnnouncementTargeting
 	starts_at     *time.Time
 	ends_at       *time.Time
@@ -5561,6 +5562,55 @@ func (m *AnnouncementMutation) OldNotifyMode(ctx context.Context) (v string, err
 // ResetNotifyMode resets all changes to the "notify_mode" field.
 func (m *AnnouncementMutation) ResetNotifyMode() {
 	m.notify_mode = nil
+}
+
+// SetSeedKey sets the "seed_key" field.
+func (m *AnnouncementMutation) SetSeedKey(s string) {
+	m.seed_key = &s
+}
+
+// SeedKey returns the value of the "seed_key" field in the mutation.
+func (m *AnnouncementMutation) SeedKey() (r string, exists bool) {
+	v := m.seed_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSeedKey returns the old "seed_key" field's value of the Announcement entity.
+// If the Announcement object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AnnouncementMutation) OldSeedKey(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSeedKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSeedKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSeedKey: %w", err)
+	}
+	return oldValue.SeedKey, nil
+}
+
+// ClearSeedKey clears the value of the "seed_key" field.
+func (m *AnnouncementMutation) ClearSeedKey() {
+	m.seed_key = nil
+	m.clearedFields[announcement.FieldSeedKey] = struct{}{}
+}
+
+// SeedKeyCleared returns if the "seed_key" field was cleared in this mutation.
+func (m *AnnouncementMutation) SeedKeyCleared() bool {
+	_, ok := m.clearedFields[announcement.FieldSeedKey]
+	return ok
+}
+
+// ResetSeedKey resets all changes to the "seed_key" field.
+func (m *AnnouncementMutation) ResetSeedKey() {
+	m.seed_key = nil
+	delete(m.clearedFields, announcement.FieldSeedKey)
 }
 
 // SetTargeting sets the "targeting" field.
@@ -6010,7 +6060,7 @@ func (m *AnnouncementMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AnnouncementMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.title != nil {
 		fields = append(fields, announcement.FieldTitle)
 	}
@@ -6022,6 +6072,9 @@ func (m *AnnouncementMutation) Fields() []string {
 	}
 	if m.notify_mode != nil {
 		fields = append(fields, announcement.FieldNotifyMode)
+	}
+	if m.seed_key != nil {
+		fields = append(fields, announcement.FieldSeedKey)
 	}
 	if m.targeting != nil {
 		fields = append(fields, announcement.FieldTargeting)
@@ -6060,6 +6113,8 @@ func (m *AnnouncementMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case announcement.FieldNotifyMode:
 		return m.NotifyMode()
+	case announcement.FieldSeedKey:
+		return m.SeedKey()
 	case announcement.FieldTargeting:
 		return m.Targeting()
 	case announcement.FieldStartsAt:
@@ -6091,6 +6146,8 @@ func (m *AnnouncementMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldStatus(ctx)
 	case announcement.FieldNotifyMode:
 		return m.OldNotifyMode(ctx)
+	case announcement.FieldSeedKey:
+		return m.OldSeedKey(ctx)
 	case announcement.FieldTargeting:
 		return m.OldTargeting(ctx)
 	case announcement.FieldStartsAt:
@@ -6141,6 +6198,13 @@ func (m *AnnouncementMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetNotifyMode(v)
+		return nil
+	case announcement.FieldSeedKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSeedKey(v)
 		return nil
 	case announcement.FieldTargeting:
 		v, ok := value.(domain.AnnouncementTargeting)
@@ -6248,6 +6312,9 @@ func (m *AnnouncementMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *AnnouncementMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(announcement.FieldSeedKey) {
+		fields = append(fields, announcement.FieldSeedKey)
+	}
 	if m.FieldCleared(announcement.FieldTargeting) {
 		fields = append(fields, announcement.FieldTargeting)
 	}
@@ -6277,6 +6344,9 @@ func (m *AnnouncementMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *AnnouncementMutation) ClearField(name string) error {
 	switch name {
+	case announcement.FieldSeedKey:
+		m.ClearSeedKey()
+		return nil
 	case announcement.FieldTargeting:
 		m.ClearTargeting()
 		return nil
@@ -6311,6 +6381,9 @@ func (m *AnnouncementMutation) ResetField(name string) error {
 		return nil
 	case announcement.FieldNotifyMode:
 		m.ResetNotifyMode()
+		return nil
+	case announcement.FieldSeedKey:
+		m.ResetSeedKey()
 		return nil
 	case announcement.FieldTargeting:
 		m.ResetTargeting()

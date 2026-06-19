@@ -75,6 +75,11 @@ func NotifyMode(v string) predicate.Announcement {
 	return predicate.Announcement(sql.FieldEQ(FieldNotifyMode, v))
 }
 
+// SeedKey applies equality check predicate on the "seed_key" field. It's identical to SeedKeyEQ.
+func SeedKey(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldEQ(FieldSeedKey, v))
+}
+
 // StartsAt applies equality check predicate on the "starts_at" field. It's identical to StartsAtEQ.
 func StartsAt(v time.Time) predicate.Announcement {
 	return predicate.Announcement(sql.FieldEQ(FieldStartsAt, v))
@@ -363,6 +368,81 @@ func NotifyModeEqualFold(v string) predicate.Announcement {
 // NotifyModeContainsFold applies the ContainsFold predicate on the "notify_mode" field.
 func NotifyModeContainsFold(v string) predicate.Announcement {
 	return predicate.Announcement(sql.FieldContainsFold(FieldNotifyMode, v))
+}
+
+// SeedKeyEQ applies the EQ predicate on the "seed_key" field.
+func SeedKeyEQ(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldEQ(FieldSeedKey, v))
+}
+
+// SeedKeyNEQ applies the NEQ predicate on the "seed_key" field.
+func SeedKeyNEQ(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldNEQ(FieldSeedKey, v))
+}
+
+// SeedKeyIn applies the In predicate on the "seed_key" field.
+func SeedKeyIn(vs ...string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldIn(FieldSeedKey, vs...))
+}
+
+// SeedKeyNotIn applies the NotIn predicate on the "seed_key" field.
+func SeedKeyNotIn(vs ...string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldNotIn(FieldSeedKey, vs...))
+}
+
+// SeedKeyGT applies the GT predicate on the "seed_key" field.
+func SeedKeyGT(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldGT(FieldSeedKey, v))
+}
+
+// SeedKeyGTE applies the GTE predicate on the "seed_key" field.
+func SeedKeyGTE(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldGTE(FieldSeedKey, v))
+}
+
+// SeedKeyLT applies the LT predicate on the "seed_key" field.
+func SeedKeyLT(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldLT(FieldSeedKey, v))
+}
+
+// SeedKeyLTE applies the LTE predicate on the "seed_key" field.
+func SeedKeyLTE(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldLTE(FieldSeedKey, v))
+}
+
+// SeedKeyContains applies the Contains predicate on the "seed_key" field.
+func SeedKeyContains(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldContains(FieldSeedKey, v))
+}
+
+// SeedKeyHasPrefix applies the HasPrefix predicate on the "seed_key" field.
+func SeedKeyHasPrefix(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldHasPrefix(FieldSeedKey, v))
+}
+
+// SeedKeyHasSuffix applies the HasSuffix predicate on the "seed_key" field.
+func SeedKeyHasSuffix(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldHasSuffix(FieldSeedKey, v))
+}
+
+// SeedKeyIsNil applies the IsNil predicate on the "seed_key" field.
+func SeedKeyIsNil() predicate.Announcement {
+	return predicate.Announcement(sql.FieldIsNull(FieldSeedKey))
+}
+
+// SeedKeyNotNil applies the NotNil predicate on the "seed_key" field.
+func SeedKeyNotNil() predicate.Announcement {
+	return predicate.Announcement(sql.FieldNotNull(FieldSeedKey))
+}
+
+// SeedKeyEqualFold applies the EqualFold predicate on the "seed_key" field.
+func SeedKeyEqualFold(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldEqualFold(FieldSeedKey, v))
+}
+
+// SeedKeyContainsFold applies the ContainsFold predicate on the "seed_key" field.
+func SeedKeyContainsFold(v string) predicate.Announcement {
+	return predicate.Announcement(sql.FieldContainsFold(FieldSeedKey, v))
 }
 
 // TargetingIsNil applies the IsNil predicate on the "targeting" field.
