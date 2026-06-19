@@ -27,6 +27,8 @@ type Announcement struct {
 	Status string `json:"status,omitempty"`
 	// 通知模式: silent(仅铃铛), popup(弹窗提醒)
 	NotifyMode string `json:"notify_mode,omitempty"`
+	// 种子公告幂等键
+	SeedKey *string `json:"seed_key,omitempty"`
 	// 展示条件（JSON 规则）
 	Targeting domain.AnnouncementTargeting `json:"targeting,omitempty"`
 	// 开始展示时间（为空表示立即生效）
@@ -74,7 +76,7 @@ func (*Announcement) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case announcement.FieldID, announcement.FieldCreatedBy, announcement.FieldUpdatedBy:
 			values[i] = new(sql.NullInt64)
-		case announcement.FieldTitle, announcement.FieldContent, announcement.FieldStatus, announcement.FieldNotifyMode:
+		case announcement.FieldTitle, announcement.FieldContent, announcement.FieldStatus, announcement.FieldNotifyMode, announcement.FieldSeedKey:
 			values[i] = new(sql.NullString)
 		case announcement.FieldStartsAt, announcement.FieldEndsAt, announcement.FieldCreatedAt, announcement.FieldUpdatedAt:
 			values[i] = new(sql.NullTime)
@@ -122,6 +124,13 @@ func (_m *Announcement) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field notify_mode", values[i])
 			} else if value.Valid {
 				_m.NotifyMode = value.String
+			}
+		case announcement.FieldSeedKey:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field seed_key", values[i])
+			} else if value.Valid {
+				_m.SeedKey = new(string)
+				*_m.SeedKey = value.String
 			}
 		case announcement.FieldTargeting:
 			if value, ok := values[i].(*[]byte); !ok {
@@ -223,6 +232,11 @@ func (_m *Announcement) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("notify_mode=")
 	builder.WriteString(_m.NotifyMode)
+	builder.WriteString(", ")
+	if v := _m.SeedKey; v != nil {
+		builder.WriteString("seed_key=")
+		builder.WriteString(*v)
+	}
 	builder.WriteString(", ")
 	builder.WriteString("targeting=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Targeting))

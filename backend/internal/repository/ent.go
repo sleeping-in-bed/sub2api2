@@ -79,6 +79,13 @@ func InitEnt(cfg *config.Config) (*ent.Client, *sql.DB, error) {
 		return nil, nil, fmt.Errorf("validate config after secret bootstrap: %w", err)
 	}
 
+	announcementSeedCtx, announcementSeedCancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer announcementSeedCancel()
+	if err := ensureInitialAnnouncements(announcementSeedCtx, drv.DB()); err != nil {
+		_ = client.Close()
+		return nil, nil, err
+	}
+
 	// SIMPLE 模式：启动时补齐各平台默认分组。
 	// - anthropic/openai/gemini: 确保存在 <platform>-default
 	// - antigravity: 仅要求存在 >=2 个未软删除分组（用于 claude/gemini 混合调度场景）

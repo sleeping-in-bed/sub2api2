@@ -64,6 +64,20 @@ func (_c *AnnouncementCreate) SetNillableNotifyMode(v *string) *AnnouncementCrea
 	return _c
 }
 
+// SetSeedKey sets the "seed_key" field.
+func (_c *AnnouncementCreate) SetSeedKey(v string) *AnnouncementCreate {
+	_c.mutation.SetSeedKey(v)
+	return _c
+}
+
+// SetNillableSeedKey sets the "seed_key" field if the given value is not nil.
+func (_c *AnnouncementCreate) SetNillableSeedKey(v *string) *AnnouncementCreate {
+	if v != nil {
+		_c.SetSeedKey(*v)
+	}
+	return _c
+}
+
 // SetTargeting sets the "targeting" field.
 func (_c *AnnouncementCreate) SetTargeting(v domain.AnnouncementTargeting) *AnnouncementCreate {
 	_c.mutation.SetTargeting(v)
@@ -264,6 +278,11 @@ func (_c *AnnouncementCreate) check() error {
 			return &ValidationError{Name: "notify_mode", err: fmt.Errorf(`ent: validator failed for field "Announcement.notify_mode": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.SeedKey(); ok {
+		if err := announcement.SeedKeyValidator(v); err != nil {
+			return &ValidationError{Name: "seed_key", err: fmt.Errorf(`ent: validator failed for field "Announcement.seed_key": %w`, err)}
+		}
+	}
 	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`ent: missing required field "Announcement.created_at"`)}
 	}
@@ -312,6 +331,10 @@ func (_c *AnnouncementCreate) createSpec() (*Announcement, *sqlgraph.CreateSpec)
 	if value, ok := _c.mutation.NotifyMode(); ok {
 		_spec.SetField(announcement.FieldNotifyMode, field.TypeString, value)
 		_node.NotifyMode = value
+	}
+	if value, ok := _c.mutation.SeedKey(); ok {
+		_spec.SetField(announcement.FieldSeedKey, field.TypeString, value)
+		_node.SeedKey = &value
 	}
 	if value, ok := _c.mutation.Targeting(); ok {
 		_spec.SetField(announcement.FieldTargeting, field.TypeJSON, value)
@@ -454,6 +477,24 @@ func (u *AnnouncementUpsert) SetNotifyMode(v string) *AnnouncementUpsert {
 // UpdateNotifyMode sets the "notify_mode" field to the value that was provided on create.
 func (u *AnnouncementUpsert) UpdateNotifyMode() *AnnouncementUpsert {
 	u.SetExcluded(announcement.FieldNotifyMode)
+	return u
+}
+
+// SetSeedKey sets the "seed_key" field.
+func (u *AnnouncementUpsert) SetSeedKey(v string) *AnnouncementUpsert {
+	u.Set(announcement.FieldSeedKey, v)
+	return u
+}
+
+// UpdateSeedKey sets the "seed_key" field to the value that was provided on create.
+func (u *AnnouncementUpsert) UpdateSeedKey() *AnnouncementUpsert {
+	u.SetExcluded(announcement.FieldSeedKey)
+	return u
+}
+
+// ClearSeedKey clears the value of the "seed_key" field.
+func (u *AnnouncementUpsert) ClearSeedKey() *AnnouncementUpsert {
+	u.SetNull(announcement.FieldSeedKey)
 	return u
 }
 
@@ -669,6 +710,27 @@ func (u *AnnouncementUpsertOne) SetNotifyMode(v string) *AnnouncementUpsertOne {
 func (u *AnnouncementUpsertOne) UpdateNotifyMode() *AnnouncementUpsertOne {
 	return u.Update(func(s *AnnouncementUpsert) {
 		s.UpdateNotifyMode()
+	})
+}
+
+// SetSeedKey sets the "seed_key" field.
+func (u *AnnouncementUpsertOne) SetSeedKey(v string) *AnnouncementUpsertOne {
+	return u.Update(func(s *AnnouncementUpsert) {
+		s.SetSeedKey(v)
+	})
+}
+
+// UpdateSeedKey sets the "seed_key" field to the value that was provided on create.
+func (u *AnnouncementUpsertOne) UpdateSeedKey() *AnnouncementUpsertOne {
+	return u.Update(func(s *AnnouncementUpsert) {
+		s.UpdateSeedKey()
+	})
+}
+
+// ClearSeedKey clears the value of the "seed_key" field.
+func (u *AnnouncementUpsertOne) ClearSeedKey() *AnnouncementUpsertOne {
+	return u.Update(func(s *AnnouncementUpsert) {
+		s.ClearSeedKey()
 	})
 }
 
@@ -1069,6 +1131,27 @@ func (u *AnnouncementUpsertBulk) SetNotifyMode(v string) *AnnouncementUpsertBulk
 func (u *AnnouncementUpsertBulk) UpdateNotifyMode() *AnnouncementUpsertBulk {
 	return u.Update(func(s *AnnouncementUpsert) {
 		s.UpdateNotifyMode()
+	})
+}
+
+// SetSeedKey sets the "seed_key" field.
+func (u *AnnouncementUpsertBulk) SetSeedKey(v string) *AnnouncementUpsertBulk {
+	return u.Update(func(s *AnnouncementUpsert) {
+		s.SetSeedKey(v)
+	})
+}
+
+// UpdateSeedKey sets the "seed_key" field to the value that was provided on create.
+func (u *AnnouncementUpsertBulk) UpdateSeedKey() *AnnouncementUpsertBulk {
+	return u.Update(func(s *AnnouncementUpsert) {
+		s.UpdateSeedKey()
+	})
+}
+
+// ClearSeedKey clears the value of the "seed_key" field.
+func (u *AnnouncementUpsertBulk) ClearSeedKey() *AnnouncementUpsertBulk {
+	return u.Update(func(s *AnnouncementUpsert) {
+		s.ClearSeedKey()
 	})
 }
 

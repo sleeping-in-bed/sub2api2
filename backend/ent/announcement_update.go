@@ -86,6 +86,26 @@ func (_u *AnnouncementUpdate) SetNillableNotifyMode(v *string) *AnnouncementUpda
 	return _u
 }
 
+// SetSeedKey sets the "seed_key" field.
+func (_u *AnnouncementUpdate) SetSeedKey(v string) *AnnouncementUpdate {
+	_u.mutation.SetSeedKey(v)
+	return _u
+}
+
+// SetNillableSeedKey sets the "seed_key" field if the given value is not nil.
+func (_u *AnnouncementUpdate) SetNillableSeedKey(v *string) *AnnouncementUpdate {
+	if v != nil {
+		_u.SetSeedKey(*v)
+	}
+	return _u
+}
+
+// ClearSeedKey clears the value of the "seed_key" field.
+func (_u *AnnouncementUpdate) ClearSeedKey() *AnnouncementUpdate {
+	_u.mutation.ClearSeedKey()
+	return _u
+}
+
 // SetTargeting sets the "targeting" field.
 func (_u *AnnouncementUpdate) SetTargeting(v domain.AnnouncementTargeting) *AnnouncementUpdate {
 	_u.mutation.SetTargeting(v)
@@ -305,6 +325,11 @@ func (_u *AnnouncementUpdate) check() error {
 			return &ValidationError{Name: "notify_mode", err: fmt.Errorf(`ent: validator failed for field "Announcement.notify_mode": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SeedKey(); ok {
+		if err := announcement.SeedKeyValidator(v); err != nil {
+			return &ValidationError{Name: "seed_key", err: fmt.Errorf(`ent: validator failed for field "Announcement.seed_key": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -331,6 +356,12 @@ func (_u *AnnouncementUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if value, ok := _u.mutation.NotifyMode(); ok {
 		_spec.SetField(announcement.FieldNotifyMode, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SeedKey(); ok {
+		_spec.SetField(announcement.FieldSeedKey, field.TypeString, value)
+	}
+	if _u.mutation.SeedKeyCleared() {
+		_spec.ClearField(announcement.FieldSeedKey, field.TypeString)
 	}
 	if value, ok := _u.mutation.Targeting(); ok {
 		_spec.SetField(announcement.FieldTargeting, field.TypeJSON, value)
@@ -489,6 +520,26 @@ func (_u *AnnouncementUpdateOne) SetNillableNotifyMode(v *string) *AnnouncementU
 	if v != nil {
 		_u.SetNotifyMode(*v)
 	}
+	return _u
+}
+
+// SetSeedKey sets the "seed_key" field.
+func (_u *AnnouncementUpdateOne) SetSeedKey(v string) *AnnouncementUpdateOne {
+	_u.mutation.SetSeedKey(v)
+	return _u
+}
+
+// SetNillableSeedKey sets the "seed_key" field if the given value is not nil.
+func (_u *AnnouncementUpdateOne) SetNillableSeedKey(v *string) *AnnouncementUpdateOne {
+	if v != nil {
+		_u.SetSeedKey(*v)
+	}
+	return _u
+}
+
+// ClearSeedKey clears the value of the "seed_key" field.
+func (_u *AnnouncementUpdateOne) ClearSeedKey() *AnnouncementUpdateOne {
+	_u.mutation.ClearSeedKey()
 	return _u
 }
 
@@ -724,6 +775,11 @@ func (_u *AnnouncementUpdateOne) check() error {
 			return &ValidationError{Name: "notify_mode", err: fmt.Errorf(`ent: validator failed for field "Announcement.notify_mode": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.SeedKey(); ok {
+		if err := announcement.SeedKeyValidator(v); err != nil {
+			return &ValidationError{Name: "seed_key", err: fmt.Errorf(`ent: validator failed for field "Announcement.seed_key": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -767,6 +823,12 @@ func (_u *AnnouncementUpdateOne) sqlSave(ctx context.Context) (_node *Announceme
 	}
 	if value, ok := _u.mutation.NotifyMode(); ok {
 		_spec.SetField(announcement.FieldNotifyMode, field.TypeString, value)
+	}
+	if value, ok := _u.mutation.SeedKey(); ok {
+		_spec.SetField(announcement.FieldSeedKey, field.TypeString, value)
+	}
+	if _u.mutation.SeedKeyCleared() {
+		_spec.ClearField(announcement.FieldSeedKey, field.TypeString)
 	}
 	if value, ok := _u.mutation.Targeting(); ok {
 		_spec.SetField(announcement.FieldTargeting, field.TypeJSON, value)
