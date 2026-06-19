@@ -105,7 +105,10 @@ type CreateAccountRequest struct {
 	Concurrency             int            `json:"concurrency"`
 	Priority                int            `json:"priority"`
 	RateMultiplier          *float64       `json:"rate_multiplier"`
-	TokenMultiplier         *float64       `json:"token_multiplier"`
+	InputTokenMultiplier    *float64       `json:"input_token_multiplier"`
+	OutputTokenMultiplier   *float64       `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier *float64  `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier *float64      `json:"cache_read_token_multiplier"`
 	LoadFactor              *int           `json:"load_factor"`
 	GroupIDs                []int64        `json:"group_ids"`
 	ExpiresAt               *int64         `json:"expires_at"`
@@ -125,7 +128,10 @@ type UpdateAccountRequest struct {
 	Concurrency             *int           `json:"concurrency"`
 	Priority                *int           `json:"priority"`
 	RateMultiplier          *float64       `json:"rate_multiplier"`
-	TokenMultiplier         *float64       `json:"token_multiplier"`
+	InputTokenMultiplier    *float64       `json:"input_token_multiplier"`
+	OutputTokenMultiplier   *float64       `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier *float64  `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier *float64      `json:"cache_read_token_multiplier"`
 	LoadFactor              *int           `json:"load_factor"`
 	Status                  string         `json:"status" binding:"omitempty,oneof=active inactive error"`
 	GroupIDs                *[]int64       `json:"group_ids"`
@@ -143,7 +149,10 @@ type BulkUpdateAccountsRequest struct {
 	Concurrency             *int                      `json:"concurrency"`
 	Priority                *int                      `json:"priority"`
 	RateMultiplier          *float64                  `json:"rate_multiplier"`
-	TokenMultiplier         *float64                  `json:"token_multiplier"`
+	InputTokenMultiplier    *float64                  `json:"input_token_multiplier"`
+	OutputTokenMultiplier   *float64                  `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier *float64             `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier *float64                 `json:"cache_read_token_multiplier"`
 	LoadFactor              *int                      `json:"load_factor"`
 	Status                  string                    `json:"status" binding:"omitempty,oneof=active inactive error"`
 	Schedulable             *bool                     `json:"schedulable"`
@@ -525,8 +534,20 @@ func (h *AccountHandler) Create(c *gin.Context) {
 		response.BadRequest(c, "rate_multiplier must be >= 0")
 		return
 	}
-	if req.TokenMultiplier != nil && *req.TokenMultiplier <= 0 {
-		response.BadRequest(c, "token_multiplier must be > 0")
+	if err := validateAccountTokenMultiplierRequest(req.InputTokenMultiplier, "input_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := validateAccountTokenMultiplierRequest(req.OutputTokenMultiplier, "output_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := validateAccountTokenMultiplierRequest(req.CacheCreationTokenMultiplier, "cache_creation_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := validateAccountTokenMultiplierRequest(req.CacheReadTokenMultiplier, "cache_read_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
 		return
 	}
 	// base_rpm 输入校验：负值归零，超过 10000 截断
@@ -551,7 +572,10 @@ func (h *AccountHandler) Create(c *gin.Context) {
 			Concurrency:           req.Concurrency,
 			Priority:              req.Priority,
 			RateMultiplier:        req.RateMultiplier,
-			TokenMultiplier:       req.TokenMultiplier,
+			InputTokenMultiplier:  req.InputTokenMultiplier,
+			OutputTokenMultiplier: req.OutputTokenMultiplier,
+			CacheCreationTokenMultiplier: req.CacheCreationTokenMultiplier,
+			CacheReadTokenMultiplier: req.CacheReadTokenMultiplier,
 			LoadFactor:            req.LoadFactor,
 			GroupIDs:              req.GroupIDs,
 			ExpiresAt:             req.ExpiresAt,
@@ -614,8 +638,20 @@ func (h *AccountHandler) Update(c *gin.Context) {
 		response.BadRequest(c, "rate_multiplier must be >= 0")
 		return
 	}
-	if req.TokenMultiplier != nil && *req.TokenMultiplier <= 0 {
-		response.BadRequest(c, "token_multiplier must be > 0")
+	if err := validateAccountTokenMultiplierRequest(req.InputTokenMultiplier, "input_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := validateAccountTokenMultiplierRequest(req.OutputTokenMultiplier, "output_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := validateAccountTokenMultiplierRequest(req.CacheCreationTokenMultiplier, "cache_creation_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := validateAccountTokenMultiplierRequest(req.CacheReadTokenMultiplier, "cache_read_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
 		return
 	}
 	// base_rpm 输入校验：负值归零，超过 10000 截断
@@ -634,7 +670,10 @@ func (h *AccountHandler) Update(c *gin.Context) {
 		Concurrency:           req.Concurrency, // 指针类型，nil 表示未提供
 		Priority:              req.Priority,    // 指针类型，nil 表示未提供
 		RateMultiplier:        req.RateMultiplier,
-		TokenMultiplier:       req.TokenMultiplier,
+		InputTokenMultiplier:  req.InputTokenMultiplier,
+		OutputTokenMultiplier: req.OutputTokenMultiplier,
+		CacheCreationTokenMultiplier: req.CacheCreationTokenMultiplier,
+		CacheReadTokenMultiplier: req.CacheReadTokenMultiplier,
 		LoadFactor:            req.LoadFactor,
 		Status:                req.Status,
 		GroupIDs:              req.GroupIDs,
@@ -689,6 +728,13 @@ func (h *AccountHandler) scheduleOpenAIResponsesProbe(account *service.Account) 
 		}()
 		h.accountTestService.ProbeOpenAIAPIKeyResponsesSupport(context.Background(), accountID)
 	}()
+}
+
+func validateAccountTokenMultiplierRequest(value *float64, field string) error {
+	if value != nil && *value <= 0 {
+		return errors.New(field + " must be > 0")
+	}
+	return nil
 }
 
 // Delete handles deleting an account
@@ -1541,8 +1587,20 @@ func (h *AccountHandler) BulkUpdate(c *gin.Context) {
 		response.BadRequest(c, "rate_multiplier must be >= 0")
 		return
 	}
-	if req.TokenMultiplier != nil && *req.TokenMultiplier <= 0 {
-		response.BadRequest(c, "token_multiplier must be > 0")
+	if err := validateAccountTokenMultiplierRequest(req.InputTokenMultiplier, "input_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := validateAccountTokenMultiplierRequest(req.OutputTokenMultiplier, "output_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := validateAccountTokenMultiplierRequest(req.CacheCreationTokenMultiplier, "cache_creation_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
+	if err := validateAccountTokenMultiplierRequest(req.CacheReadTokenMultiplier, "cache_read_token_multiplier"); err != nil {
+		response.BadRequest(c, err.Error())
 		return
 	}
 	if len(req.AccountIDs) == 0 && req.Filters == nil {
@@ -1560,7 +1618,10 @@ func (h *AccountHandler) BulkUpdate(c *gin.Context) {
 		req.Concurrency != nil ||
 		req.Priority != nil ||
 		req.RateMultiplier != nil ||
-		req.TokenMultiplier != nil ||
+		req.InputTokenMultiplier != nil ||
+		req.OutputTokenMultiplier != nil ||
+		req.CacheCreationTokenMultiplier != nil ||
+		req.CacheReadTokenMultiplier != nil ||
 		req.LoadFactor != nil ||
 		req.Status != "" ||
 		req.Schedulable != nil ||
@@ -1581,7 +1642,10 @@ func (h *AccountHandler) BulkUpdate(c *gin.Context) {
 		Concurrency:           req.Concurrency,
 		Priority:              req.Priority,
 		RateMultiplier:        req.RateMultiplier,
-		TokenMultiplier:       req.TokenMultiplier,
+		InputTokenMultiplier:  req.InputTokenMultiplier,
+		OutputTokenMultiplier: req.OutputTokenMultiplier,
+		CacheCreationTokenMultiplier: req.CacheCreationTokenMultiplier,
+		CacheReadTokenMultiplier: req.CacheReadTokenMultiplier,
 		LoadFactor:            req.LoadFactor,
 		Status:                req.Status,
 		Schedulable:           req.Schedulable,

@@ -632,6 +632,122 @@
           />
           <p class="input-hint">{{ t('admin.accounts.billingRateMultiplierHint') }}</p>
         </div>
+        <div>
+          <div class="mb-3 flex items-center justify-between">
+            <label
+              id="bulk-edit-input-token-multiplier-label"
+              class="input-label mb-0"
+              for="bulk-edit-input-token-multiplier-enabled"
+            >
+              {{ t('admin.accounts.inputTokenRateMultiplier') }}
+            </label>
+            <input
+              v-model="enableInputTokenMultiplier"
+              id="bulk-edit-input-token-multiplier-enabled"
+              type="checkbox"
+              aria-controls="bulk-edit-input-token-multiplier"
+              class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            />
+          </div>
+          <input
+            v-model.number="inputTokenMultiplier"
+            id="bulk-edit-input-token-multiplier"
+            type="number"
+            min="0.001"
+            step="0.01"
+            :disabled="!enableInputTokenMultiplier"
+            class="input"
+            :class="!enableInputTokenMultiplier && 'cursor-not-allowed opacity-50'"
+            aria-labelledby="bulk-edit-input-token-multiplier-label"
+          />
+        </div>
+        <div>
+          <div class="mb-3 flex items-center justify-between">
+            <label
+              id="bulk-edit-output-token-multiplier-label"
+              class="input-label mb-0"
+              for="bulk-edit-output-token-multiplier-enabled"
+            >
+              {{ t('admin.accounts.outputTokenRateMultiplier') }}
+            </label>
+            <input
+              v-model="enableOutputTokenMultiplier"
+              id="bulk-edit-output-token-multiplier-enabled"
+              type="checkbox"
+              aria-controls="bulk-edit-output-token-multiplier"
+              class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            />
+          </div>
+          <input
+            v-model.number="outputTokenMultiplier"
+            id="bulk-edit-output-token-multiplier"
+            type="number"
+            min="0.001"
+            step="0.01"
+            :disabled="!enableOutputTokenMultiplier"
+            class="input"
+            :class="!enableOutputTokenMultiplier && 'cursor-not-allowed opacity-50'"
+            aria-labelledby="bulk-edit-output-token-multiplier-label"
+          />
+        </div>
+        <div>
+          <div class="mb-3 flex items-center justify-between">
+            <label
+              id="bulk-edit-cache-creation-token-multiplier-label"
+              class="input-label mb-0"
+              for="bulk-edit-cache-creation-token-multiplier-enabled"
+            >
+              {{ t('admin.accounts.cacheCreationTokenRateMultiplier') }}
+            </label>
+            <input
+              v-model="enableCacheCreationTokenMultiplier"
+              id="bulk-edit-cache-creation-token-multiplier-enabled"
+              type="checkbox"
+              aria-controls="bulk-edit-cache-creation-token-multiplier"
+              class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            />
+          </div>
+          <input
+            v-model.number="cacheCreationTokenMultiplier"
+            id="bulk-edit-cache-creation-token-multiplier"
+            type="number"
+            min="0.001"
+            step="0.01"
+            :disabled="!enableCacheCreationTokenMultiplier"
+            class="input"
+            :class="!enableCacheCreationTokenMultiplier && 'cursor-not-allowed opacity-50'"
+            aria-labelledby="bulk-edit-cache-creation-token-multiplier-label"
+          />
+        </div>
+        <div>
+          <div class="mb-3 flex items-center justify-between">
+            <label
+              id="bulk-edit-cache-read-token-multiplier-label"
+              class="input-label mb-0"
+              for="bulk-edit-cache-read-token-multiplier-enabled"
+            >
+              {{ t('admin.accounts.cacheReadTokenRateMultiplier') }}
+            </label>
+            <input
+              v-model="enableCacheReadTokenMultiplier"
+              id="bulk-edit-cache-read-token-multiplier-enabled"
+              type="checkbox"
+              aria-controls="bulk-edit-cache-read-token-multiplier"
+              class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            />
+          </div>
+          <input
+            v-model.number="cacheReadTokenMultiplier"
+            id="bulk-edit-cache-read-token-multiplier"
+            type="number"
+            min="0.001"
+            step="0.01"
+            :disabled="!enableCacheReadTokenMultiplier"
+            class="input"
+            :class="!enableCacheReadTokenMultiplier && 'cursor-not-allowed opacity-50'"
+            aria-labelledby="bulk-edit-cache-read-token-multiplier-label"
+          />
+        </div>
       </div>
 
       <!-- Status -->
@@ -1257,6 +1373,10 @@ const enableConcurrency = ref(false)
 const enableLoadFactor = ref(false)
 const enablePriority = ref(false)
 const enableRateMultiplier = ref(false)
+const enableInputTokenMultiplier = ref(false)
+const enableOutputTokenMultiplier = ref(false)
+const enableCacheCreationTokenMultiplier = ref(false)
+const enableCacheReadTokenMultiplier = ref(false)
 const enableStatus = ref(false)
 const enableGroups = ref(false)
 const enableOpenAIPassthrough = ref(false)
@@ -1285,6 +1405,10 @@ const concurrency = ref(1)
 const loadFactor = ref<number | null>(null)
 const priority = ref(1)
 const rateMultiplier = ref(1)
+const inputTokenMultiplier = ref(1)
+const outputTokenMultiplier = ref(1)
+const cacheCreationTokenMultiplier = ref(1)
+const cacheReadTokenMultiplier = ref(1)
 const status = ref<'active' | 'inactive'>('active')
 const groupIds = ref<number[]>([])
 const openaiPassthroughEnabled = ref(false)
@@ -1465,6 +1589,18 @@ const buildUpdatePayload = (): Record<string, unknown> | null => {
 
   if (enableRateMultiplier.value) {
     updates.rate_multiplier = rateMultiplier.value
+  }
+  if (enableInputTokenMultiplier.value) {
+    updates.input_token_multiplier = inputTokenMultiplier.value
+  }
+  if (enableOutputTokenMultiplier.value) {
+    updates.output_token_multiplier = outputTokenMultiplier.value
+  }
+  if (enableCacheCreationTokenMultiplier.value) {
+    updates.cache_creation_token_multiplier = cacheCreationTokenMultiplier.value
+  }
+  if (enableCacheReadTokenMultiplier.value) {
+    updates.cache_read_token_multiplier = cacheReadTokenMultiplier.value
   }
 
   if (enableStatus.value) {
@@ -1648,6 +1784,10 @@ const handleSubmit = async () => {
     enableLoadFactor.value ||
     enablePriority.value ||
     enableRateMultiplier.value ||
+    enableInputTokenMultiplier.value ||
+    enableOutputTokenMultiplier.value ||
+    enableCacheCreationTokenMultiplier.value ||
+    enableCacheReadTokenMultiplier.value ||
     enableStatus.value ||
     enableGroups.value ||
     enableOpenAIWSMode.value ||
@@ -1750,6 +1890,10 @@ watch(
       enableLoadFactor.value = false
       enablePriority.value = false
       enableRateMultiplier.value = false
+      enableInputTokenMultiplier.value = false
+      enableOutputTokenMultiplier.value = false
+      enableCacheCreationTokenMultiplier.value = false
+      enableCacheReadTokenMultiplier.value = false
       enableStatus.value = false
       enableGroups.value = false
       enableOpenAIPassthrough.value = false
@@ -1775,6 +1919,10 @@ watch(
       loadFactor.value = null
       priority.value = 1
       rateMultiplier.value = 1
+      inputTokenMultiplier.value = 1
+      outputTokenMultiplier.value = 1
+      cacheCreationTokenMultiplier.value = 1
+      cacheReadTokenMultiplier.value = 1
       status.value = 'active'
       groupIds.value = []
       openaiOAuthResponsesWebSocketV2Mode.value = OPENAI_WS_MODE_OFF

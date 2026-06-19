@@ -265,6 +265,55 @@ func TestGatewayServiceRecordUsage_UsageLogWriteErrorDoesNotSkipBilling(t *testi
 	require.Equal(t, 1, quotaSvc.quotaCalls)
 }
 
+func TestGatewayServiceRecordUsage_AccountTokenMultipliersScaleBillingAndTokens(t *testing.T) {
+	usageRepo := &openAIRecordUsageLogRepoStub{inserted: true}
+	userRepo := &openAIRecordUsageUserRepoStub{}
+	subRepo := &openAIRecordUsageSubRepoStub{}
+	quotaSvc := &openAIRecordUsageAPIKeyQuotaStub{}
+	svc := newGatewayRecordUsageServiceForTest(usageRepo, userRepo, subRepo)
+	account := &Account{
+		ID: 704,
+		Extra: map[string]any{
+			accountInputTokenMultiplierExtraKey:  100.0,
+			accountOutputTokenMultiplierExtraKey: 100.0,
+		},
+	}
+
+	err := svc.RecordUsage(context.Background(), &RecordUsageInput{
+		Result: &ForwardResult{
+			RequestID: "gateway_token_multiplier",
+			Usage: ClaudeUsage{
+				InputTokens:  10,
+				OutputTokens: 6,
+			},
+			Model:    "claude-sonnet-4",
+			Duration: time.Second,
+		},
+		APIKey: &APIKey{
+			ID:    504,
+			Quota: 100,
+		},
+		User:          &User{ID: 604},
+		Account:       account,
+		APIKeyService: quotaSvc,
+	})
+
+	require.NoError(t, err)
+	require.NotNil(t, usageRepo.lastLog)
+
+	expected, calcErr := svc.billingService.CalculateCost("claude-sonnet-4", UsageTokens{
+		InputTokens:  10,
+		OutputTokens: 6,
+	}, 1.1)
+	require.NoError(t, calcErr)
+	require.Equal(t, 1000, usageRepo.lastLog.InputTokens)
+	require.Equal(t, 600, usageRepo.lastLog.OutputTokens)
+	require.InDelta(t, expected.TotalCost*100, usageRepo.lastLog.TotalCost, 1e-10)
+	require.InDelta(t, expected.ActualCost*100, usageRepo.lastLog.ActualCost, 1e-10)
+	require.InDelta(t, expected.ActualCost*100, userRepo.lastAmount, 1e-10)
+	require.InDelta(t, expected.ActualCost*100, quotaSvc.lastAmount, 1e-10)
+}
+
 func TestGatewayServiceRecordUsageWithLongContext_BillingUsesDetachedContext(t *testing.T) {
 	usageRepo := &openAIRecordUsageLogRepoStub{inserted: false, err: context.DeadlineExceeded}
 	userRepo := &openAIRecordUsageUserRepoStub{}

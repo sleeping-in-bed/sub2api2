@@ -128,23 +128,26 @@ func TestAdminService_BulkUpdateAccounts_AllSuccessIDs(t *testing.T) {
 	require.Len(t, result.Results, 3)
 }
 
-func TestAdminService_BulkUpdateAccounts_MergesTokenMultiplierIntoExtra(t *testing.T) {
+func TestAdminService_BulkUpdateAccounts_MergesTokenMultipliersIntoExtra(t *testing.T) {
 	repo := &accountRepoStubForBulkUpdate{}
 	svc := &adminServiceImpl{accountRepo: repo}
 
-	tokenMultiplier := 1.25
+	inputTokenMultiplier := 2.0
+	cacheReadTokenMultiplier := 0.5
 	input := &BulkUpdateAccountsInput{
-		AccountIDs:      []int64{1, 2},
-		Extra:           map[string]any{"base_rpm": 300},
-		TokenMultiplier: &tokenMultiplier,
+		AccountIDs:               []int64{1, 2},
+		Extra:                    map[string]any{"base_rpm": 300},
+		InputTokenMultiplier:     &inputTokenMultiplier,
+		CacheReadTokenMultiplier: &cacheReadTokenMultiplier,
 	}
 
 	result, err := svc.BulkUpdateAccounts(context.Background(), input)
 	require.NoError(t, err)
 	require.Equal(t, 2, result.Success)
 	require.Equal(t, map[string]any{
-		"base_rpm":         300,
-		"token_multiplier": 1.25,
+		"base_rpm":                    300,
+		"input_token_multiplier":      2.0,
+		"cache_read_token_multiplier": 0.5,
 	}, repo.bulkUpdatePayload.Extra)
 	require.Equal(t, map[string]any{"base_rpm": 300}, input.Extra)
 }

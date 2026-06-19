@@ -170,7 +170,10 @@ type Account struct {
 	LoadFactor              *int            `json:"load_factor,omitempty"`
 	Priority                int             `json:"priority"`
 	RateMultiplier          float64         `json:"rate_multiplier"`
-	TokenMultiplier         float64         `json:"token_multiplier"`
+	InputTokenMultiplier    float64         `json:"input_token_multiplier"`
+	OutputTokenMultiplier   float64         `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier float64    `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier float64        `json:"cache_read_token_multiplier"`
 	Status                  string          `json:"status"`
 	ErrorMessage            string          `json:"error_message"`
 	LastUsedAt              *time.Time      `json:"last_used_at"`

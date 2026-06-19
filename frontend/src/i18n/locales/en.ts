@@ -3655,9 +3655,10 @@ export default {
       priorityHint: 'Lower value accounts are used first',
       billingRateMultiplier: 'Billing Rate Multiplier',
       billingRateMultiplierHint: '0 = free, affects account billing only',
-      tokenRateMultiplier: 'Token Multiplier',
-      tokenRateMultiplierHint:
-        'Decimals are allowed. Recorded and displayed tokens are multiplied by this value and rounded to integers.',
+      inputTokenRateMultiplier: 'Input Token Multiplier',
+      outputTokenRateMultiplier: 'Output Token Multiplier',
+      cacheCreationTokenRateMultiplier: 'Cache Create Token Multiplier',
+      cacheReadTokenRateMultiplier: 'Cache Read Token Multiplier',
       expiresAt: 'Expires At',
       expiresAtHint: 'Leave empty for no expiration',
       higherPriorityFirst: 'Lower value means higher priority',

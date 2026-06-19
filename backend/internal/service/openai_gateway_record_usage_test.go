@@ -1028,6 +1028,55 @@ func TestOpenAIGatewayServiceRecordUsage_ServiceTierFlexHalvesCost(t *testing.T)
 	require.InDelta(t, baseCost.TotalCost*0.5, usageRepo.lastLog.TotalCost, 1e-10)
 }
 
+func TestOpenAIGatewayServiceRecordUsage_AccountTokenMultipliersScaleBillingAndTokens(t *testing.T) {
+	usageRepo := &openAIRecordUsageLogRepoStub{inserted: true}
+	userRepo := &openAIRecordUsageUserRepoStub{}
+	subRepo := &openAIRecordUsageSubRepoStub{}
+	quotaSvc := &openAIRecordUsageAPIKeyQuotaStub{}
+	svc := newOpenAIRecordUsageServiceForTest(usageRepo, userRepo, subRepo, nil)
+	usage := OpenAIUsage{
+		InputTokens:         120,
+		OutputTokens:        30,
+		CacheReadInputTokens: 20,
+	}
+	account := &Account{
+		ID: 3017,
+		Extra: map[string]any{
+			accountInputTokenMultiplierExtraKey:  100.0,
+			accountOutputTokenMultiplierExtraKey: 100.0,
+			accountCacheReadTokenMultiplierExtraKey: 100.0,
+		},
+	}
+
+	err := svc.RecordUsage(context.Background(), &OpenAIRecordUsageInput{
+		Result: &OpenAIForwardResult{
+			RequestID: "resp_account_token_multiplier",
+			Usage:      usage,
+			Model:      "gpt-5.4",
+			Duration:   time.Second,
+		},
+		APIKey: &APIKey{
+			ID:    1017,
+			Quota: 100,
+		},
+		User:          &User{ID: 2017},
+		Account:       account,
+		APIKeyService: quotaSvc,
+	})
+
+	require.NoError(t, err)
+	require.NotNil(t, usageRepo.lastLog)
+
+	expected := expectedOpenAICost(t, svc, "gpt-5.4", usage, 1.1)
+	require.Equal(t, 10000, usageRepo.lastLog.InputTokens)
+	require.Equal(t, 3000, usageRepo.lastLog.OutputTokens)
+	require.Equal(t, 2000, usageRepo.lastLog.CacheReadTokens)
+	require.InDelta(t, expected.TotalCost*100, usageRepo.lastLog.TotalCost, 1e-10)
+	require.InDelta(t, expected.ActualCost*100, usageRepo.lastLog.ActualCost, 1e-10)
+	require.InDelta(t, expected.ActualCost*100, userRepo.lastAmount, 1e-10)
+	require.InDelta(t, expected.ActualCost*100, quotaSvc.lastAmount, 1e-10)
+}
+
 func TestNormalizeOpenAIServiceTier(t *testing.T) {
 	t.Run("fast maps to priority", func(t *testing.T) {
 		got := normalizeOpenAIServiceTier(" fast ")

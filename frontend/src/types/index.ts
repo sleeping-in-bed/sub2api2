@@ -842,7 +842,10 @@ export interface Account {
   current_concurrency?: number // Real-time concurrency count from Redis
   priority: number
   rate_multiplier?: number // Account billing multiplier (>=0, 0 means free)
-  token_multiplier?: number // Account token multiplier (>0, affects recorded/displayed tokens only)
+  input_token_multiplier?: number
+  output_token_multiplier?: number
+  cache_creation_token_multiplier?: number
+  cache_read_token_multiplier?: number
   status: 'active' | 'inactive' | 'error'
   error_message: string | null
   last_used_at: string | null
@@ -1034,7 +1037,10 @@ export interface CreateAccountRequest {
   load_factor?: number | null
   priority?: number
   rate_multiplier?: number // Account billing multiplier (>=0, 0 means free)
-  token_multiplier?: number
+  input_token_multiplier?: number
+  output_token_multiplier?: number
+  cache_creation_token_multiplier?: number
+  cache_read_token_multiplier?: number
   group_ids?: number[]
   expires_at?: number | null
   auto_pause_on_expired?: boolean
@@ -1052,7 +1058,10 @@ export interface UpdateAccountRequest {
   load_factor?: number | null
   priority?: number
   rate_multiplier?: number // Account billing multiplier (>=0, 0 means free)
-  token_multiplier?: number
+  input_token_multiplier?: number
+  output_token_multiplier?: number
+  cache_creation_token_multiplier?: number
+  cache_read_token_multiplier?: number
   schedulable?: boolean
   status?: 'active' | 'inactive' | 'error'
   group_ids?: number[]

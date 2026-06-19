@@ -2470,7 +2470,7 @@
         <ProxySelector v-model="form.proxy_id" :proxies="proxies" />
       </div>
 
-      <div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div class="grid grid-cols-2 gap-4 lg:grid-cols-3">
         <div>
           <label class="input-label">{{ t('admin.accounts.concurrency') }}</label>
           <input v-model.number="form.concurrency" type="number" min="1" class="input"
@@ -2500,9 +2500,20 @@
           <p class="input-hint">{{ t('admin.accounts.billingRateMultiplierHint') }}</p>
         </div>
         <div>
-          <label class="input-label">{{ t('admin.accounts.tokenRateMultiplier') }}</label>
-          <input v-model.number="form.token_multiplier" type="number" min="0.001" step="0.001" class="input" />
-          <p class="input-hint">{{ t('admin.accounts.tokenRateMultiplierHint') }}</p>
+          <label class="input-label">{{ t('admin.accounts.inputTokenRateMultiplier') }}</label>
+          <input v-model.number="form.input_token_multiplier" type="number" min="0.001" step="0.001" class="input" />
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.outputTokenRateMultiplier') }}</label>
+          <input v-model.number="form.output_token_multiplier" type="number" min="0.001" step="0.001" class="input" />
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.cacheCreationTokenRateMultiplier') }}</label>
+          <input v-model.number="form.cache_creation_token_multiplier" type="number" min="0.001" step="0.001" class="input" />
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.cacheReadTokenRateMultiplier') }}</label>
+          <input v-model.number="form.cache_read_token_multiplier" type="number" min="0.001" step="0.001" class="input" />
         </div>
       </div>
       <div class="border-t border-gray-200 pt-4 dark:border-dark-600">
@@ -3697,7 +3708,10 @@ const form = reactive({
   load_factor: null as number | null,
   priority: 1,
   rate_multiplier: 1,
-  token_multiplier: 1,
+  input_token_multiplier: 1,
+  output_token_multiplier: 1,
+  cache_creation_token_multiplier: 1,
+  cache_read_token_multiplier: 1,
   group_ids: [] as number[],
   expires_at: null as number | null
 })
@@ -4213,7 +4227,10 @@ const resetForm = () => {
   form.load_factor = null
   form.priority = 1
   form.rate_multiplier = 1
-  form.token_multiplier = 1
+  form.input_token_multiplier = 1
+  form.output_token_multiplier = 1
+  form.cache_creation_token_multiplier = 1
+  form.cache_read_token_multiplier = 1
   form.group_ids = []
   form.expires_at = null
   accountCategory.value = 'oauth-based'
@@ -4788,7 +4805,10 @@ const createAccountAndFinish = async (
     load_factor: form.load_factor ?? undefined,
     priority: form.priority,
     rate_multiplier: form.rate_multiplier,
-    token_multiplier: form.token_multiplier,
+    input_token_multiplier: form.input_token_multiplier,
+    output_token_multiplier: form.output_token_multiplier,
+    cache_creation_token_multiplier: form.cache_creation_token_multiplier,
+    cache_read_token_multiplier: form.cache_read_token_multiplier,
     group_ids: form.group_ids,
     expires_at: form.expires_at,
     auto_pause_on_expired: autoPauseOnExpired.value

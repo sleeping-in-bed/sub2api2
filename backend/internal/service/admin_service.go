@@ -286,7 +286,10 @@ type CreateAccountInput struct {
 	Concurrency        int
 	Priority           int
 	RateMultiplier     *float64 // 账号计费倍率（>=0，允许 0）
-	TokenMultiplier    *float64 // 账号 token 倍率（>0，仅影响 token 记录与展示）
+	InputTokenMultiplier         *float64
+	OutputTokenMultiplier        *float64
+	CacheCreationTokenMultiplier *float64
+	CacheReadTokenMultiplier     *float64
 	LoadFactor         *int
 	GroupIDs           []int64
 	ExpiresAt          *int64
@@ -308,7 +311,10 @@ type UpdateAccountInput struct {
 	Concurrency           *int     // 使用指针区分"未提供"和"设置为0"
 	Priority              *int     // 使用指针区分"未提供"和"设置为0"
 	RateMultiplier        *float64 // 账号计费倍率（>=0，允许 0）
-	TokenMultiplier       *float64 // 账号 token 倍率（>0，仅影响 token 记录与展示）
+	InputTokenMultiplier         *float64
+	OutputTokenMultiplier        *float64
+	CacheCreationTokenMultiplier *float64
+	CacheReadTokenMultiplier     *float64
 	LoadFactor            *int
 	Status                string
 	GroupIDs              *[]int64
@@ -332,7 +338,10 @@ type BulkUpdateAccountsInput struct {
 	GroupIDs       *[]int64
 	Credentials    map[string]any
 	Extra          map[string]any
-	TokenMultiplier *float64
+	InputTokenMultiplier         *float64
+	OutputTokenMultiplier        *float64
+	CacheCreationTokenMultiplier *float64
+	CacheReadTokenMultiplier     *float64
 	// SkipMixedChannelCheck skips the mixed channel risk check when binding groups.
 	// This should only be set when the caller has explicitly confirmed the risk.
 	SkipMixedChannelCheck bool
@@ -2609,14 +2618,14 @@ func (s *adminServiceImpl) CreateAccount(ctx context.Context, input *CreateAccou
 		Status:      StatusActive,
 		Schedulable: true,
 	}
-	if input.TokenMultiplier != nil {
-		if *input.TokenMultiplier <= 0 {
-			return nil, errors.New("token_multiplier must be > 0")
-		}
-		if account.Extra == nil {
-			account.Extra = map[string]any{}
-		}
-		account.Extra[accountTokenMultiplierExtraKey] = *input.TokenMultiplier
+	if err := applyTokenMultipliersToExtra(
+		account,
+		input.InputTokenMultiplier,
+		input.OutputTokenMultiplier,
+		input.CacheCreationTokenMultiplier,
+		input.CacheReadTokenMultiplier,
+	); err != nil {
+		return nil, err
 	}
 	// 预计算固定时间重置的下次重置时间
 	if account.Extra != nil {
@@ -2735,14 +2744,14 @@ func (s *adminServiceImpl) UpdateAccount(ctx context.Context, id int64, input *U
 		ComputeQuotaResetAt(account.Extra)
 		NormalizeFixedQuotaWindows(account.Extra)
 	}
-	if input.TokenMultiplier != nil {
-		if *input.TokenMultiplier <= 0 {
-			return nil, errors.New("token_multiplier must be > 0")
-		}
-		if account.Extra == nil {
-			account.Extra = map[string]any{}
-		}
-		account.Extra[accountTokenMultiplierExtraKey] = *input.TokenMultiplier
+	if err := applyTokenMultipliersToExtra(
+		account,
+		input.InputTokenMultiplier,
+		input.OutputTokenMultiplier,
+		input.CacheCreationTokenMultiplier,
+		input.CacheReadTokenMultiplier,
+	); err != nil {
+		return nil, err
 	}
 	if input.ProxyID != nil {
 		// 0 表示清除代理（前端发送 0 而不是 null 来表达清除意图）
@@ -2893,17 +2902,32 @@ func (s *adminServiceImpl) BulkUpdateAccounts(ctx context.Context, input *BulkUp
 			return nil, errors.New("rate_multiplier must be >= 0")
 		}
 	}
-	if input.TokenMultiplier != nil && *input.TokenMultiplier <= 0 {
-		return nil, errors.New("token_multiplier must be > 0")
+	if err := validateOptionalTokenMultiplier("input_token_multiplier", input.InputTokenMultiplier); err != nil {
+		return nil, err
+	}
+	if err := validateOptionalTokenMultiplier("output_token_multiplier", input.OutputTokenMultiplier); err != nil {
+		return nil, err
+	}
+	if err := validateOptionalTokenMultiplier("cache_creation_token_multiplier", input.CacheCreationTokenMultiplier); err != nil {
+		return nil, err
+	}
+	if err := validateOptionalTokenMultiplier("cache_read_token_multiplier", input.CacheReadTokenMultiplier); err != nil {
+		return nil, err
 	}
 
 	extraUpdates := input.Extra
-	if input.TokenMultiplier != nil {
-		extraUpdates = make(map[string]any, len(input.Extra)+1)
+	if input.InputTokenMultiplier != nil ||
+		input.OutputTokenMultiplier != nil ||
+		input.CacheCreationTokenMultiplier != nil ||
+		input.CacheReadTokenMultiplier != nil {
+		extraUpdates = make(map[string]any, len(input.Extra)+4)
 		for key, value := range input.Extra {
 			extraUpdates[key] = value
 		}
-		extraUpdates[accountTokenMultiplierExtraKey] = *input.TokenMultiplier
+		setOptionalTokenMultiplierExtra(extraUpdates, accountInputTokenMultiplierExtraKey, input.InputTokenMultiplier)
+		setOptionalTokenMultiplierExtra(extraUpdates, accountOutputTokenMultiplierExtraKey, input.OutputTokenMultiplier)
+		setOptionalTokenMultiplierExtra(extraUpdates, accountCacheCreationTokenMultiplierExtraKey, input.CacheCreationTokenMultiplier)
+		setOptionalTokenMultiplierExtra(extraUpdates, accountCacheReadTokenMultiplierExtraKey, input.CacheReadTokenMultiplier)
 	}
 
 	// Prepare bulk updates for columns and JSONB fields.
@@ -3024,6 +3048,55 @@ func (s *adminServiceImpl) DeleteAccount(ctx context.Context, id int64) error {
 	if err := s.accountRepo.Delete(ctx, id); err != nil {
 		return err
 	}
+	return nil
+}
+
+func validateOptionalTokenMultiplier(field string, value *float64) error {
+	if value != nil && *value <= 0 {
+		return errors.New(field + " must be > 0")
+	}
+	return nil
+}
+
+func setOptionalTokenMultiplierExtra(extra map[string]any, key string, value *float64) {
+	if extra == nil || value == nil {
+		return
+	}
+	extra[key] = *value
+}
+
+func applyTokenMultipliersToExtra(
+	account *Account,
+	inputTokenMultiplier *float64,
+	outputTokenMultiplier *float64,
+	cacheCreationTokenMultiplier *float64,
+	cacheReadTokenMultiplier *float64,
+) error {
+	if err := validateOptionalTokenMultiplier("input_token_multiplier", inputTokenMultiplier); err != nil {
+		return err
+	}
+	if err := validateOptionalTokenMultiplier("output_token_multiplier", outputTokenMultiplier); err != nil {
+		return err
+	}
+	if err := validateOptionalTokenMultiplier("cache_creation_token_multiplier", cacheCreationTokenMultiplier); err != nil {
+		return err
+	}
+	if err := validateOptionalTokenMultiplier("cache_read_token_multiplier", cacheReadTokenMultiplier); err != nil {
+		return err
+	}
+	if inputTokenMultiplier == nil &&
+		outputTokenMultiplier == nil &&
+		cacheCreationTokenMultiplier == nil &&
+		cacheReadTokenMultiplier == nil {
+		return nil
+	}
+	if account.Extra == nil {
+		account.Extra = map[string]any{}
+	}
+	setOptionalTokenMultiplierExtra(account.Extra, accountInputTokenMultiplierExtraKey, inputTokenMultiplier)
+	setOptionalTokenMultiplierExtra(account.Extra, accountOutputTokenMultiplierExtraKey, outputTokenMultiplier)
+	setOptionalTokenMultiplierExtra(account.Extra, accountCacheCreationTokenMultiplierExtraKey, cacheCreationTokenMultiplier)
+	setOptionalTokenMultiplierExtra(account.Extra, accountCacheReadTokenMultiplierExtraKey, cacheReadTokenMultiplier)
 	return nil
 }
 
