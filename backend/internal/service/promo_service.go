@@ -93,15 +93,26 @@ func (s *PromoService) ApplyPromoCode(ctx context.Context, userID int64, code st
 	if code == "" {
 		return nil
 	}
-
-	// 开启事务
-	tx, err := s.entClient.Tx(ctx)
-	if err != nil {
-		return fmt.Errorf("begin transaction: %w", err)
+	if s == nil || s.promoRepo == nil || s.userRepo == nil {
+		return ErrServiceUnavailable
 	}
-	defer func() { _ = tx.Rollback() }()
 
-	txCtx := dbent.NewTxContext(ctx, tx)
+	tx := dbent.TxFromContext(ctx)
+	txCtx := ctx
+	ownsTx := false
+	if tx == nil {
+		if s.entClient == nil {
+			return ErrServiceUnavailable
+		}
+		var err error
+		tx, err = s.entClient.Tx(ctx)
+		if err != nil {
+			return fmt.Errorf("begin transaction: %w", err)
+		}
+		ownsTx = true
+		txCtx = dbent.NewTxContext(ctx, tx)
+		defer func() { _ = tx.Rollback() }()
+	}
 
 	// 在事务中获取并锁定优惠码记录（FOR UPDATE）
 	promoCode, err := s.promoRepo.GetByCodeForUpdate(txCtx, code)
@@ -144,19 +155,23 @@ func (s *PromoService) ApplyPromoCode(ctx context.Context, userID int64, code st
 		return fmt.Errorf("increment used count: %w", err)
 	}
 
-	if err := tx.Commit(); err != nil {
-		return fmt.Errorf("commit transaction: %w", err)
+	if ownsTx {
+		if err := tx.Commit(); err != nil {
+			return fmt.Errorf("commit transaction: %w", err)
+		}
 	}
 
-	s.invalidatePromoCaches(ctx, userID, promoCode.BonusAmount)
+	if ownsTx {
+		s.invalidatePromoCaches(ctx, userID, promoCode.BonusAmount)
 
-	// 失效余额缓存
-	if s.billingCacheService != nil {
-		go func() {
-			cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
-			_ = s.billingCacheService.InvalidateUserBalance(cacheCtx, userID)
-		}()
+		// 失效余额缓存
+		if s.billingCacheService != nil {
+			go func() {
+				cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
+				_ = s.billingCacheService.InvalidateUserBalance(cacheCtx, userID)
+			}()
+		}
 	}
 
 	return nil
