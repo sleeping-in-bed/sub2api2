@@ -192,6 +192,7 @@ export interface PublicSettings {
   force_email_on_third_party_signup: boolean
   registration_email_suffix_whitelist: string[]
   promo_code_enabled: boolean
+  promo_code_required_on_signup: boolean
   password_reset_enabled: boolean
   invitation_code_enabled: boolean
   login_agreement_enabled?: boolean

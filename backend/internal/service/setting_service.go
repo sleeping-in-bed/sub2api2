@@ -774,6 +774,7 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeyForceEmailOnThirdPartySignup,
 		SettingKeyRegistrationEmailSuffixWhitelist,
 		SettingKeyPromoCodeEnabled,
+		SettingKeyPromoCodeRequiredOnSignup,
 		SettingKeyPasswordResetEnabled,
 		SettingKeyInvitationCodeEnabled,
 		SettingKeyTotpEnabled,
@@ -892,13 +893,15 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 	if v, err := strconv.ParseFloat(settings[SettingKeyBalanceLowNotifyThreshold], 64); err == nil && v >= 0 {
 		balanceLowNotifyThreshold = v
 	}
+	promoCodeRequiredOnSignup := settings[SettingKeyPromoCodeRequiredOnSignup] == "true"
 
 	return &PublicSettings{
 		RegistrationEnabled:              settings[SettingKeyRegistrationEnabled] == "true",
 		EmailVerifyEnabled:               emailVerifyEnabled,
 		ForceEmailOnThirdPartySignup:     settings[SettingKeyForceEmailOnThirdPartySignup] == "true",
 		RegistrationEmailSuffixWhitelist: registrationEmailSuffixWhitelist,
-		PromoCodeEnabled:                 settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用
+		PromoCodeEnabled:                 promoCodeRequiredOnSignup || settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用；必填时强制启用
+		PromoCodeRequiredOnSignup:        promoCodeRequiredOnSignup,
 		PasswordResetEnabled:             passwordResetEnabled,
 		InvitationCodeEnabled:            settings[SettingKeyInvitationCodeEnabled] == "true",
 		TotpEnabled:                      settings[SettingKeyTotpEnabled] == "true",
@@ -1213,6 +1216,7 @@ type PublicSettingsInjectionPayload struct {
 	EmailVerifyEnabled               bool                     `json:"email_verify_enabled"`
 	RegistrationEmailSuffixWhitelist []string                 `json:"registration_email_suffix_whitelist"`
 	PromoCodeEnabled                 bool                     `json:"promo_code_enabled"`
+	PromoCodeRequiredOnSignup        bool                     `json:"promo_code_required_on_signup"`
 	PasswordResetEnabled             bool                     `json:"password_reset_enabled"`
 	InvitationCodeEnabled            bool                     `json:"invitation_code_enabled"`
 	TotpEnabled                      bool                     `json:"totp_enabled"`
@@ -1279,6 +1283,7 @@ func (s *SettingService) GetPublicSettingsForInjection(ctx context.Context) (any
 		EmailVerifyEnabled:               settings.EmailVerifyEnabled,
 		RegistrationEmailSuffixWhitelist: settings.RegistrationEmailSuffixWhitelist,
 		PromoCodeEnabled:                 settings.PromoCodeEnabled,
+		PromoCodeRequiredOnSignup:        settings.PromoCodeRequiredOnSignup,
 		PasswordResetEnabled:             settings.PasswordResetEnabled,
 		InvitationCodeEnabled:            settings.InvitationCodeEnabled,
 		TotpEnabled:                      settings.TotpEnabled,
@@ -1747,7 +1752,11 @@ func (s *SettingService) buildSystemSettingsUpdates(ctx context.Context, setting
 		return nil, fmt.Errorf("marshal registration email suffix whitelist: %w", err)
 	}
 	updates[SettingKeyRegistrationEmailSuffixWhitelist] = string(registrationEmailSuffixWhitelistJSON)
+	if settings.PromoCodeRequiredOnSignup {
+		settings.PromoCodeEnabled = true
+	}
 	updates[SettingKeyPromoCodeEnabled] = strconv.FormatBool(settings.PromoCodeEnabled)
+	updates[SettingKeyPromoCodeRequiredOnSignup] = strconv.FormatBool(settings.PromoCodeRequiredOnSignup)
 	updates[SettingKeyPasswordResetEnabled] = strconv.FormatBool(settings.PasswordResetEnabled)
 	updates[SettingKeyFrontendURL] = settings.FrontendURL
 	updates[SettingKeyInvitationCodeEnabled] = strconv.FormatBool(settings.InvitationCodeEnabled)
@@ -2483,11 +2492,23 @@ func (s *SettingService) GetRegistrationEmailSuffixWhitelist(ctx context.Context
 
 // IsPromoCodeEnabled 检查是否启用优惠码功能
 func (s *SettingService) IsPromoCodeEnabled(ctx context.Context) bool {
+	if s.IsPromoCodeRequiredOnSignup(ctx) {
+		return true
+	}
 	value, err := s.settingRepo.GetValue(ctx, SettingKeyPromoCodeEnabled)
 	if err != nil {
 		return true // 默认启用
 	}
 	return value != "false"
+}
+
+// IsPromoCodeRequiredOnSignup 检查注册时是否必须填写有效优惠码。
+func (s *SettingService) IsPromoCodeRequiredOnSignup(ctx context.Context) bool {
+	value, err := s.settingRepo.GetValue(ctx, SettingKeyPromoCodeRequiredOnSignup)
+	if err != nil {
+		return false // 默认关闭
+	}
+	return value == "true"
 }
 
 // IsInvitationCodeEnabled 检查是否启用邀请码注册功能
@@ -2803,6 +2824,7 @@ func (s *SettingService) InitializeDefaultSettings(ctx context.Context) error {
 		SettingKeyEmailVerifyEnabled:                        "false",
 		SettingKeyRegistrationEmailSuffixWhitelist:          "[]",
 		SettingKeyPromoCodeEnabled:                          "true", // 默认启用优惠码功能
+		SettingKeyPromoCodeRequiredOnSignup:                 "false",
 		SettingKeyLoginAgreementEnabled:                     "false",
 		SettingKeyLoginAgreementMode:                        defaultLoginAgreementMode,
 		SettingKeyLoginAgreementUpdatedAt:                   defaultLoginAgreementDate,
@@ -2983,7 +3005,8 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 		RegistrationEnabled:              settings[SettingKeyRegistrationEnabled] == "true",
 		EmailVerifyEnabled:               emailVerifyEnabled,
 		RegistrationEmailSuffixWhitelist: ParseRegistrationEmailSuffixWhitelist(settings[SettingKeyRegistrationEmailSuffixWhitelist]),
-		PromoCodeEnabled:                 settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用
+		PromoCodeEnabled:                 settings[SettingKeyPromoCodeRequiredOnSignup] == "true" || settings[SettingKeyPromoCodeEnabled] != "false", // 默认启用；必填时强制启用
+		PromoCodeRequiredOnSignup:        settings[SettingKeyPromoCodeRequiredOnSignup] == "true",
 		PasswordResetEnabled:             emailVerifyEnabled && settings[SettingKeyPasswordResetEnabled] == "true",
 		FrontendURL:                      settings[SettingKeyFrontendURL],
 		InvitationCodeEnabled:            settings[SettingKeyInvitationCodeEnabled] == "true",

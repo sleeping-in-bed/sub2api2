@@ -315,6 +315,17 @@ func TestAuthService_Register_DoesNotSnapshotOnDisabled(t *testing.T) {
 	require.Empty(t, quotaRepo.bulkInsertCalls, "registration rejected before user creation must not snapshot")
 }
 
+func TestAuthService_Register_PromoCodeRequiredOnSignup(t *testing.T) {
+	repo := &userRepoStub{}
+	service := newAuthService(repo, map[string]string{
+		SettingKeyRegistrationEnabled:       "true",
+		SettingKeyPromoCodeRequiredOnSignup: "true",
+	}, nil, nil)
+
+	_, _, err := service.RegisterWithVerification(context.Background(), "user@test.com", "password", "", "", "", "")
+	require.ErrorIs(t, err, ErrPromoCodeRequired)
+}
+
 func TestAuthService_Register_EmailVerifyEnabledButServiceNotConfigured(t *testing.T) {
 	repo := &userRepoStub{}
 	// 邮件验证开启但 emailCache 为 nil（emailService 未配置）
