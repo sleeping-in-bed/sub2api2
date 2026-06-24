@@ -155,9 +155,9 @@
               class="input pl-11 pr-10"
               :class="{
                 'border-green-500 focus:border-green-500 focus:ring-green-500': promoValidation.valid,
-                'border-red-500 focus:border-red-500 focus:ring-red-500': promoValidation.invalid
+                'border-red-500 focus:border-red-500 focus:ring-red-500': promoValidation.invalid || errors.promo_code
               }"
-              :placeholder="t('auth.promoCodePlaceholder')"
+              :placeholder="promoCodeRequiredOnSignup ? t('auth.promoCodePlaceholderRequired') : t('auth.promoCodePlaceholder')"
               @input="handlePromoCodeInput"
             />
             <!-- Validation indicator -->
@@ -174,6 +174,9 @@
               <Icon name="exclamationCircle" size="md" class="text-red-500" />
             </div>
           </div>
+          <p v-if="errors.promo_code" class="input-error-text">
+            {{ errors.promo_code }}
+          </p>
           <!-- Promo code validation result -->
           <transition name="fade">
             <div v-if="promoValidation.valid" class="mt-2 flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 dark:bg-green-900/20">
@@ -207,6 +210,13 @@
           @reject="rejectLoginAgreement"
           @open="showAgreementModal = true"
         />
+
+        <div
+          v-if="errorMessage"
+          class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-300"
+        >
+          {{ errorMessage }}
+        </div>
 
         <!-- Submit Button -->
         <button
@@ -407,6 +417,7 @@ const formData = reactive({
 const errors = reactive({
   email: '',
   password: '',
+  promo_code: '',
   turnstile: '',
   invitation_code: ''
 })
@@ -414,6 +425,7 @@ const errors = reactive({
 const validationToastMessage = computed(() =>
   errors.email ||
   errors.password ||
+  errors.promo_code ||
   (invitationValidation.invalid ? invitationValidation.message : '') ||
   errors.invitation_code ||
   (promoValidation.invalid ? promoValidation.message : '') ||
@@ -581,6 +593,8 @@ function handlePromoCodeInput(): void {
   const code = formData.promo_code.trim()
 
   // Clear previous validation
+  errorMessage.value = ''
+  errors.promo_code = ''
   promoValidation.valid = false
   promoValidation.invalid = false
   promoValidation.bonusAmount = null
@@ -754,8 +768,10 @@ function buildEmailSuffixNotAllowedMessage(): string {
 
 function validateForm(): boolean {
   // Reset errors
+  errorMessage.value = ''
   errors.email = ''
   errors.password = ''
+  errors.promo_code = ''
   errors.turnstile = ''
   errors.invitation_code = ''
 
@@ -793,7 +809,7 @@ function validateForm(): boolean {
   }
 
   if (promoCodeRequiredOnSignup.value && !formData.promo_code.trim()) {
-    errorMessage.value = t('auth.promoCodeRequired')
+    errors.promo_code = t('auth.promoCodeRequired')
     isValid = false
   }
 
@@ -829,23 +845,23 @@ async function handleRegister(): Promise<void> {
   if (promoCodeRequiredOnSignup.value || formData.promo_code.trim()) {
     // If promo code is being validated, wait
     if (promoValidating.value) {
-      errorMessage.value = t('auth.promoCodeValidating')
+      errors.promo_code = t('auth.promoCodeValidating')
       return
     }
     if (!formData.promo_code.trim()) {
-      errorMessage.value = t('auth.promoCodeRequired')
+      errors.promo_code = t('auth.promoCodeRequired')
       return
     }
     // If promo code is invalid, block submission
     if (promoValidation.invalid) {
-      errorMessage.value = t('auth.promoCodeInvalidCannotRegister')
+      errors.promo_code = t('auth.promoCodeInvalidCannotRegister')
       return
     }
     if (!promoValidation.valid) {
-      errorMessage.value = t('auth.promoCodeValidating')
+      errors.promo_code = t('auth.promoCodeValidating')
       await validatePromoCodeDebounced(formData.promo_code.trim())
       if (!promoValidation.valid) {
-        errorMessage.value = t('auth.promoCodeInvalidCannotRegister')
+        errors.promo_code = t('auth.promoCodeInvalidCannotRegister')
         return
       }
     }
