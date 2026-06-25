@@ -385,6 +385,11 @@ type RefundRequestBody struct {
 	Reason string `json:"reason"`
 }
 
+type CreateInvoiceRequestBody struct {
+	TitleName string `json:"title_name"`
+	TaxID     string `json:"tax_id"`
+}
+
 // RequestRefund submits a refund request for a completed order.
 // POST /api/v1/payment/orders/:id/refund-request
 func (h *PaymentHandler) RequestRefund(c *gin.Context) {
@@ -410,6 +415,65 @@ func (h *PaymentHandler) RequestRefund(c *gin.Context) {
 		return
 	}
 	response.Success(c, gin.H{"message": "refund requested"})
+}
+
+// RequestInvoice submits invoice information for a completed order.
+// POST /api/v1/payment/orders/:id/invoice
+func (h *PaymentHandler) RequestInvoice(c *gin.Context) {
+	subject, ok := requireAuth(c)
+	if !ok {
+		return
+	}
+
+	orderID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "Invalid order ID")
+		return
+	}
+
+	var req CreateInvoiceRequestBody
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "Invalid request: "+err.Error())
+		return
+	}
+
+	invoice, err := h.paymentService.RequestInvoice(c.Request.Context(), orderID, subject.UserID, req.TitleName, req.TaxID)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	response.Success(c, sanitizePaymentInvoiceForResponse(invoice))
+}
+
+// DownloadInvoice streams an issued invoice file to the authenticated user.
+// GET /api/v1/payment/invoices/:id/download
+func (h *PaymentHandler) DownloadInvoice(c *gin.Context) {
+	subject, ok := requireAuth(c)
+	if !ok {
+		return
+	}
+
+	invoiceID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "Invalid invoice ID")
+		return
+	}
+
+	invoice, absolutePath, err := h.paymentService.PrepareUserInvoiceDownload(c.Request.Context(), invoiceID, subject.UserID)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+
+	if invoice.ContentType != nil && strings.TrimSpace(*invoice.ContentType) != "" {
+		c.Header("Content-Type", strings.TrimSpace(*invoice.ContentType))
+	}
+
+	fileName := fmt.Sprintf("invoice-%d.pdf", invoice.ID)
+	if invoice.FileName != nil && strings.TrimSpace(*invoice.FileName) != "" {
+		fileName = strings.TrimSpace(*invoice.FileName)
+	}
+	c.FileAttachment(absolutePath, fileName)
 }
 
 // GetRefundEligibleProviders returns provider instance IDs that allow user refund.
@@ -581,6 +645,23 @@ type PaymentOrderResult struct {
 	RefundRequestReason *string    `json:"refund_request_reason,omitempty"`
 	PlanID              *int64     `json:"plan_id,omitempty"`
 	ProviderInstanceID  *string    `json:"provider_instance_id,omitempty"`
+	Invoice             *PaymentInvoiceResult `json:"invoice,omitempty"`
+}
+
+type PaymentInvoiceResult struct {
+	ID         int64      `json:"id"`
+	OrderID    int64      `json:"order_id"`
+	UserID     int64      `json:"user_id"`
+	TitleName  string     `json:"title_name"`
+	TaxID      string     `json:"tax_id"`
+	Status     string     `json:"status"`
+	RequestedAt time.Time `json:"requested_at"`
+	IssuedAt   *time.Time `json:"issued_at,omitempty"`
+	FailedAt   *time.Time `json:"failed_at,omitempty"`
+	FailedReason *string  `json:"failed_reason,omitempty"`
+	FileName   *string    `json:"file_name,omitempty"`
+	ContentType *string   `json:"content_type,omitempty"`
+	ByteSize   int64      `json:"byte_size"`
 }
 
 func sanitizePaymentOrdersForResponse(orders []*dbent.PaymentOrder) []PaymentOrderResult {
@@ -619,6 +700,28 @@ func sanitizePaymentOrderForResponse(order *dbent.PaymentOrder) *PaymentOrderRes
 		RefundRequestReason: order.RefundRequestReason,
 		PlanID:              order.PlanID,
 		ProviderInstanceID:  order.ProviderInstanceID,
+		Invoice:             sanitizePaymentInvoiceForResponse(order.Edges.Invoice),
+	}
+}
+
+func sanitizePaymentInvoiceForResponse(invoice *dbent.PaymentInvoice) *PaymentInvoiceResult {
+	if invoice == nil {
+		return nil
+	}
+	return &PaymentInvoiceResult{
+		ID:           invoice.ID,
+		OrderID:      invoice.OrderID,
+		UserID:       invoice.UserID,
+		TitleName:    invoice.TitleName,
+		TaxID:        invoice.TaxID,
+		Status:       invoice.Status,
+		RequestedAt:  invoice.RequestedAt,
+		IssuedAt:     invoice.IssuedAt,
+		FailedAt:     invoice.FailedAt,
+		FailedReason: invoice.FailedReason,
+		FileName:     invoice.FileName,
+		ContentType:  invoice.ContentType,
+		ByteSize:     invoice.ByteSize,
 	}
 }
 

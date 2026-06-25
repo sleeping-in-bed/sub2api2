@@ -62,6 +62,11 @@ export const paymentAPI = {
     return apiClient.post(`/payment/orders/${id}/cancel`)
   },
 
+  /** Submit invoice information for a completed order */
+  createInvoice(id: number, data: { title_name: string; tax_id: string }) {
+    return apiClient.post(`/payment/orders/${id}/invoice`, data)
+  },
+
   /** Verify order payment status with upstream provider */
   verifyOrder(outTradeNo: string) {
     return apiClient.post<PaymentOrder>('/payment/orders/verify', { out_trade_no: outTradeNo })
@@ -80,6 +85,14 @@ export const paymentAPI = {
   /** Request a refund for a completed order */
   requestRefund(id: number, data: { reason: string }) {
     return apiClient.post(`/payment/orders/${id}/refund-request`, data)
+  },
+
+  /** Download an issued invoice */
+  async downloadInvoice(id: number): Promise<Blob> {
+    const response = await apiClient.get(`/payment/invoices/${id}/download`, {
+      responseType: 'blob'
+    })
+    return response.data
   },
 
   /** Get provider instance IDs that allow user refund */

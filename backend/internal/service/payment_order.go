@@ -769,7 +769,10 @@ func normalizePaymentRedirectPath(path string) string {
 // --- Order Queries ---
 
 func (s *PaymentService) GetOrder(ctx context.Context, orderID, userID int64) (*dbent.PaymentOrder, error) {
-	o, err := s.entClient.PaymentOrder.Get(ctx, orderID)
+	o, err := s.entClient.PaymentOrder.Query().
+		Where(paymentorder.IDEQ(orderID)).
+		WithInvoice().
+		Only(ctx)
 	if err != nil {
 		return nil, infraerrors.NotFound("NOT_FOUND", "order not found")
 	}
@@ -780,7 +783,10 @@ func (s *PaymentService) GetOrder(ctx context.Context, orderID, userID int64) (*
 }
 
 func (s *PaymentService) GetOrderByID(ctx context.Context, orderID int64) (*dbent.PaymentOrder, error) {
-	o, err := s.entClient.PaymentOrder.Get(ctx, orderID)
+	o, err := s.entClient.PaymentOrder.Query().
+		Where(paymentorder.IDEQ(orderID)).
+		WithInvoice().
+		Only(ctx)
 	if err != nil {
 		return nil, infraerrors.NotFound("NOT_FOUND", "order not found")
 	}
@@ -788,7 +794,7 @@ func (s *PaymentService) GetOrderByID(ctx context.Context, orderID int64) (*dben
 }
 
 func (s *PaymentService) GetUserOrders(ctx context.Context, userID int64, p OrderListParams) ([]*dbent.PaymentOrder, int, error) {
-	q := s.entClient.PaymentOrder.Query().Where(paymentorder.UserIDEQ(userID))
+	q := s.entClient.PaymentOrder.Query().Where(paymentorder.UserIDEQ(userID)).WithInvoice()
 	if p.Status != "" {
 		q = q.Where(paymentorder.StatusEQ(p.Status))
 	}
@@ -812,7 +818,7 @@ func (s *PaymentService) GetUserOrders(ctx context.Context, userID int64, p Orde
 
 // AdminListOrders returns a paginated list of orders. If userID > 0, filters by user.
 func (s *PaymentService) AdminListOrders(ctx context.Context, userID int64, p OrderListParams) ([]*dbent.PaymentOrder, int, error) {
-	q := s.entClient.PaymentOrder.Query()
+	q := s.entClient.PaymentOrder.Query().WithInvoice()
 	if userID > 0 {
 		q = q.Where(paymentorder.UserIDEQ(userID))
 	}

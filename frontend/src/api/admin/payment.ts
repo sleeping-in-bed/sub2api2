@@ -7,6 +7,7 @@ import { apiClient } from '../client'
 import type {
   DashboardStats,
   PaymentOrder,
+  AdminPaymentInvoice,
   PaymentChannel,
   SubscriptionPlan,
   ProviderInstance
@@ -106,6 +107,47 @@ export const adminPaymentAPI = {
   /** Process a refund */
   refundOrder(id: number, data: { amount: number; reason: string; deduct_balance?: boolean; force?: boolean }) {
     return apiClient.post(`/admin/payment/orders/${id}/refund`, data)
+  },
+
+  // ==================== Invoices ====================
+
+  /** Get invoice requests (paginated, with filters) */
+  getInvoices(params?: {
+    page?: number
+    page_size?: number
+    status?: string
+    keyword?: string
+  }) {
+    return apiClient.get<BasePaginationResponse<AdminPaymentInvoice>>('/admin/payment/invoices', { params })
+  },
+
+  /** Get a specific invoice request */
+  getInvoice(id: number) {
+    return apiClient.get<AdminPaymentInvoice>(`/admin/payment/invoices/${id}`)
+  },
+
+  /** Upload issued invoice PDF */
+  issueInvoice(id: number, file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return apiClient.post(`/admin/payment/invoices/${id}/issue`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+  },
+
+  /** Mark invoice request as failed */
+  failInvoice(id: number, data: { reason: string }) {
+    return apiClient.post(`/admin/payment/invoices/${id}/fail`, data)
+  },
+
+  /** Download issued invoice PDF */
+  async downloadInvoice(id: number): Promise<Blob> {
+    const response = await apiClient.get(`/admin/payment/invoices/${id}/download`, {
+      responseType: 'blob'
+    })
+    return response.data
   },
 
   // ==================== Channels ====================

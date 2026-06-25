@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/Wei-Shaw/sub2api/ent/paymentinvoice"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/user"
 )
@@ -478,6 +479,25 @@ func (_c *PaymentOrderCreate) SetUser(v *User) *PaymentOrderCreate {
 	return _c.SetUserID(v.ID)
 }
 
+// SetInvoiceID sets the "invoice" edge to the PaymentInvoice entity by ID.
+func (_c *PaymentOrderCreate) SetInvoiceID(id int64) *PaymentOrderCreate {
+	_c.mutation.SetInvoiceID(id)
+	return _c
+}
+
+// SetNillableInvoiceID sets the "invoice" edge to the PaymentInvoice entity by ID if the given value is not nil.
+func (_c *PaymentOrderCreate) SetNillableInvoiceID(id *int64) *PaymentOrderCreate {
+	if id != nil {
+		_c = _c.SetInvoiceID(*id)
+	}
+	return _c
+}
+
+// SetInvoice sets the "invoice" edge to the PaymentInvoice entity.
+func (_c *PaymentOrderCreate) SetInvoice(v *PaymentInvoice) *PaymentOrderCreate {
+	return _c.SetInvoiceID(v.ID)
+}
+
 // Mutation returns the PaymentOrderMutation object of the builder.
 func (_c *PaymentOrderCreate) Mutation() *PaymentOrderMutation {
 	return _c.mutation
@@ -868,6 +888,22 @@ func (_c *PaymentOrderCreate) createSpec() (*PaymentOrder, *sqlgraph.CreateSpec)
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UserID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.InvoiceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: false,
+			Table:   paymentorder.InvoiceTable,
+			Columns: []string{paymentorder.InvoiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentinvoice.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

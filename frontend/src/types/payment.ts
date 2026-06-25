@@ -18,6 +18,8 @@ export type OrderStatus =
   | 'REFUNDED'
   | 'REFUND_FAILED'
 
+export type InvoiceStatus = 'REQUESTED' | 'ISSUED' | 'FAILED'
+
 export type PaymentType = 'alipay' | 'wxpay' | 'alipay_direct' | 'wxpay_direct' | 'stripe' | 'easypay' | 'airwallex'
 
 export type OrderType = 'balance' | 'subscription'
@@ -75,9 +77,28 @@ export interface CheckoutInfoResponse {
 
 // ==================== Orders ====================
 
+export interface PaymentInvoice {
+  id: number
+  order_id: number
+  user_id: number
+  title_name: string
+  tax_id: string
+  status: InvoiceStatus
+  requested_at: string
+  issued_at?: string
+  failed_at?: string
+  failed_reason?: string
+  file_name?: string
+  content_type?: string
+  byte_size: number
+}
+
 export interface PaymentOrder {
   id: number
   user_id: number
+  user_email?: string
+  user_name?: string
+  user_notes?: string
   amount: number
   pay_amount: number
   currency?: string
@@ -90,6 +111,8 @@ export interface PaymentOrder {
   expires_at: string
   paid_at?: string
   completed_at?: string
+  failed_at?: string
+  failed_reason?: string
   refund_amount: number
   refund_reason?: string
   refund_requested_at?: string
@@ -97,6 +120,27 @@ export interface PaymentOrder {
   refund_request_reason?: string
   plan_id?: number
   provider_instance_id?: string
+  invoice?: PaymentInvoice
+}
+
+export interface AdminPaymentInvoiceOrder {
+  id: number
+  user_id: number
+  user_email: string
+  user_name: string
+  user_notes?: string
+  out_trade_no: string
+  status: OrderStatus
+  order_type: OrderType
+  payment_type: PaymentType | string
+  amount: number
+  pay_amount: number
+  created_at: string
+  completed_at?: string
+}
+
+export interface AdminPaymentInvoice extends PaymentInvoice {
+  order?: AdminPaymentInvoiceOrder
 }
 
 // ==================== Plans & Channels ====================
