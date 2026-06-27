@@ -431,6 +431,10 @@ export interface SystemSettings {
   site_subtitle: string;
   api_base_url: string;
   contact_info: string;
+  support_chatwoot_enabled: boolean;
+  support_chatwoot_base_url: string;
+  support_chatwoot_website_token: string;
+  support_chatwoot_identity_hash_secret_configured: boolean;
   doc_url: string;
   home_content: string;
   hide_ccs_import_button: boolean;
@@ -698,6 +702,10 @@ export interface UpdateSettingsRequest {
   site_subtitle?: string;
   api_base_url?: string;
   contact_info?: string;
+  support_chatwoot_enabled?: boolean;
+  support_chatwoot_base_url?: string;
+  support_chatwoot_website_token?: string;
+  support_chatwoot_identity_hash_secret?: string;
   doc_url?: string;
   home_content?: string;
   hide_ccs_import_button?: boolean;

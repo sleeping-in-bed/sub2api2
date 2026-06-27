@@ -19,6 +19,18 @@ import type {
   PlatformQuotasResponse,
 } from '@/types'
 
+export interface ChatwootSupportSession {
+  enabled: boolean
+  base_url?: string
+  website_token?: string
+  identifier?: string
+  identifier_hash?: string
+  email?: string
+  name?: string
+  avatar_url?: string
+  custom_attributes?: Record<string, unknown>
+}
+
 /**
  * Get current user profile
  * @returns User profile data
@@ -194,6 +206,11 @@ export async function getMyPlatformQuotas(): Promise<PlatformQuotasResponse> {
   return data
 }
 
+export async function getChatwootSupportSession(): Promise<ChatwootSupportSession> {
+  const { data } = await apiClient.get<ChatwootSupportSession>('/user/support/chatwoot')
+  return data
+}
+
 export const userAPI = {
   getProfile,
   updateProfile,
@@ -210,6 +227,7 @@ export const userAPI = {
   getAffiliateDetail,
   transferAffiliateQuota,
   getMyPlatformQuotas,
+  getChatwootSupportSession,
 }
 
 export default userAPI

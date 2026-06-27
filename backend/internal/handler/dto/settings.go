@@ -133,6 +133,10 @@ type SystemSettings struct {
 	SiteSubtitle                string           `json:"site_subtitle"`
 	APIBaseURL                  string           `json:"api_base_url"`
 	ContactInfo                 string           `json:"contact_info"`
+	SupportChatwootEnabled      bool             `json:"support_chatwoot_enabled"`
+	SupportChatwootBaseURL      string           `json:"support_chatwoot_base_url"`
+	SupportChatwootWebsiteToken string           `json:"support_chatwoot_website_token"`
+	SupportChatwootIdentityHashSecretConfigured bool `json:"support_chatwoot_identity_hash_secret_configured"`
 	DocURL                      string           `json:"doc_url"`
 	HomeContent                 string           `json:"home_content"`
 	HideCcsImportButton         bool             `json:"hide_ccs_import_button"`

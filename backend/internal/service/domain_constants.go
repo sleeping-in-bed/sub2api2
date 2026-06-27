@@ -248,6 +248,10 @@ const (
 	SettingKeySiteSubtitle                = "site_subtitle"                 // 网站副标题
 	SettingKeyAPIBaseURL                  = "api_base_url"                  // API端点地址（用于客户端配置和导入）
 	SettingKeyContactInfo                 = "contact_info"                  // 客服联系方式
+	SettingKeySupportChatwootEnabled      = "support_chatwoot_enabled"      // 是否启用 Chatwoot 客服
+	SettingKeySupportChatwootBaseURL      = "support_chatwoot_base_url"     // Chatwoot 基础 URL
+	SettingKeySupportChatwootWebsiteToken = "support_chatwoot_website_token" // Chatwoot 网站 Token
+	SettingKeySupportChatwootIdentityHashSecret = "support_chatwoot_identity_hash_secret" // Chatwoot 身份校验密钥
 	SettingKeyDocURL                      = "doc_url"                       // 文档链接
 	SettingKeyHomeContent                 = "home_content"                  // 首页内容（支持 Markdown/HTML，或 URL 作为 iframe src）
 	SettingKeyHideCcsImportButton         = "hide_ccs_import_button"        // 是否隐藏 API Keys 页面的导入 CCS 按钮

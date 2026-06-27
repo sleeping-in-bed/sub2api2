@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -23,6 +24,13 @@ import (
 	"github.com/imroc/req/v3"
 	"golang.org/x/sync/singleflight"
 )
+
+type ChatwootSupportConfig struct {
+	Enabled            bool   `json:"enabled"`
+	BaseURL            string `json:"base_url"`
+	WebsiteToken       string `json:"website_token"`
+	IdentityHashSecret string
+}
 
 // CoerceDingTalkCorpPolicyForWrite 是 coerceDeprecatedDingTalkCorpPolicy 的导出版本，
 // 用于 admin handler 在写入路径上对客户端直传的入参做防御性 coerce（前端 UI 虽已无 whitelist 选项，
@@ -710,6 +718,52 @@ func (s *SettingService) GetFrontendURL(ctx context.Context) string {
 	return s.cfg.Server.FrontendURL
 }
 
+func normalizeChatwootBaseURL(raw string) string {
+	return strings.TrimRight(strings.TrimSpace(raw), "/")
+}
+
+func normalizeChatwootWebsiteToken(raw string) string {
+	return strings.TrimSpace(raw)
+}
+
+func (s *SettingService) GetChatwootSupportConfig(ctx context.Context) (*ChatwootSupportConfig, error) {
+	values, err := s.settingRepo.GetMultiple(ctx, []string{
+		SettingKeySupportChatwootEnabled,
+		SettingKeySupportChatwootBaseURL,
+		SettingKeySupportChatwootWebsiteToken,
+		SettingKeySupportChatwootIdentityHashSecret,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("get chatwoot support config: %w", err)
+	}
+
+	cfg := &ChatwootSupportConfig{
+		Enabled:            values[SettingKeySupportChatwootEnabled] == "true",
+		BaseURL:            normalizeChatwootBaseURL(values[SettingKeySupportChatwootBaseURL]),
+		WebsiteToken:       normalizeChatwootWebsiteToken(values[SettingKeySupportChatwootWebsiteToken]),
+		IdentityHashSecret: strings.TrimSpace(values[SettingKeySupportChatwootIdentityHashSecret]),
+	}
+
+	if cfg.BaseURL == "" || cfg.WebsiteToken == "" {
+		cfg.Enabled = false
+	}
+	return cfg, nil
+}
+
+func (s *SettingService) BuildChatwootIdentifierHash(ctx context.Context, identifier string) (string, error) {
+	cfg, err := s.GetChatwootSupportConfig(ctx)
+	if err != nil {
+		return "", err
+	}
+	if strings.TrimSpace(cfg.IdentityHashSecret) == "" {
+		return "", nil
+	}
+
+	mac := hmac.New(sha256.New, []byte(cfg.IdentityHashSecret))
+	_, _ = mac.Write([]byte(strings.TrimSpace(identifier)))
+	return hex.EncodeToString(mac.Sum(nil)), nil
+}
+
 // GetCyberSessionBlockRuntime 返回 (开关, TTL)，进程内缓存 ~60s，
 // 模式对齐 IsOpenAIAllowClaudeCodeCodexPluginEnabled（热路径零 DB 往返）。
 // 两个 setting key 在单次 singleflight 里一起读取，减少 DB 往返。
@@ -790,6 +844,9 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		SettingKeySiteSubtitle,
 		SettingKeyAPIBaseURL,
 		SettingKeyContactInfo,
+		SettingKeySupportChatwootEnabled,
+		SettingKeySupportChatwootBaseURL,
+		SettingKeySupportChatwootWebsiteToken,
 		SettingKeyDocURL,
 		SettingKeyHomeContent,
 		SettingKeyHideCcsImportButton,
@@ -1232,6 +1289,9 @@ type PublicSettingsInjectionPayload struct {
 	SiteSubtitle                     string                   `json:"site_subtitle"`
 	APIBaseURL                       string                   `json:"api_base_url"`
 	ContactInfo                      string                   `json:"contact_info"`
+	SupportChatwootEnabled           bool                     `json:"support_chatwoot_enabled"`
+	SupportChatwootBaseURL           string                   `json:"support_chatwoot_base_url"`
+	SupportChatwootWebsiteToken      string                   `json:"support_chatwoot_website_token"`
 	DocURL                           string                   `json:"doc_url"`
 	HomeContent                      string                   `json:"home_content"`
 	HideCcsImportButton              bool                     `json:"hide_ccs_import_button"`
@@ -1896,6 +1956,17 @@ func (s *SettingService) buildSystemSettingsUpdates(ctx context.Context, setting
 	updates[SettingKeySiteSubtitle] = settings.SiteSubtitle
 	updates[SettingKeyAPIBaseURL] = settings.APIBaseURL
 	updates[SettingKeyContactInfo] = settings.ContactInfo
+	settings.SupportChatwootBaseURL = normalizeChatwootBaseURL(settings.SupportChatwootBaseURL)
+	settings.SupportChatwootWebsiteToken = normalizeChatwootWebsiteToken(settings.SupportChatwootWebsiteToken)
+	if settings.SupportChatwootBaseURL == "" || settings.SupportChatwootWebsiteToken == "" {
+		settings.SupportChatwootEnabled = false
+	}
+	updates[SettingKeySupportChatwootEnabled] = strconv.FormatBool(settings.SupportChatwootEnabled)
+	updates[SettingKeySupportChatwootBaseURL] = settings.SupportChatwootBaseURL
+	updates[SettingKeySupportChatwootWebsiteToken] = settings.SupportChatwootWebsiteToken
+	if strings.TrimSpace(settings.SupportChatwootIdentityHashSecret) != "" {
+		updates[SettingKeySupportChatwootIdentityHashSecret] = strings.TrimSpace(settings.SupportChatwootIdentityHashSecret)
+	}
 	updates[SettingKeyDocURL] = settings.DocURL
 	updates[SettingKeyHomeContent] = settings.HomeContent
 	updates[SettingKeyHideCcsImportButton] = strconv.FormatBool(settings.HideCcsImportButton)
@@ -3030,6 +3101,10 @@ func (s *SettingService) parseSettings(settings map[string]string) *SystemSettin
 		SiteSubtitle:                     s.getStringOrDefault(settings, SettingKeySiteSubtitle, "Subscription to API Conversion Platform"),
 		APIBaseURL:                       settings[SettingKeyAPIBaseURL],
 		ContactInfo:                      settings[SettingKeyContactInfo],
+		SupportChatwootEnabled:           settings[SettingKeySupportChatwootEnabled] == "true" && normalizeChatwootBaseURL(settings[SettingKeySupportChatwootBaseURL]) != "" && normalizeChatwootWebsiteToken(settings[SettingKeySupportChatwootWebsiteToken]) != "",
+		SupportChatwootBaseURL:           normalizeChatwootBaseURL(settings[SettingKeySupportChatwootBaseURL]),
+		SupportChatwootWebsiteToken:      normalizeChatwootWebsiteToken(settings[SettingKeySupportChatwootWebsiteToken]),
+		SupportChatwootIdentityHashSecretConfigured: strings.TrimSpace(settings[SettingKeySupportChatwootIdentityHashSecret]) != "",
 		DocURL:                           settings[SettingKeyDocURL],
 		HomeContent:                      settings[SettingKeyHomeContent],
 		HideCcsImportButton:              settings[SettingKeyHideCcsImportButton] == "true",

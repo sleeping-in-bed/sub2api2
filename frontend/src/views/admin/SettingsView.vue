@@ -4957,6 +4957,63 @@
                 </p>
               </div>
 
+              <div class="rounded-2xl border border-gray-200 p-4 dark:border-dark-700">
+                <div class="mb-4 flex items-center justify-between gap-4">
+                  <div>
+                    <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {{ t("admin.settings.site.chatwoot.title") }}
+                    </h4>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      {{ t("admin.settings.site.chatwoot.description") }}
+                    </p>
+                  </div>
+                  <Toggle v-model="form.support_chatwoot_enabled" />
+                </div>
+
+                <div class="space-y-4">
+                  <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ t("admin.settings.site.chatwoot.baseUrl") }}
+                    </label>
+                    <input
+                      v-model="form.support_chatwoot_base_url"
+                      type="url"
+                      class="input font-mono text-sm"
+                      :placeholder="t('admin.settings.site.chatwoot.baseUrlPlaceholder')"
+                    />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ t("admin.settings.site.chatwoot.websiteToken") }}
+                    </label>
+                    <input
+                      v-model="form.support_chatwoot_website_token"
+                      type="text"
+                      class="input font-mono text-sm"
+                      :placeholder="t('admin.settings.site.chatwoot.websiteTokenPlaceholder')"
+                    />
+                  </div>
+                  <div>
+                    <label class="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">
+                      {{ t("admin.settings.site.chatwoot.identityHashSecret") }}
+                    </label>
+                    <input
+                      v-model="form.support_chatwoot_identity_hash_secret"
+                      type="password"
+                      class="input font-mono text-sm"
+                      :placeholder="t('admin.settings.site.chatwoot.identityHashSecretPlaceholder')"
+                    />
+                    <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                      {{
+                        form.support_chatwoot_identity_hash_secret_configured
+                          ? t("admin.settings.site.chatwoot.identityHashSecretConfigured")
+                          : t("admin.settings.site.chatwoot.identityHashSecretHint")
+                      }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <!-- Doc URL -->
               <div>
                 <label
@@ -7647,6 +7704,7 @@ type SettingsForm = Omit<
   oidc_connect_client_secret: string;
   github_oauth_client_secret: string;
   google_oauth_client_secret: string;
+  support_chatwoot_identity_hash_secret: string;
   force_email_on_third_party_signup: boolean;
   openai_advanced_scheduler_enabled: boolean;
   // 系统全局平台限额 map；form 内始终归一化为全 4 平台对象（模板非空绑定依赖此不变量）
@@ -7682,6 +7740,11 @@ const form = reactive<SettingsForm>({
   site_subtitle: "Subscription to API Conversion Platform",
   api_base_url: "",
   contact_info: "",
+  support_chatwoot_enabled: false,
+  support_chatwoot_base_url: "",
+  support_chatwoot_website_token: "",
+  support_chatwoot_identity_hash_secret: "",
+  support_chatwoot_identity_hash_secret_configured: false,
   doc_url: "",
   home_content: "",
   backend_mode_enabled: false,
@@ -8520,6 +8583,7 @@ async function loadSettings() {
     form.wechat_connect_open_app_secret = "";
     form.wechat_connect_mp_app_secret = "";
     form.wechat_connect_mobile_app_secret = "";
+    form.support_chatwoot_identity_hash_secret = "";
     const wechatCapabilities = resolveWeChatConnectModeCapabilities(
       settings.wechat_connect_open_enabled,
       settings.wechat_connect_mp_enabled,
@@ -8849,6 +8913,11 @@ async function saveSettings() {
       site_subtitle: form.site_subtitle,
       api_base_url: form.api_base_url,
       contact_info: form.contact_info,
+      support_chatwoot_enabled: form.support_chatwoot_enabled,
+      support_chatwoot_base_url: form.support_chatwoot_base_url,
+      support_chatwoot_website_token: form.support_chatwoot_website_token,
+      support_chatwoot_identity_hash_secret:
+        form.support_chatwoot_identity_hash_secret || undefined,
       doc_url: form.doc_url,
       home_content: form.home_content,
       backend_mode_enabled: form.backend_mode_enabled,

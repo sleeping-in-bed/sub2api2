@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
@@ -22,6 +23,7 @@ type UserHandler struct {
 	emailCache            service.EmailCache
 	affiliateService      *service.AffiliateService
 	userPlatformQuotaRepo service.UserPlatformQuotaRepository
+	supportSettingService *service.SettingService
 }
 
 // NewUserHandler creates a new UserHandler
@@ -41,6 +43,10 @@ func NewUserHandler(
 		affiliateService:      affiliateService,
 		userPlatformQuotaRepo: userPlatformQuotaRepo,
 	}
+}
+
+func (h *UserHandler) SetSupportSettingService(settingService *service.SettingService) {
+	h.supportSettingService = settingService
 }
 
 // GetMyPlatformQuotas GET /user/platform-quotas
@@ -209,6 +215,78 @@ func (h *UserHandler) GetAffiliate(c *gin.Context) {
 		return
 	}
 	response.Success(c, detail)
+}
+
+type chatwootSupportSessionResponse struct {
+	Enabled          bool           `json:"enabled"`
+	BaseURL          string         `json:"base_url,omitempty"`
+	WebsiteToken     string         `json:"website_token,omitempty"`
+	Identifier       string         `json:"identifier,omitempty"`
+	IdentifierHash   string         `json:"identifier_hash,omitempty"`
+	Email            string         `json:"email,omitempty"`
+	Name             string         `json:"name,omitempty"`
+	AvatarURL        string         `json:"avatar_url,omitempty"`
+	CustomAttributes map[string]any `json:"custom_attributes,omitempty"`
+}
+
+// GetChatwootSupportSession returns the current user's Chatwoot session bootstrap payload.
+// GET /api/v1/user/support/chatwoot
+func (h *UserHandler) GetChatwootSupportSession(c *gin.Context) {
+	subject, ok := middleware2.GetAuthSubjectFromContext(c)
+	if !ok {
+		response.Unauthorized(c, "User not authenticated")
+		return
+	}
+	if h.supportSettingService == nil {
+		response.Success(c, chatwootSupportSessionResponse{Enabled: false})
+		return
+	}
+
+	cfg, err := h.supportSettingService.GetChatwootSupportConfig(c.Request.Context())
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	if cfg == nil || !cfg.Enabled {
+		response.Success(c, chatwootSupportSessionResponse{Enabled: false})
+		return
+	}
+
+	user, err := h.userService.GetByID(c.Request.Context(), subject.UserID)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+
+	identifier := fmt.Sprintf("sub2api:%d", user.ID)
+	identifierHash, err := h.supportSettingService.BuildChatwootIdentifierHash(c.Request.Context(), identifier)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+
+	name := strings.TrimSpace(user.Username)
+	if name == "" {
+		name = strings.TrimSpace(user.Email)
+	}
+
+	response.Success(c, chatwootSupportSessionResponse{
+		Enabled:        true,
+		BaseURL:        cfg.BaseURL,
+		WebsiteToken:   cfg.WebsiteToken,
+		Identifier:     identifier,
+		IdentifierHash: identifierHash,
+		Email:          strings.TrimSpace(user.Email),
+		Name:           name,
+		AvatarURL:      strings.TrimSpace(user.AvatarURL),
+		CustomAttributes: map[string]any{
+			"user_id":     user.ID,
+			"role":        user.Role,
+			"balance":     user.Balance,
+			"concurrency": user.Concurrency,
+			"notes":       strings.TrimSpace(user.Notes),
+		},
+	})
 }
 
 // TransferAffiliateQuota transfers all available affiliate quota into current balance.

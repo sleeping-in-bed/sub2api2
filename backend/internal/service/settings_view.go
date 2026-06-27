@@ -133,6 +133,11 @@ type SystemSettings struct {
 	SiteSubtitle                string
 	APIBaseURL                  string
 	ContactInfo                 string
+	SupportChatwootEnabled      bool
+	SupportChatwootBaseURL      string
+	SupportChatwootWebsiteToken string
+	SupportChatwootIdentityHashSecret string
+	SupportChatwootIdentityHashSecretConfigured bool
 	DocURL                      string
 	HomeContent                 string
 	HideCcsImportButton         bool

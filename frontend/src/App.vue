@@ -8,6 +8,7 @@ import { resolveDocumentTitle } from '@/router/title'
 import AnnouncementPopup from '@/components/common/AnnouncementPopup.vue'
 import { useAppStore, useAuthStore, useSubscriptionStore, useAnnouncementStore, useAdminComplianceStore } from '@/stores'
 import { getSetupStatus } from '@/api/setup'
+import { useChatwootSupport } from '@/composables/useChatwootSupport'
 
 const router = useRouter()
 const route = useRoute()
@@ -16,6 +17,8 @@ const authStore = useAuthStore()
 const subscriptionStore = useSubscriptionStore()
 const announcementStore = useAnnouncementStore()
 const adminComplianceStore = useAdminComplianceStore()
+
+useChatwootSupport()
 
 /**
  * Update favicon dynamically

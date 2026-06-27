@@ -217,6 +217,10 @@ func (h *SettingHandler) GetSettings(c *gin.Context) {
 		SiteSubtitle:                           settings.SiteSubtitle,
 		APIBaseURL:                             settings.APIBaseURL,
 		ContactInfo:                            settings.ContactInfo,
+		SupportChatwootEnabled:                 settings.SupportChatwootEnabled,
+		SupportChatwootBaseURL:                 settings.SupportChatwootBaseURL,
+		SupportChatwootWebsiteToken:            settings.SupportChatwootWebsiteToken,
+		SupportChatwootIdentityHashSecretConfigured: settings.SupportChatwootIdentityHashSecretConfigured,
 		DocURL:                                 settings.DocURL,
 		HomeContent:                            settings.HomeContent,
 		HideCcsImportButton:                    settings.HideCcsImportButton,
@@ -504,6 +508,10 @@ type UpdateSettingsRequest struct {
 	SiteSubtitle                string                `json:"site_subtitle"`
 	APIBaseURL                  string                `json:"api_base_url"`
 	ContactInfo                 string                `json:"contact_info"`
+	SupportChatwootEnabled      bool                  `json:"support_chatwoot_enabled"`
+	SupportChatwootBaseURL      string                `json:"support_chatwoot_base_url"`
+	SupportChatwootWebsiteToken string                `json:"support_chatwoot_website_token"`
+	SupportChatwootIdentityHashSecret string          `json:"support_chatwoot_identity_hash_secret"`
 	DocURL                      string                `json:"doc_url"`
 	HomeContent                 string                `json:"home_content"`
 	HideCcsImportButton         bool                  `json:"hide_ccs_import_button"`
@@ -1588,6 +1596,10 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		SiteSubtitle:                           req.SiteSubtitle,
 		APIBaseURL:                             req.APIBaseURL,
 		ContactInfo:                            req.ContactInfo,
+		SupportChatwootEnabled:                 req.SupportChatwootEnabled,
+		SupportChatwootBaseURL:                 req.SupportChatwootBaseURL,
+		SupportChatwootWebsiteToken:            req.SupportChatwootWebsiteToken,
+		SupportChatwootIdentityHashSecret:      req.SupportChatwootIdentityHashSecret,
 		DocURL:                                 req.DocURL,
 		HomeContent:                            req.HomeContent,
 		HideCcsImportButton:                    req.HideCcsImportButton,
@@ -2062,6 +2074,10 @@ func (h *SettingHandler) UpdateSettings(c *gin.Context) {
 		SiteSubtitle:                           updatedSettings.SiteSubtitle,
 		APIBaseURL:                             updatedSettings.APIBaseURL,
 		ContactInfo:                            updatedSettings.ContactInfo,
+		SupportChatwootEnabled:                 updatedSettings.SupportChatwootEnabled,
+		SupportChatwootBaseURL:                 updatedSettings.SupportChatwootBaseURL,
+		SupportChatwootWebsiteToken:            updatedSettings.SupportChatwootWebsiteToken,
+		SupportChatwootIdentityHashSecretConfigured: updatedSettings.SupportChatwootIdentityHashSecretConfigured,
 		DocURL:                                 updatedSettings.DocURL,
 		HomeContent:                            updatedSettings.HomeContent,
 		HideCcsImportButton:                    updatedSettings.HideCcsImportButton,
@@ -2465,6 +2481,15 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	}
 	if before.ContactInfo != after.ContactInfo {
 		changed = append(changed, "contact_info")
+	}
+	if before.SupportChatwootEnabled != after.SupportChatwootEnabled {
+		changed = append(changed, "support_chatwoot_enabled")
+	}
+	if before.SupportChatwootBaseURL != after.SupportChatwootBaseURL {
+		changed = append(changed, "support_chatwoot_base_url")
+	}
+	if before.SupportChatwootWebsiteToken != after.SupportChatwootWebsiteToken {
+		changed = append(changed, "support_chatwoot_website_token")
 	}
 	if before.DocURL != after.DocURL {
 		changed = append(changed, "doc_url")
