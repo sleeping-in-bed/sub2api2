@@ -246,6 +246,20 @@ func (_c *PaymentOrderCreate) SetProviderSnapshot(v map[string]interface{}) *Pay
 	return _c
 }
 
+// SetInvoiceID sets the "invoice_id" field.
+func (_c *PaymentOrderCreate) SetInvoiceID(v int64) *PaymentOrderCreate {
+	_c.mutation.SetInvoiceID(v)
+	return _c
+}
+
+// SetNillableInvoiceID sets the "invoice_id" field if the given value is not nil.
+func (_c *PaymentOrderCreate) SetNillableInvoiceID(v *int64) *PaymentOrderCreate {
+	if v != nil {
+		_c.SetInvoiceID(*v)
+	}
+	return _c
+}
+
 // SetStatus sets the "status" field.
 func (_c *PaymentOrderCreate) SetStatus(v string) *PaymentOrderCreate {
 	_c.mutation.SetStatus(v)
@@ -477,20 +491,6 @@ func (_c *PaymentOrderCreate) SetNillableUpdatedAt(v *time.Time) *PaymentOrderCr
 // SetUser sets the "user" edge to the User entity.
 func (_c *PaymentOrderCreate) SetUser(v *User) *PaymentOrderCreate {
 	return _c.SetUserID(v.ID)
-}
-
-// SetInvoiceID sets the "invoice" edge to the PaymentInvoice entity by ID.
-func (_c *PaymentOrderCreate) SetInvoiceID(id int64) *PaymentOrderCreate {
-	_c.mutation.SetInvoiceID(id)
-	return _c
-}
-
-// SetNillableInvoiceID sets the "invoice" edge to the PaymentInvoice entity by ID if the given value is not nil.
-func (_c *PaymentOrderCreate) SetNillableInvoiceID(id *int64) *PaymentOrderCreate {
-	if id != nil {
-		_c = _c.SetInvoiceID(*id)
-	}
-	return _c
 }
 
 // SetInvoice sets the "invoice" edge to the PaymentInvoice entity.
@@ -892,8 +892,8 @@ func (_c *PaymentOrderCreate) createSpec() (*PaymentOrder, *sqlgraph.CreateSpec)
 	}
 	if nodes := _c.mutation.InvoiceIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   paymentorder.InvoiceTable,
 			Columns: []string{paymentorder.InvoiceColumn},
 			Bidi:    false,
@@ -904,6 +904,7 @@ func (_c *PaymentOrderCreate) createSpec() (*PaymentOrder, *sqlgraph.CreateSpec)
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_node.InvoiceID = &nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -1303,6 +1304,24 @@ func (u *PaymentOrderUpsert) UpdateProviderSnapshot() *PaymentOrderUpsert {
 // ClearProviderSnapshot clears the value of the "provider_snapshot" field.
 func (u *PaymentOrderUpsert) ClearProviderSnapshot() *PaymentOrderUpsert {
 	u.SetNull(paymentorder.FieldProviderSnapshot)
+	return u
+}
+
+// SetInvoiceID sets the "invoice_id" field.
+func (u *PaymentOrderUpsert) SetInvoiceID(v int64) *PaymentOrderUpsert {
+	u.Set(paymentorder.FieldInvoiceID, v)
+	return u
+}
+
+// UpdateInvoiceID sets the "invoice_id" field to the value that was provided on create.
+func (u *PaymentOrderUpsert) UpdateInvoiceID() *PaymentOrderUpsert {
+	u.SetExcluded(paymentorder.FieldInvoiceID)
+	return u
+}
+
+// ClearInvoiceID clears the value of the "invoice_id" field.
+func (u *PaymentOrderUpsert) ClearInvoiceID() *PaymentOrderUpsert {
+	u.SetNull(paymentorder.FieldInvoiceID)
 	return u
 }
 
@@ -2024,6 +2043,27 @@ func (u *PaymentOrderUpsertOne) UpdateProviderSnapshot() *PaymentOrderUpsertOne 
 func (u *PaymentOrderUpsertOne) ClearProviderSnapshot() *PaymentOrderUpsertOne {
 	return u.Update(func(s *PaymentOrderUpsert) {
 		s.ClearProviderSnapshot()
+	})
+}
+
+// SetInvoiceID sets the "invoice_id" field.
+func (u *PaymentOrderUpsertOne) SetInvoiceID(v int64) *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetInvoiceID(v)
+	})
+}
+
+// UpdateInvoiceID sets the "invoice_id" field to the value that was provided on create.
+func (u *PaymentOrderUpsertOne) UpdateInvoiceID() *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateInvoiceID()
+	})
+}
+
+// ClearInvoiceID clears the value of the "invoice_id" field.
+func (u *PaymentOrderUpsertOne) ClearInvoiceID() *PaymentOrderUpsertOne {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.ClearInvoiceID()
 	})
 }
 
@@ -2956,6 +2996,27 @@ func (u *PaymentOrderUpsertBulk) UpdateProviderSnapshot() *PaymentOrderUpsertBul
 func (u *PaymentOrderUpsertBulk) ClearProviderSnapshot() *PaymentOrderUpsertBulk {
 	return u.Update(func(s *PaymentOrderUpsert) {
 		s.ClearProviderSnapshot()
+	})
+}
+
+// SetInvoiceID sets the "invoice_id" field.
+func (u *PaymentOrderUpsertBulk) SetInvoiceID(v int64) *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.SetInvoiceID(v)
+	})
+}
+
+// UpdateInvoiceID sets the "invoice_id" field to the value that was provided on create.
+func (u *PaymentOrderUpsertBulk) UpdateInvoiceID() *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.UpdateInvoiceID()
+	})
+}
+
+// ClearInvoiceID clears the value of the "invoice_id" field.
+func (u *PaymentOrderUpsertBulk) ClearInvoiceID() *PaymentOrderUpsertBulk {
+	return u.Update(func(s *PaymentOrderUpsert) {
+		s.ClearInvoiceID()
 	})
 }
 

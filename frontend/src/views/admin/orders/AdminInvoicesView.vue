@@ -24,15 +24,18 @@
       <DataTable :columns="columns" :data="invoices" :loading="loading">
         <template #cell-order="{ row }">
           <div class="text-sm">
-            <div class="font-medium text-gray-900 dark:text-white">{{ row.order?.out_trade_no || '-' }}</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400">#{{ row.order_id }}</div>
+            <div class="font-medium text-gray-900 dark:text-white">{{ t('payment.invoice.orderCount') }}: {{ row.order_count }}</div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">{{ previewOrderNumbers(row.orders) }}</div>
           </div>
         </template>
         <template #cell-user="{ row }">
           <div class="text-sm">
-            <div class="text-gray-900 dark:text-white">{{ row.order?.user_email || row.order?.user_name || '#' + row.user_id }}</div>
-            <div v-if="row.order?.user_notes" class="text-xs text-gray-500 dark:text-gray-400">{{ row.order.user_notes }}</div>
+            <div class="text-gray-900 dark:text-white">{{ row.orders?.[0]?.user_email || row.orders?.[0]?.user_name || '#' + row.user_id }}</div>
+            <div v-if="row.orders?.[0]?.user_notes" class="text-xs text-gray-500 dark:text-gray-400">{{ row.orders[0].user_notes }}</div>
           </div>
+        </template>
+        <template #cell-total_pay_amount="{ row }">
+          <div class="text-sm font-medium text-gray-900 dark:text-white">¥{{ row.total_pay_amount.toFixed(2) }}</div>
         </template>
         <template #cell-title_name="{ row }">
           <div class="text-sm text-gray-900 dark:text-white">{{ row.title_name }}</div>
@@ -126,24 +129,34 @@
           </div>
         </div>
 
-        <div v-if="selectedInvoice.order" class="border-t border-gray-200 pt-4 dark:border-dark-600">
-          <p class="mb-3 text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('payment.invoice.admin.orderInfo') }}</p>
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div class="border-t border-gray-200 pt-4 dark:border-dark-600">
+          <div class="mb-3 grid grid-cols-1 gap-4 text-sm sm:grid-cols-3">
             <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.orders.orderNo') }}</p>
-              <p class="text-sm text-gray-900 dark:text-white">{{ selectedInvoice.order.out_trade_no }}</p>
-            </div>
-            <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.admin.colUser') }}</p>
-              <p class="text-sm text-gray-900 dark:text-white">{{ selectedInvoice.order.user_email || selectedInvoice.order.user_name }}</p>
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.invoice.orderCount') }}</p>
+              <p class="text-sm text-gray-900 dark:text-white">{{ selectedInvoice.order_count }}</p>
             </div>
             <div>
               <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.orders.amount') }}</p>
-              <p class="text-sm text-gray-900 dark:text-white">{{ selectedInvoice.order.order_type === 'balance' ? '$' : '¥' }}{{ selectedInvoice.order.amount.toFixed(2) }}</p>
+              <p class="text-sm text-gray-900 dark:text-white">¥{{ selectedInvoice.total_pay_amount.toFixed(2) }}</p>
             </div>
-            <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.orders.payAmount') }}</p>
-              <p class="text-sm text-gray-900 dark:text-white">¥{{ selectedInvoice.order.pay_amount.toFixed(2) }}</p>
+          </div>
+          <p class="mb-3 text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('payment.invoice.orderList') }}</p>
+          <div class="space-y-3">
+            <div v-for="order in selectedInvoice.orders || []" :key="order.id" class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-dark-600 dark:bg-dark-800">
+              <div class="grid grid-cols-1 gap-3 text-sm sm:grid-cols-4">
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.orders.orderId') }}</p>
+                  <p class="font-mono text-gray-900 dark:text-white">{{ order.order_uuid }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.admin.colUser') }}</p>
+                  <p class="text-gray-900 dark:text-white">{{ order.user_email || order.user_name || '#' + order.user_id }}</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.orders.payAmount') }}</p>
+                  <p class="text-gray-900 dark:text-white">¥{{ order.pay_amount.toFixed(2) }}</p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -229,6 +242,7 @@ let debounceTimer: ReturnType<typeof setTimeout> | null = null
 const columns = computed((): Column[] => [
   { key: 'order', label: t('payment.invoice.admin.orderColumn') },
   { key: 'user', label: t('payment.admin.colUser') },
+  { key: 'total_pay_amount', label: t('payment.orders.payAmount') },
   { key: 'title_name', label: t('payment.invoice.titleName') },
   { key: 'tax_id', label: t('payment.invoice.taxId') },
   { key: 'status', label: t('payment.invoice.statusLabel') },
@@ -394,6 +408,13 @@ function invoiceStatusClass(status: string): string {
 function formatDateTime(value?: string): string {
   if (!value) return '-'
   return new Date(value).toLocaleString()
+}
+
+function previewOrderNumbers(orders?: AdminPaymentInvoice['orders']): string {
+  if (!orders || orders.length === 0) return '-'
+  const preview = orders.slice(0, 2).map((order) => order.out_trade_no)
+  if (orders.length <= 2) return preview.join(' / ')
+  return `${preview.join(' / ')} +${orders.length - 2}`
 }
 
 onMounted(() => {

@@ -20778,8 +20778,9 @@ type PaymentInvoiceMutation struct {
 	created_at       *time.Time
 	updated_at       *time.Time
 	clearedFields    map[string]struct{}
-	_order           *int64
-	cleared_order    bool
+	orders           map[int64]struct{}
+	removedorders    map[int64]struct{}
+	clearedorders    bool
 	user             *int64
 	cleareduser      bool
 	done             bool
@@ -20883,42 +20884,6 @@ func (m *PaymentInvoiceMutation) IDs(ctx context.Context) ([]int64, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetOrderID sets the "order_id" field.
-func (m *PaymentInvoiceMutation) SetOrderID(i int64) {
-	m._order = &i
-}
-
-// OrderID returns the value of the "order_id" field in the mutation.
-func (m *PaymentInvoiceMutation) OrderID() (r int64, exists bool) {
-	v := m._order
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldOrderID returns the old "order_id" field's value of the PaymentInvoice entity.
-// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *PaymentInvoiceMutation) OldOrderID(ctx context.Context) (v int64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOrderID is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOrderID requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOrderID: %w", err)
-	}
-	return oldValue.OrderID, nil
-}
-
-// ResetOrderID resets all changes to the "order_id" field.
-func (m *PaymentInvoiceMutation) ResetOrderID() {
-	m._order = nil
 }
 
 // SetUserID sets the "user_id" field.
@@ -21608,31 +21573,58 @@ func (m *PaymentInvoiceMutation) ResetUpdatedAt() {
 	m.updated_at = nil
 }
 
-// ClearOrder clears the "order" edge to the PaymentOrder entity.
-func (m *PaymentInvoiceMutation) ClearOrder() {
-	m.cleared_order = true
-	m.clearedFields[paymentinvoice.FieldOrderID] = struct{}{}
+// AddOrderIDs adds the "orders" edge to the PaymentOrder entity by ids.
+func (m *PaymentInvoiceMutation) AddOrderIDs(ids ...int64) {
+	if m.orders == nil {
+		m.orders = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.orders[ids[i]] = struct{}{}
+	}
 }
 
-// OrderCleared reports if the "order" edge to the PaymentOrder entity was cleared.
-func (m *PaymentInvoiceMutation) OrderCleared() bool {
-	return m.cleared_order
+// ClearOrders clears the "orders" edge to the PaymentOrder entity.
+func (m *PaymentInvoiceMutation) ClearOrders() {
+	m.clearedorders = true
 }
 
-// OrderIDs returns the "order" edge IDs in the mutation.
-// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// OrderID instead. It exists only for internal usage by the builders.
-func (m *PaymentInvoiceMutation) OrderIDs() (ids []int64) {
-	if id := m._order; id != nil {
-		ids = append(ids, *id)
+// OrdersCleared reports if the "orders" edge to the PaymentOrder entity was cleared.
+func (m *PaymentInvoiceMutation) OrdersCleared() bool {
+	return m.clearedorders
+}
+
+// RemoveOrderIDs removes the "orders" edge to the PaymentOrder entity by IDs.
+func (m *PaymentInvoiceMutation) RemoveOrderIDs(ids ...int64) {
+	if m.removedorders == nil {
+		m.removedorders = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.orders, ids[i])
+		m.removedorders[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedOrders returns the removed IDs of the "orders" edge to the PaymentOrder entity.
+func (m *PaymentInvoiceMutation) RemovedOrdersIDs() (ids []int64) {
+	for id := range m.removedorders {
+		ids = append(ids, id)
 	}
 	return
 }
 
-// ResetOrder resets all changes to the "order" edge.
-func (m *PaymentInvoiceMutation) ResetOrder() {
-	m._order = nil
-	m.cleared_order = false
+// OrdersIDs returns the "orders" edge IDs in the mutation.
+func (m *PaymentInvoiceMutation) OrdersIDs() (ids []int64) {
+	for id := range m.orders {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetOrders resets all changes to the "orders" edge.
+func (m *PaymentInvoiceMutation) ResetOrders() {
+	m.orders = nil
+	m.clearedorders = false
+	m.removedorders = nil
 }
 
 // ClearUser clears the "user" edge to the User entity.
@@ -21696,10 +21688,7 @@ func (m *PaymentInvoiceMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PaymentInvoiceMutation) Fields() []string {
-	fields := make([]string, 0, 17)
-	if m._order != nil {
-		fields = append(fields, paymentinvoice.FieldOrderID)
-	}
+	fields := make([]string, 0, 16)
 	if m.user != nil {
 		fields = append(fields, paymentinvoice.FieldUserID)
 	}
@@ -21756,8 +21745,6 @@ func (m *PaymentInvoiceMutation) Fields() []string {
 // schema.
 func (m *PaymentInvoiceMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case paymentinvoice.FieldOrderID:
-		return m.OrderID()
 	case paymentinvoice.FieldUserID:
 		return m.UserID()
 	case paymentinvoice.FieldTitleName:
@@ -21799,8 +21786,6 @@ func (m *PaymentInvoiceMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *PaymentInvoiceMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case paymentinvoice.FieldOrderID:
-		return m.OldOrderID(ctx)
 	case paymentinvoice.FieldUserID:
 		return m.OldUserID(ctx)
 	case paymentinvoice.FieldTitleName:
@@ -21842,13 +21827,6 @@ func (m *PaymentInvoiceMutation) OldField(ctx context.Context, name string) (ent
 // type.
 func (m *PaymentInvoiceMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case paymentinvoice.FieldOrderID:
-		v, ok := value.(int64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetOrderID(v)
-		return nil
 	case paymentinvoice.FieldUserID:
 		v, ok := value.(int64)
 		if !ok {
@@ -22070,9 +22048,6 @@ func (m *PaymentInvoiceMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *PaymentInvoiceMutation) ResetField(name string) error {
 	switch name {
-	case paymentinvoice.FieldOrderID:
-		m.ResetOrderID()
-		return nil
 	case paymentinvoice.FieldUserID:
 		m.ResetUserID()
 		return nil
@@ -22128,8 +22103,8 @@ func (m *PaymentInvoiceMutation) ResetField(name string) error {
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PaymentInvoiceMutation) AddedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m._order != nil {
-		edges = append(edges, paymentinvoice.EdgeOrder)
+	if m.orders != nil {
+		edges = append(edges, paymentinvoice.EdgeOrders)
 	}
 	if m.user != nil {
 		edges = append(edges, paymentinvoice.EdgeUser)
@@ -22141,10 +22116,12 @@ func (m *PaymentInvoiceMutation) AddedEdges() []string {
 // name in this mutation.
 func (m *PaymentInvoiceMutation) AddedIDs(name string) []ent.Value {
 	switch name {
-	case paymentinvoice.EdgeOrder:
-		if id := m._order; id != nil {
-			return []ent.Value{*id}
+	case paymentinvoice.EdgeOrders:
+		ids := make([]ent.Value, 0, len(m.orders))
+		for id := range m.orders {
+			ids = append(ids, id)
 		}
+		return ids
 	case paymentinvoice.EdgeUser:
 		if id := m.user; id != nil {
 			return []ent.Value{*id}
@@ -22156,20 +22133,31 @@ func (m *PaymentInvoiceMutation) AddedIDs(name string) []ent.Value {
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PaymentInvoiceMutation) RemovedEdges() []string {
 	edges := make([]string, 0, 2)
+	if m.removedorders != nil {
+		edges = append(edges, paymentinvoice.EdgeOrders)
+	}
 	return edges
 }
 
 // RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
 // the given name in this mutation.
 func (m *PaymentInvoiceMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case paymentinvoice.EdgeOrders:
+		ids := make([]ent.Value, 0, len(m.removedorders))
+		for id := range m.removedorders {
+			ids = append(ids, id)
+		}
+		return ids
+	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PaymentInvoiceMutation) ClearedEdges() []string {
 	edges := make([]string, 0, 2)
-	if m.cleared_order {
-		edges = append(edges, paymentinvoice.EdgeOrder)
+	if m.clearedorders {
+		edges = append(edges, paymentinvoice.EdgeOrders)
 	}
 	if m.cleareduser {
 		edges = append(edges, paymentinvoice.EdgeUser)
@@ -22181,8 +22169,8 @@ func (m *PaymentInvoiceMutation) ClearedEdges() []string {
 // was cleared in this mutation.
 func (m *PaymentInvoiceMutation) EdgeCleared(name string) bool {
 	switch name {
-	case paymentinvoice.EdgeOrder:
-		return m.cleared_order
+	case paymentinvoice.EdgeOrders:
+		return m.clearedorders
 	case paymentinvoice.EdgeUser:
 		return m.cleareduser
 	}
@@ -22193,9 +22181,6 @@ func (m *PaymentInvoiceMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *PaymentInvoiceMutation) ClearEdge(name string) error {
 	switch name {
-	case paymentinvoice.EdgeOrder:
-		m.ClearOrder()
-		return nil
 	case paymentinvoice.EdgeUser:
 		m.ClearUser()
 		return nil
@@ -22207,8 +22192,8 @@ func (m *PaymentInvoiceMutation) ClearEdge(name string) error {
 // It returns an error if the edge is not defined in the schema.
 func (m *PaymentInvoiceMutation) ResetEdge(name string) error {
 	switch name {
-	case paymentinvoice.EdgeOrder:
-		m.ResetOrder()
+	case paymentinvoice.EdgeOrders:
+		m.ResetOrders()
 		return nil
 	case paymentinvoice.EdgeUser:
 		m.ResetUser()
@@ -23385,6 +23370,55 @@ func (m *PaymentOrderMutation) ResetProviderSnapshot() {
 	delete(m.clearedFields, paymentorder.FieldProviderSnapshot)
 }
 
+// SetInvoiceID sets the "invoice_id" field.
+func (m *PaymentOrderMutation) SetInvoiceID(i int64) {
+	m.invoice = &i
+}
+
+// InvoiceID returns the value of the "invoice_id" field in the mutation.
+func (m *PaymentOrderMutation) InvoiceID() (r int64, exists bool) {
+	v := m.invoice
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInvoiceID returns the old "invoice_id" field's value of the PaymentOrder entity.
+// If the PaymentOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentOrderMutation) OldInvoiceID(ctx context.Context) (v *int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInvoiceID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInvoiceID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInvoiceID: %w", err)
+	}
+	return oldValue.InvoiceID, nil
+}
+
+// ClearInvoiceID clears the value of the "invoice_id" field.
+func (m *PaymentOrderMutation) ClearInvoiceID() {
+	m.invoice = nil
+	m.clearedFields[paymentorder.FieldInvoiceID] = struct{}{}
+}
+
+// InvoiceIDCleared returns if the "invoice_id" field was cleared in this mutation.
+func (m *PaymentOrderMutation) InvoiceIDCleared() bool {
+	_, ok := m.clearedFields[paymentorder.FieldInvoiceID]
+	return ok
+}
+
+// ResetInvoiceID resets all changes to the "invoice_id" field.
+func (m *PaymentOrderMutation) ResetInvoiceID() {
+	m.invoice = nil
+	delete(m.clearedFields, paymentorder.FieldInvoiceID)
+}
+
 // SetStatus sets the "status" field.
 func (m *PaymentOrderMutation) SetStatus(s string) {
 	m.status = &s
@@ -24210,27 +24244,15 @@ func (m *PaymentOrderMutation) ResetUser() {
 	m.cleareduser = false
 }
 
-// SetInvoiceID sets the "invoice" edge to the PaymentInvoice entity by id.
-func (m *PaymentOrderMutation) SetInvoiceID(id int64) {
-	m.invoice = &id
-}
-
 // ClearInvoice clears the "invoice" edge to the PaymentInvoice entity.
 func (m *PaymentOrderMutation) ClearInvoice() {
 	m.clearedinvoice = true
+	m.clearedFields[paymentorder.FieldInvoiceID] = struct{}{}
 }
 
 // InvoiceCleared reports if the "invoice" edge to the PaymentInvoice entity was cleared.
 func (m *PaymentOrderMutation) InvoiceCleared() bool {
-	return m.clearedinvoice
-}
-
-// InvoiceID returns the "invoice" edge ID in the mutation.
-func (m *PaymentOrderMutation) InvoiceID() (id int64, exists bool) {
-	if m.invoice != nil {
-		return *m.invoice, true
-	}
-	return
+	return m.InvoiceIDCleared() || m.clearedinvoice
 }
 
 // InvoiceIDs returns the "invoice" edge IDs in the mutation.
@@ -24283,7 +24305,7 @@ func (m *PaymentOrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PaymentOrderMutation) Fields() []string {
-	fields := make([]string, 0, 39)
+	fields := make([]string, 0, 40)
 	if m.user != nil {
 		fields = append(fields, paymentorder.FieldUserID)
 	}
@@ -24346,6 +24368,9 @@ func (m *PaymentOrderMutation) Fields() []string {
 	}
 	if m.provider_snapshot != nil {
 		fields = append(fields, paymentorder.FieldProviderSnapshot)
+	}
+	if m.invoice != nil {
+		fields = append(fields, paymentorder.FieldInvoiceID)
 	}
 	if m.status != nil {
 		fields = append(fields, paymentorder.FieldStatus)
@@ -24451,6 +24476,8 @@ func (m *PaymentOrderMutation) Field(name string) (ent.Value, bool) {
 		return m.ProviderKey()
 	case paymentorder.FieldProviderSnapshot:
 		return m.ProviderSnapshot()
+	case paymentorder.FieldInvoiceID:
+		return m.InvoiceID()
 	case paymentorder.FieldStatus:
 		return m.Status()
 	case paymentorder.FieldRefundAmount:
@@ -24538,6 +24565,8 @@ func (m *PaymentOrderMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldProviderKey(ctx)
 	case paymentorder.FieldProviderSnapshot:
 		return m.OldProviderSnapshot(ctx)
+	case paymentorder.FieldInvoiceID:
+		return m.OldInvoiceID(ctx)
 	case paymentorder.FieldStatus:
 		return m.OldStatus(ctx)
 	case paymentorder.FieldRefundAmount:
@@ -24729,6 +24758,13 @@ func (m *PaymentOrderMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProviderSnapshot(v)
+		return nil
+	case paymentorder.FieldInvoiceID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInvoiceID(v)
 		return nil
 	case paymentorder.FieldStatus:
 		v, ok := value.(string)
@@ -25003,6 +25039,9 @@ func (m *PaymentOrderMutation) ClearedFields() []string {
 	if m.FieldCleared(paymentorder.FieldProviderSnapshot) {
 		fields = append(fields, paymentorder.FieldProviderSnapshot)
 	}
+	if m.FieldCleared(paymentorder.FieldInvoiceID) {
+		fields = append(fields, paymentorder.FieldInvoiceID)
+	}
 	if m.FieldCleared(paymentorder.FieldRefundReason) {
 		fields = append(fields, paymentorder.FieldRefundReason)
 	}
@@ -25076,6 +25115,9 @@ func (m *PaymentOrderMutation) ClearField(name string) error {
 		return nil
 	case paymentorder.FieldProviderSnapshot:
 		m.ClearProviderSnapshot()
+		return nil
+	case paymentorder.FieldInvoiceID:
+		m.ClearInvoiceID()
 		return nil
 	case paymentorder.FieldRefundReason:
 		m.ClearRefundReason()
@@ -25177,6 +25219,9 @@ func (m *PaymentOrderMutation) ResetField(name string) error {
 		return nil
 	case paymentorder.FieldProviderSnapshot:
 		m.ResetProviderSnapshot()
+		return nil
+	case paymentorder.FieldInvoiceID:
+		m.ResetInvoiceID()
 		return nil
 	case paymentorder.FieldStatus:
 		m.ResetStatus()

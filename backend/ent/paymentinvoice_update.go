@@ -30,20 +30,6 @@ func (_u *PaymentInvoiceUpdate) Where(ps ...predicate.PaymentInvoice) *PaymentIn
 	return _u
 }
 
-// SetOrderID sets the "order_id" field.
-func (_u *PaymentInvoiceUpdate) SetOrderID(v int64) *PaymentInvoiceUpdate {
-	_u.mutation.SetOrderID(v)
-	return _u
-}
-
-// SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (_u *PaymentInvoiceUpdate) SetNillableOrderID(v *int64) *PaymentInvoiceUpdate {
-	if v != nil {
-		_u.SetOrderID(*v)
-	}
-	return _u
-}
-
 // SetUserID sets the "user_id" field.
 func (_u *PaymentInvoiceUpdate) SetUserID(v int64) *PaymentInvoiceUpdate {
 	_u.mutation.SetUserID(v)
@@ -295,9 +281,19 @@ func (_u *PaymentInvoiceUpdate) SetUpdatedAt(v time.Time) *PaymentInvoiceUpdate 
 	return _u
 }
 
-// SetOrder sets the "order" edge to the PaymentOrder entity.
-func (_u *PaymentInvoiceUpdate) SetOrder(v *PaymentOrder) *PaymentInvoiceUpdate {
-	return _u.SetOrderID(v.ID)
+// AddOrderIDs adds the "orders" edge to the PaymentOrder entity by IDs.
+func (_u *PaymentInvoiceUpdate) AddOrderIDs(ids ...int64) *PaymentInvoiceUpdate {
+	_u.mutation.AddOrderIDs(ids...)
+	return _u
+}
+
+// AddOrders adds the "orders" edges to the PaymentOrder entity.
+func (_u *PaymentInvoiceUpdate) AddOrders(v ...*PaymentOrder) *PaymentInvoiceUpdate {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddOrderIDs(ids...)
 }
 
 // SetUser sets the "user" edge to the User entity.
@@ -310,10 +306,25 @@ func (_u *PaymentInvoiceUpdate) Mutation() *PaymentInvoiceMutation {
 	return _u.mutation
 }
 
-// ClearOrder clears the "order" edge to the PaymentOrder entity.
-func (_u *PaymentInvoiceUpdate) ClearOrder() *PaymentInvoiceUpdate {
-	_u.mutation.ClearOrder()
+// ClearOrders clears all "orders" edges to the PaymentOrder entity.
+func (_u *PaymentInvoiceUpdate) ClearOrders() *PaymentInvoiceUpdate {
+	_u.mutation.ClearOrders()
 	return _u
+}
+
+// RemoveOrderIDs removes the "orders" edge to PaymentOrder entities by IDs.
+func (_u *PaymentInvoiceUpdate) RemoveOrderIDs(ids ...int64) *PaymentInvoiceUpdate {
+	_u.mutation.RemoveOrderIDs(ids...)
+	return _u
+}
+
+// RemoveOrders removes "orders" edges to PaymentOrder entities.
+func (_u *PaymentInvoiceUpdate) RemoveOrders(v ...*PaymentOrder) *PaymentInvoiceUpdate {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveOrderIDs(ids...)
 }
 
 // ClearUser clears the "user" edge to the User entity.
@@ -394,9 +405,6 @@ func (_u *PaymentInvoiceUpdate) check() error {
 		if err := paymentinvoice.Sha256Validator(v); err != nil {
 			return &ValidationError{Name: "sha256", err: fmt.Errorf(`ent: validator failed for field "PaymentInvoice.sha256": %w`, err)}
 		}
-	}
-	if _u.mutation.OrderCleared() && len(_u.mutation.OrderIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "PaymentInvoice.order"`)
 	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "PaymentInvoice.user"`)
@@ -482,12 +490,12 @@ func (_u *PaymentInvoiceUpdate) sqlSave(ctx context.Context) (_node int, err err
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(paymentinvoice.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if _u.mutation.OrderCleared() {
+	if _u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   paymentinvoice.OrderTable,
-			Columns: []string{paymentinvoice.OrderColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentinvoice.OrdersTable,
+			Columns: []string{paymentinvoice.OrdersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(paymentorder.FieldID, field.TypeInt64),
@@ -495,12 +503,28 @@ func (_u *PaymentInvoiceUpdate) sqlSave(ctx context.Context) (_node int, err err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.OrderIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !_u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   paymentinvoice.OrderTable,
-			Columns: []string{paymentinvoice.OrderColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentinvoice.OrdersTable,
+			Columns: []string{paymentinvoice.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentorder.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OrdersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentinvoice.OrdersTable,
+			Columns: []string{paymentinvoice.OrdersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(paymentorder.FieldID, field.TypeInt64),
@@ -558,20 +582,6 @@ type PaymentInvoiceUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *PaymentInvoiceMutation
-}
-
-// SetOrderID sets the "order_id" field.
-func (_u *PaymentInvoiceUpdateOne) SetOrderID(v int64) *PaymentInvoiceUpdateOne {
-	_u.mutation.SetOrderID(v)
-	return _u
-}
-
-// SetNillableOrderID sets the "order_id" field if the given value is not nil.
-func (_u *PaymentInvoiceUpdateOne) SetNillableOrderID(v *int64) *PaymentInvoiceUpdateOne {
-	if v != nil {
-		_u.SetOrderID(*v)
-	}
-	return _u
 }
 
 // SetUserID sets the "user_id" field.
@@ -825,9 +835,19 @@ func (_u *PaymentInvoiceUpdateOne) SetUpdatedAt(v time.Time) *PaymentInvoiceUpda
 	return _u
 }
 
-// SetOrder sets the "order" edge to the PaymentOrder entity.
-func (_u *PaymentInvoiceUpdateOne) SetOrder(v *PaymentOrder) *PaymentInvoiceUpdateOne {
-	return _u.SetOrderID(v.ID)
+// AddOrderIDs adds the "orders" edge to the PaymentOrder entity by IDs.
+func (_u *PaymentInvoiceUpdateOne) AddOrderIDs(ids ...int64) *PaymentInvoiceUpdateOne {
+	_u.mutation.AddOrderIDs(ids...)
+	return _u
+}
+
+// AddOrders adds the "orders" edges to the PaymentOrder entity.
+func (_u *PaymentInvoiceUpdateOne) AddOrders(v ...*PaymentOrder) *PaymentInvoiceUpdateOne {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.AddOrderIDs(ids...)
 }
 
 // SetUser sets the "user" edge to the User entity.
@@ -840,10 +860,25 @@ func (_u *PaymentInvoiceUpdateOne) Mutation() *PaymentInvoiceMutation {
 	return _u.mutation
 }
 
-// ClearOrder clears the "order" edge to the PaymentOrder entity.
-func (_u *PaymentInvoiceUpdateOne) ClearOrder() *PaymentInvoiceUpdateOne {
-	_u.mutation.ClearOrder()
+// ClearOrders clears all "orders" edges to the PaymentOrder entity.
+func (_u *PaymentInvoiceUpdateOne) ClearOrders() *PaymentInvoiceUpdateOne {
+	_u.mutation.ClearOrders()
 	return _u
+}
+
+// RemoveOrderIDs removes the "orders" edge to PaymentOrder entities by IDs.
+func (_u *PaymentInvoiceUpdateOne) RemoveOrderIDs(ids ...int64) *PaymentInvoiceUpdateOne {
+	_u.mutation.RemoveOrderIDs(ids...)
+	return _u
+}
+
+// RemoveOrders removes "orders" edges to PaymentOrder entities.
+func (_u *PaymentInvoiceUpdateOne) RemoveOrders(v ...*PaymentOrder) *PaymentInvoiceUpdateOne {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _u.RemoveOrderIDs(ids...)
 }
 
 // ClearUser clears the "user" edge to the User entity.
@@ -937,9 +972,6 @@ func (_u *PaymentInvoiceUpdateOne) check() error {
 		if err := paymentinvoice.Sha256Validator(v); err != nil {
 			return &ValidationError{Name: "sha256", err: fmt.Errorf(`ent: validator failed for field "PaymentInvoice.sha256": %w`, err)}
 		}
-	}
-	if _u.mutation.OrderCleared() && len(_u.mutation.OrderIDs()) > 0 {
-		return errors.New(`ent: clearing a required unique edge "PaymentInvoice.order"`)
 	}
 	if _u.mutation.UserCleared() && len(_u.mutation.UserIDs()) > 0 {
 		return errors.New(`ent: clearing a required unique edge "PaymentInvoice.user"`)
@@ -1042,12 +1074,12 @@ func (_u *PaymentInvoiceUpdateOne) sqlSave(ctx context.Context) (_node *PaymentI
 	if value, ok := _u.mutation.UpdatedAt(); ok {
 		_spec.SetField(paymentinvoice.FieldUpdatedAt, field.TypeTime, value)
 	}
-	if _u.mutation.OrderCleared() {
+	if _u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   paymentinvoice.OrderTable,
-			Columns: []string{paymentinvoice.OrderColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentinvoice.OrdersTable,
+			Columns: []string{paymentinvoice.OrdersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(paymentorder.FieldID, field.TypeInt64),
@@ -1055,12 +1087,28 @@ func (_u *PaymentInvoiceUpdateOne) sqlSave(ctx context.Context) (_node *PaymentI
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := _u.mutation.OrderIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.RemovedOrdersIDs(); len(nodes) > 0 && !_u.mutation.OrdersCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   paymentinvoice.OrderTable,
-			Columns: []string{paymentinvoice.OrderColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentinvoice.OrdersTable,
+			Columns: []string{paymentinvoice.OrdersColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentorder.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.OrdersIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentinvoice.OrdersTable,
+			Columns: []string{paymentinvoice.OrdersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(paymentorder.FieldID, field.TypeInt64),

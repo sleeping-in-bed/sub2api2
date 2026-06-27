@@ -77,9 +77,20 @@ export interface CheckoutInfoResponse {
 
 // ==================== Orders ====================
 
-export interface PaymentInvoice {
+export interface PaymentInvoiceOrderItem {
   id: number
-  order_id: number
+  order_uuid: string
+  status: OrderStatus
+  order_type: OrderType
+  payment_type: PaymentType | string
+  amount: number
+  pay_amount: number
+  created_at: string
+  completed_at?: string
+}
+
+export interface PaymentInvoiceSummary {
+  id: number
   user_id: number
   title_name: string
   tax_id: string
@@ -91,10 +102,18 @@ export interface PaymentInvoice {
   file_name?: string
   content_type?: string
   byte_size: number
+  order_count: number
+  total_amount: number
+  total_pay_amount: number
+}
+
+export interface PaymentInvoice extends PaymentInvoiceSummary {
+  orders?: PaymentInvoiceOrderItem[]
 }
 
 export interface PaymentOrder {
   id: number
+  order_uuid: string
   user_id: number
   user_email?: string
   user_name?: string
@@ -120,27 +139,26 @@ export interface PaymentOrder {
   refund_request_reason?: string
   plan_id?: number
   provider_instance_id?: string
-  invoice?: PaymentInvoice
+  invoice?: PaymentInvoiceSummary
 }
 
-export interface AdminPaymentInvoiceOrder {
+export interface AdminPaymentInvoiceOrder extends PaymentInvoiceOrderItem {
   id: number
   user_id: number
   user_email: string
   user_name: string
   user_notes?: string
   out_trade_no: string
-  status: OrderStatus
-  order_type: OrderType
-  payment_type: PaymentType | string
-  amount: number
-  pay_amount: number
-  created_at: string
-  completed_at?: string
 }
 
-export interface AdminPaymentInvoice extends PaymentInvoice {
-  order?: AdminPaymentInvoiceOrder
+export interface AdminPaymentInvoice extends PaymentInvoiceSummary {
+  orders?: AdminPaymentInvoiceOrder[]
+}
+
+export interface PaymentInvoiceSummaryResponse {
+  available_pay_amount: number
+  available_order_count: number
+  minimum_pay_amount: number
 }
 
 // ==================== Plans & Channels ====================
@@ -231,6 +249,7 @@ export interface WechatJSAPIPayload {
 
 export interface CreateOrderResult {
   order_id: number
+  order_uuid?: string
   amount: number
   pay_url?: string
   qr_code?: string

@@ -26,6 +26,7 @@ const (
 
 	paymentInvoiceStorageProviderLocal = "local"
 	paymentInvoiceMaxUploadBytes       = 10 << 20
+	paymentInvoiceMinPayAmount float64 = 100
 )
 
 var paymentInvoiceTaxIDPattern = regexp.MustCompile(`^[0-9A-Z]{15,20}$`)
@@ -37,7 +38,7 @@ type PaymentInvoiceListParams struct {
 	Keyword  string
 }
 
-func (s *PaymentService) RequestInvoice(ctx context.Context, orderID, userID int64, titleName, taxID string) (*dbent.PaymentInvoice, error) {
+func (s *PaymentService) RequestInvoice(ctx context.Context, orderIDs []int64, userID int64, titleName, taxID string) (*dbent.PaymentInvoice, error) {
 	if s == nil || s.entClient == nil {
 		return nil, infraerrors.InternalServer("SERVICE_UNAVAILABLE", "payment service is unavailable")
 	}
@@ -47,45 +48,87 @@ func (s *PaymentService) RequestInvoice(ctx context.Context, orderID, userID int
 		return nil, err
 	}
 
-	order, err := s.entClient.PaymentOrder.Query().
-		Where(paymentorder.IDEQ(orderID)).
-		WithInvoice().
-		Only(ctx)
+	normalizedOrderIDs := normalizeInvoiceOrderIDs(orderIDs)
+	if len(normalizedOrderIDs) == 0 {
+		return nil, infraerrors.BadRequest("INVOICE_ORDERS_EMPTY", "invoice orders are required")
+	}
+
+	tx, err := s.entClient.Tx(ctx)
 	if err != nil {
-		if dbent.IsNotFound(err) {
-			return nil, infraerrors.NotFound("NOT_FOUND", "order not found")
-		}
-		return nil, fmt.Errorf("get order: %w", err)
+		return nil, fmt.Errorf("begin invoice request tx: %w", err)
 	}
-	if order.UserID != userID {
-		return nil, infraerrors.Forbidden("FORBIDDEN", "no permission for this order")
+	defer func() { _ = tx.Rollback() }()
+
+	txCtx := dbent.NewTxContext(ctx, tx)
+	orders, err := tx.PaymentOrder.Query().
+		Where(
+			paymentorder.IDIn(normalizedOrderIDs...),
+			paymentorder.UserIDEQ(userID),
+			paymentorder.StatusEQ(OrderStatusCompleted),
+			paymentorder.InvoiceIDIsNil(),
+		).
+		All(txCtx)
+	if err != nil {
+		return nil, fmt.Errorf("query invoice orders: %w", err)
 	}
-	if order.Status != OrderStatusCompleted {
-		return nil, infraerrors.BadRequest("INVALID_STATUS", "only completed orders can request an invoice")
+	if len(orders) != len(normalizedOrderIDs) {
+		return nil, infraerrors.BadRequest("INVALID_ORDER_SELECTION", "invoice orders must be completed, belong to the user, and not be invoiced")
 	}
-	if order.Edges.Invoice != nil {
-		return nil, infraerrors.Conflict("INVOICE_ALREADY_EXISTS", "invoice already requested")
+
+	totalPayAmount := sumPaymentOrdersPayAmount(orders)
+	if totalPayAmount < paymentInvoiceMinPayAmount {
+		return nil, infraerrors.BadRequest("INVOICE_AMOUNT_TOO_LOW", fmt.Sprintf("invoice pay amount must be at least %.2f", paymentInvoiceMinPayAmount))
 	}
 
 	now := time.Now()
-	invoice, err := s.entClient.PaymentInvoice.Create().
-		SetOrderID(order.ID).
+	invoice, err := tx.PaymentInvoice.Create().
 		SetUserID(userID).
 		SetTitleName(normalizedTitle).
 		SetTaxID(normalizedTaxID).
 		SetStatus(InvoiceStatusRequested).
 		SetRequestedAt(now).
-		Save(ctx)
+		Save(txCtx)
 	if err != nil {
 		return nil, fmt.Errorf("create payment invoice: %w", err)
 	}
 
-	s.writeAuditLog(ctx, order.ID, "INVOICE_REQUESTED", fmt.Sprintf("user:%d", userID), map[string]any{
-		"invoiceID":  invoice.ID,
-		"titleName":  invoice.TitleName,
-		"taxID":      invoice.TaxID,
-		"requestedAt": now.Format(time.RFC3339),
-	})
+	updatedCount, err := tx.PaymentOrder.Update().
+		Where(
+			paymentorder.IDIn(normalizedOrderIDs...),
+			paymentorder.UserIDEQ(userID),
+			paymentorder.StatusEQ(OrderStatusCompleted),
+			paymentorder.InvoiceIDIsNil(),
+		).
+		SetInvoiceID(invoice.ID).
+		Save(txCtx)
+	if err != nil {
+		return nil, fmt.Errorf("attach invoice to orders: %w", err)
+	}
+	if updatedCount != len(normalizedOrderIDs) {
+		return nil, infraerrors.Conflict("INVOICE_ALREADY_EXISTS", "some selected orders were invoiced concurrently")
+	}
+
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("commit invoice request tx: %w", err)
+	}
+
+	invoice, err = s.GetInvoiceByID(ctx, invoice.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	orderIDsForAudit := paymentInvoiceOrderIDs(invoice.Edges.Orders)
+	for _, order := range invoice.Edges.Orders {
+		s.writeAuditLog(ctx, order.ID, "INVOICE_REQUESTED", fmt.Sprintf("user:%d", userID), map[string]any{
+			"invoiceID":      invoice.ID,
+			"titleName":      invoice.TitleName,
+			"taxID":          invoice.TaxID,
+			"requestedAt":    now.Format(time.RFC3339),
+			"invoiceOrderIDs": orderIDsForAudit,
+			"orderCount":     len(orderIDsForAudit),
+			"totalPayAmount": totalPayAmount,
+		})
+	}
 
 	return invoice, nil
 }
@@ -93,7 +136,7 @@ func (s *PaymentService) RequestInvoice(ctx context.Context, orderID, userID int
 func (s *PaymentService) GetInvoiceByID(ctx context.Context, invoiceID int64) (*dbent.PaymentInvoice, error) {
 	invoice, err := s.entClient.PaymentInvoice.Query().
 		Where(paymentinvoice.IDEQ(invoiceID)).
-		WithOrder().
+		WithOrders().
 		Only(ctx)
 	if err != nil {
 		if dbent.IsNotFound(err) {
@@ -105,7 +148,7 @@ func (s *PaymentService) GetInvoiceByID(ctx context.Context, invoiceID int64) (*
 }
 
 func (s *PaymentService) ListInvoices(ctx context.Context, p PaymentInvoiceListParams) ([]*dbent.PaymentInvoice, int, error) {
-	q := s.entClient.PaymentInvoice.Query().WithOrder()
+	q := s.entClient.PaymentInvoice.Query().WithOrders()
 	if p.Status != "" {
 		q = q.Where(paymentinvoice.StatusEQ(p.Status))
 	}
@@ -113,7 +156,7 @@ func (s *PaymentService) ListInvoices(ctx context.Context, p PaymentInvoiceListP
 		q = q.Where(paymentinvoice.Or(
 			paymentinvoice.TitleNameContainsFold(keyword),
 			paymentinvoice.TaxIDContainsFold(keyword),
-			paymentinvoice.HasOrderWith(
+			paymentinvoice.HasOrdersWith(
 				paymentorder.Or(
 					paymentorder.OutTradeNoContainsFold(keyword),
 					paymentorder.UserEmailContainsFold(keyword),
@@ -139,6 +182,82 @@ func (s *PaymentService) ListInvoices(ctx context.Context, p PaymentInvoiceListP
 	}
 
 	return invoices, total, nil
+}
+
+func (s *PaymentService) ListUserInvoices(ctx context.Context, userID int64, p PaymentInvoiceListParams) ([]*dbent.PaymentInvoice, int, error) {
+	q := s.entClient.PaymentInvoice.Query().
+		Where(paymentinvoice.UserIDEQ(userID)).
+		WithOrders()
+	if p.Status != "" {
+		q = q.Where(paymentinvoice.StatusEQ(p.Status))
+	}
+
+	total, err := q.Clone().Count(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("count user payment invoices: %w", err)
+	}
+
+	pageSize, page := applyPagination(p.PageSize, p.Page)
+	invoices, err := q.
+		Order(dbent.Desc(paymentinvoice.FieldRequestedAt)).
+		Limit(pageSize).
+		Offset((page - 1) * pageSize).
+		All(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("query user payment invoices: %w", err)
+	}
+
+	return invoices, total, nil
+}
+
+func (s *PaymentService) GetUserInvoiceByID(ctx context.Context, invoiceID, userID int64) (*dbent.PaymentInvoice, error) {
+	invoice, err := s.GetInvoiceByID(ctx, invoiceID)
+	if err != nil {
+		return nil, err
+	}
+	if invoice.UserID != userID {
+		return nil, infraerrors.Forbidden("FORBIDDEN", "no permission for this invoice")
+	}
+	return invoice, nil
+}
+
+func (s *PaymentService) ListInvoiceAvailableOrders(ctx context.Context, userID int64, p OrderListParams) ([]*dbent.PaymentOrder, int, error) {
+	q := s.entClient.PaymentOrder.Query().
+		Where(
+			paymentorder.UserIDEQ(userID),
+			paymentorder.StatusEQ(OrderStatusCompleted),
+			paymentorder.InvoiceIDIsNil(),
+		)
+	total, err := q.Clone().Count(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("count invoice available orders: %w", err)
+	}
+
+	pageSize, page := applyPagination(p.PageSize, p.Page)
+	orders, err := q.
+		Order(dbent.Desc(paymentorder.FieldCompletedAt), dbent.Desc(paymentorder.FieldCreatedAt)).
+		Limit(pageSize).
+		Offset((page - 1) * pageSize).
+		All(ctx)
+	if err != nil {
+		return nil, 0, fmt.Errorf("query invoice available orders: %w", err)
+	}
+
+	return orders, total, nil
+}
+
+func (s *PaymentService) GetInvoiceAvailableSummary(ctx context.Context, userID int64) (float64, int, error) {
+	orders, err := s.entClient.PaymentOrder.Query().
+		Where(
+			paymentorder.UserIDEQ(userID),
+			paymentorder.StatusEQ(OrderStatusCompleted),
+			paymentorder.InvoiceIDIsNil(),
+		).
+		All(ctx)
+	if err != nil {
+		return 0, 0, fmt.Errorf("query invoice available summary orders: %w", err)
+	}
+	return sumPaymentOrdersPayAmount(orders), len(orders), nil
 }
 
 func (s *PaymentService) MarkInvoiceIssued(ctx context.Context, invoiceID int64, originalFileName string, content []byte, operator string) (*dbent.PaymentInvoice, error) {
@@ -199,15 +318,18 @@ func (s *PaymentService) MarkInvoiceIssued(ctx context.Context, invoiceID int64,
 		return nil, fmt.Errorf("update invoice as issued: %w", err)
 	}
 
-	orderID := invoice.OrderID
-	s.writeAuditLog(ctx, orderID, "INVOICE_ISSUED", operator, map[string]any{
-		"invoiceID":    invoice.ID,
-		"fileName":     updated.FileName,
-		"contentType":  updated.ContentType,
-		"byteSize":     updated.ByteSize,
-		"storageKey":   updated.StorageKey,
-		"issuedAt":     now.Format(time.RFC3339),
-	})
+	orderIDs := paymentInvoiceOrderIDs(invoice.Edges.Orders)
+	for _, order := range invoice.Edges.Orders {
+		s.writeAuditLog(ctx, order.ID, "INVOICE_ISSUED", operator, map[string]any{
+			"invoiceID":      invoice.ID,
+			"fileName":       updated.FileName,
+			"contentType":    updated.ContentType,
+			"byteSize":       updated.ByteSize,
+			"storageKey":     updated.StorageKey,
+			"issuedAt":       now.Format(time.RFC3339),
+			"invoiceOrderIDs": orderIDs,
+		})
+	}
 
 	return updated, nil
 }
@@ -227,7 +349,20 @@ func (s *PaymentService) MarkInvoiceFailed(ctx context.Context, invoiceID int64,
 	}
 
 	now := time.Now()
-	updated, err := s.entClient.PaymentInvoice.UpdateOneID(invoice.ID).
+	tx, err := s.entClient.Tx(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("begin mark invoice failed tx: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	if _, err = tx.PaymentOrder.Update().
+		Where(paymentorder.InvoiceIDEQ(invoice.ID)).
+		ClearInvoiceID().
+		Save(ctx); err != nil {
+		return nil, fmt.Errorf("detach failed invoice orders: %w", err)
+	}
+
+	updated, err := tx.PaymentInvoice.UpdateOneID(invoice.ID).
 		SetStatus(InvoiceStatusFailed).
 		SetFailedAt(now).
 		SetFailedReason(normalizedReason).
@@ -237,11 +372,19 @@ func (s *PaymentService) MarkInvoiceFailed(ctx context.Context, invoiceID int64,
 		return nil, fmt.Errorf("update invoice as failed: %w", err)
 	}
 
-	s.writeAuditLog(ctx, invoice.OrderID, "INVOICE_FAILED", operator, map[string]any{
-		"invoiceID":  invoice.ID,
-		"reason":     normalizedReason,
-		"failedAt":   now.Format(time.RFC3339),
-	})
+	if err := tx.Commit(); err != nil {
+		return nil, fmt.Errorf("commit mark invoice failed tx: %w", err)
+	}
+
+	orderIDs := paymentInvoiceOrderIDs(invoice.Edges.Orders)
+	for _, order := range invoice.Edges.Orders {
+		s.writeAuditLog(ctx, order.ID, "INVOICE_FAILED", operator, map[string]any{
+			"invoiceID":      invoice.ID,
+			"reason":         normalizedReason,
+			"failedAt":       now.Format(time.RFC3339),
+			"invoiceOrderIDs": orderIDs,
+		})
+	}
 
 	return updated, nil
 }
@@ -259,6 +402,47 @@ func (s *PaymentService) PrepareUserInvoiceDownload(ctx context.Context, invoice
 		return nil, "", err
 	}
 	return invoice, absolutePath, nil
+}
+
+func normalizeInvoiceOrderIDs(orderIDs []int64) []int64 {
+	if len(orderIDs) == 0 {
+		return nil
+	}
+	unique := make(map[int64]struct{}, len(orderIDs))
+	normalized := make([]int64, 0, len(orderIDs))
+	for _, orderID := range orderIDs {
+		if orderID <= 0 {
+			continue
+		}
+		if _, exists := unique[orderID]; exists {
+			continue
+		}
+		unique[orderID] = struct{}{}
+		normalized = append(normalized, orderID)
+	}
+	return normalized
+}
+
+func sumPaymentOrdersPayAmount(orders []*dbent.PaymentOrder) float64 {
+	total := 0.0
+	for _, order := range orders {
+		if order == nil {
+			continue
+		}
+		total += order.PayAmount
+	}
+	return total
+}
+
+func paymentInvoiceOrderIDs(orders []*dbent.PaymentOrder) []int64 {
+	orderIDs := make([]int64, 0, len(orders))
+	for _, order := range orders {
+		if order == nil {
+			continue
+		}
+		orderIDs = append(orderIDs, order.ID)
+	}
+	return orderIDs
 }
 
 func (s *PaymentService) PrepareAdminInvoiceDownload(ctx context.Context, invoiceID int64) (*dbent.PaymentInvoice, string, error) {

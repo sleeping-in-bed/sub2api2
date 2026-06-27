@@ -5,10 +5,14 @@
       <div class="card p-4">
         <div class="flex flex-wrap items-center gap-3">
           <Select v-model="currentFilter" :options="statusFilters" class="w-36" @change="fetchOrders" />
-          <div class="flex flex-1 items-center justify-end gap-2">
+          <div class="flex flex-1 flex-wrap items-center justify-end gap-2">
+            <div class="rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+              {{ t('payment.invoice.availableAmount') }}: ¥{{ invoiceSummary.available_pay_amount.toFixed(2) }}
+            </div>
             <button @click="fetchOrders" :disabled="loading" class="btn btn-secondary" :title="t('common.refresh')">
               <Icon name="refresh" size="md" :class="loading ? 'animate-spin' : ''" />
             </button>
+            <button class="btn btn-secondary" @click="router.push('/invoices')">{{ t('payment.invoice.goManage') }}</button>
             <button class="btn btn-primary" @click="router.push('/purchase')">{{ t('payment.result.backToRecharge') }}</button>
           </div>
         </div>
@@ -25,39 +29,6 @@
             <button v-if="canRequestRefund(row)" @click="openRefundDialog(row)" class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-purple-600 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-900/20">
               <Icon name="dollar" size="sm" />
               <span>{{ t('payment.orders.requestRefund') }}</span>
-            </button>
-            <button
-              v-if="row.status === 'COMPLETED' && !row.invoice"
-              @click="openInvoiceDialog(row)"
-              class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20"
-            >
-              <Icon name="document" size="sm" />
-              <span>{{ t('payment.invoice.request') }}</span>
-            </button>
-            <button
-              v-else-if="row.invoice?.status === 'REQUESTED'"
-              @click="openInvoiceDialog(row)"
-              class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-amber-600 hover:bg-amber-50 dark:text-amber-400 dark:hover:bg-amber-900/20"
-            >
-              <Icon name="clock" size="sm" />
-              <span>{{ t('payment.invoice.requested') }}</span>
-            </button>
-            <button
-              v-else-if="row.invoice?.status === 'ISSUED'"
-              :disabled="downloadingInvoiceId === row.invoice.id"
-              @click="downloadInvoice(row)"
-              class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-green-600 hover:bg-green-50 disabled:cursor-not-allowed disabled:opacity-60 dark:text-green-400 dark:hover:bg-green-900/20"
-            >
-              <Icon name="download" size="sm" />
-              <span>{{ downloadingInvoiceId === row.invoice.id ? t('common.processing') : t('payment.invoice.download') }}</span>
-            </button>
-            <button
-              v-else-if="row.invoice?.status === 'FAILED'"
-              @click="openInvoiceDialog(row)"
-              class="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
-            >
-              <Icon name="exclamationTriangle" size="sm" />
-              <span>{{ t('payment.invoice.failed') }}</span>
             </button>
           </div>
         </template>
@@ -90,10 +61,6 @@
       <div v-if="refundTarget" class="space-y-4">
         <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-800">
           <div class="flex justify-between text-sm">
-            <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.orderId') }}</span>
-            <span class="font-mono text-gray-900 dark:text-white">#{{ refundTarget.id }}</span>
-          </div>
-          <div class="mt-2 flex justify-between text-sm">
             <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.amount') }}</span>
             <span class="text-gray-900 dark:text-white">${{ refundTarget.amount.toFixed(2) }}</span>
           </div>
@@ -111,86 +78,6 @@
       </template>
     </BaseDialog>
 
-    <BaseDialog :show="!!invoiceTarget" :title="t('payment.invoice.title')" @close="closeInvoiceDialog">
-      <div v-if="invoiceTarget" class="space-y-4">
-        <div class="rounded-xl bg-gray-50 p-4 dark:bg-dark-800">
-          <div class="flex justify-between text-sm">
-            <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.orderId') }}</span>
-            <span class="font-mono text-gray-900 dark:text-white">#{{ invoiceTarget.id }}</span>
-          </div>
-          <div class="mt-2 flex justify-between text-sm">
-            <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.orderNo') }}</span>
-            <span class="text-gray-900 dark:text-white">{{ invoiceTarget.out_trade_no }}</span>
-          </div>
-          <div class="mt-2 flex justify-between text-sm">
-            <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.amount') }}</span>
-            <span class="text-gray-900 dark:text-white">{{ invoiceTarget.order_type === 'balance' ? '$' : '¥' }}{{ invoiceTarget.amount.toFixed(2) }}</span>
-          </div>
-        </div>
-
-        <template v-if="!invoiceTarget.invoice">
-          <div>
-            <label class="input-label">{{ t('payment.invoice.titleName') }}</label>
-            <input v-model="invoiceForm.title_name" type="text" class="input mt-1 w-full" :placeholder="t('payment.invoice.titleNamePlaceholder')" />
-          </div>
-          <div>
-            <label class="input-label">{{ t('payment.invoice.taxId') }}</label>
-            <input v-model="invoiceForm.tax_id" type="text" class="input mt-1 w-full" :placeholder="t('payment.invoice.taxIdPlaceholder')" />
-          </div>
-        </template>
-
-        <template v-else>
-          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.invoice.titleName') }}</div>
-              <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ invoiceTarget.invoice.title_name }}</div>
-            </div>
-            <div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.invoice.taxId') }}</div>
-              <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ invoiceTarget.invoice.tax_id }}</div>
-            </div>
-            <div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.invoice.statusLabel') }}</div>
-              <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ invoiceStatusLabel(invoiceTarget.invoice.status) }}</div>
-            </div>
-            <div>
-              <div class="text-xs text-gray-500 dark:text-gray-400">{{ t('payment.invoice.requestedAt') }}</div>
-              <div class="mt-1 text-sm text-gray-900 dark:text-white">{{ formatDateTime(invoiceTarget.invoice.requested_at) }}</div>
-            </div>
-          </div>
-          <p v-if="invoiceTarget.invoice.status === 'REQUESTED'" class="rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
-            {{ t('payment.invoice.requestedHint') }}
-          </p>
-          <p v-if="invoiceTarget.invoice.status === 'FAILED' && invoiceTarget.invoice.failed_reason" class="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:text-red-300">
-            {{ t('payment.invoice.failedReason') }}: {{ invoiceTarget.invoice.failed_reason }}
-          </p>
-          <p v-if="invoiceTarget.invoice.status === 'ISSUED'" class="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-300">
-            {{ t('payment.invoice.issuedHint') }}
-          </p>
-        </template>
-      </div>
-      <template #footer>
-        <div class="flex justify-end gap-3">
-          <button class="btn btn-secondary" @click="closeInvoiceDialog">{{ t('common.close') }}</button>
-          <button
-            v-if="invoiceTarget && !invoiceTarget.invoice"
-            class="btn btn-primary"
-            :disabled="invoiceSubmitting || !invoiceForm.title_name.trim() || !invoiceForm.tax_id.trim()"
-            @click="submitInvoice"
-          >
-            {{ invoiceSubmitting ? t('common.processing') : t('payment.invoice.submit') }}
-          </button>
-          <button
-            v-else-if="invoiceTarget?.invoice?.status === 'ISSUED'"
-            class="btn btn-primary"
-            :disabled="invoiceSubmitting"
-            @click="downloadInvoice(invoiceTarget)"
-          >
-            {{ invoiceSubmitting ? t('common.processing') : t('payment.invoice.download') }}
-          </button>
-        </div>
-      </template>
-    </BaseDialog>
   </AppLayout>
 </template>
 
@@ -215,18 +102,16 @@ const appStore = useAppStore()
 
 const loading = ref(false)
 const actionLoading = ref(false)
-const invoiceSubmitting = ref(false)
-const downloadingInvoiceId = ref<number | null>(null)
 const orders = ref<PaymentOrder[]>([])
 const refundEligibleProviders = ref<Set<string>>(new Set())
 const currentFilter = ref('')
 const cancelTargetId = ref<number | null>(null)
 const refundTarget = ref<PaymentOrder | null>(null)
-const invoiceTarget = ref<PaymentOrder | null>(null)
 const refundReason = ref('')
-const invoiceForm = reactive({
-  title_name: '',
-  tax_id: '',
+const invoiceSummary = reactive({
+  available_pay_amount: 0,
+  available_order_count: 0,
+  minimum_pay_amount: 100,
 })
 const pagination = reactive({ page: 1, page_size: 20, total: 0 })
 
@@ -277,18 +162,6 @@ async function confirmCancel() {
 
 function openRefundDialog(order: PaymentOrder) { refundTarget.value = order; refundReason.value = '' }
 
-function openInvoiceDialog(order: PaymentOrder) {
-  invoiceTarget.value = order
-  invoiceForm.title_name = order.invoice?.title_name || ''
-  invoiceForm.tax_id = order.invoice?.tax_id || ''
-}
-
-function closeInvoiceDialog() {
-  invoiceTarget.value = null
-  invoiceForm.title_name = ''
-  invoiceForm.tax_id = ''
-}
-
 async function confirmRefund() {
   if (!refundTarget.value || !refundReason.value.trim()) return
   actionLoading.value = true
@@ -311,65 +184,17 @@ function canRequestRefund(order: PaymentOrder): boolean {
   return refundEligibleProviders.value.has(order.provider_instance_id)
 }
 
-async function submitInvoice() {
-  if (!invoiceTarget.value) return
-  invoiceSubmitting.value = true
+async function loadInvoiceSummary() {
   try {
-    await paymentAPI.createInvoice(invoiceTarget.value.id, {
-      title_name: invoiceForm.title_name.trim(),
-      tax_id: invoiceForm.tax_id.trim(),
-    })
-    appStore.showSuccess(t('payment.invoice.submitSuccess'))
-    closeInvoiceDialog()
-    await fetchOrders()
-  } catch (err: unknown) {
-    appStore.showError(extractI18nErrorMessage(err, t, 'payment.errors', t('common.error')))
-  } finally {
-    invoiceSubmitting.value = false
+    const res = await paymentAPI.getInvoiceSummary()
+    invoiceSummary.available_pay_amount = res.data.available_pay_amount || 0
+    invoiceSummary.available_order_count = res.data.available_order_count || 0
+    invoiceSummary.minimum_pay_amount = res.data.minimum_pay_amount || 100
+  } catch {
+    invoiceSummary.available_pay_amount = 0
+    invoiceSummary.available_order_count = 0
+    invoiceSummary.minimum_pay_amount = 100
   }
-}
-
-async function downloadInvoice(order: PaymentOrder) {
-  const invoice = order.invoice
-  if (!invoice) return
-  downloadingInvoiceId.value = invoice.id
-  if (invoiceTarget.value?.invoice?.id === invoice.id) {
-    invoiceSubmitting.value = true
-  }
-  try {
-    const blob = await paymentAPI.downloadInvoice(invoice.id)
-    const url = window.URL.createObjectURL(blob)
-    const anchor = document.createElement('a')
-    anchor.href = url
-    anchor.download = invoice.file_name || `invoice-${invoice.id}.pdf`
-    document.body.appendChild(anchor)
-    anchor.click()
-    document.body.removeChild(anchor)
-    window.URL.revokeObjectURL(url)
-  } catch (err: unknown) {
-    appStore.showError(extractI18nErrorMessage(err, t, 'payment.errors', t('common.error')))
-  } finally {
-    downloadingInvoiceId.value = null
-    invoiceSubmitting.value = false
-  }
-}
-
-function invoiceStatusLabel(status: string): string {
-  switch (status) {
-    case 'REQUESTED':
-      return t('payment.invoice.requested')
-    case 'ISSUED':
-      return t('payment.invoice.issued')
-    case 'FAILED':
-      return t('payment.invoice.failed')
-    default:
-      return status
-  }
-}
-
-function formatDateTime(value?: string): string {
-  if (!value) return '-'
-  return new Date(value).toLocaleString()
 }
 
 async function loadRefundEligibility() {
@@ -379,5 +204,5 @@ async function loadRefundEligibility() {
   } catch { /* ignore — default to hiding refund button */ }
 }
 
-onMounted(() => { fetchOrders(); loadRefundEligibility() })
+onMounted(() => { fetchOrders(); loadRefundEligibility(); loadInvoiceSummary() })
 </script>

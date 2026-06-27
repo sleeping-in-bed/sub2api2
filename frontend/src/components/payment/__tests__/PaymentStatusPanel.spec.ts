@@ -46,6 +46,7 @@ import PaymentStatusPanel from '../PaymentStatusPanel.vue'
 
 const orderFactory = (status: string) => ({
   id: 42,
+  order_uuid: '41a4b0f3-d88f-5fdc-9b1f-9ff3f0e6f42b',
   user_id: 9,
   amount: 88,
   pay_amount: 88,

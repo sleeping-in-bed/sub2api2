@@ -14,8 +14,6 @@ const (
 	Label = "payment_invoice"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldOrderID holds the string denoting the order_id field in the database.
-	FieldOrderID = "order_id"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
 	// FieldTitleName holds the string denoting the title_name field in the database.
@@ -48,19 +46,19 @@ const (
 	FieldCreatedAt = "created_at"
 	// FieldUpdatedAt holds the string denoting the updated_at field in the database.
 	FieldUpdatedAt = "updated_at"
-	// EdgeOrder holds the string denoting the order edge name in mutations.
-	EdgeOrder = "order"
+	// EdgeOrders holds the string denoting the orders edge name in mutations.
+	EdgeOrders = "orders"
 	// EdgeUser holds the string denoting the user edge name in mutations.
 	EdgeUser = "user"
 	// Table holds the table name of the paymentinvoice in the database.
 	Table = "payment_invoices"
-	// OrderTable is the table that holds the order relation/edge.
-	OrderTable = "payment_invoices"
-	// OrderInverseTable is the table name for the PaymentOrder entity.
+	// OrdersTable is the table that holds the orders relation/edge.
+	OrdersTable = "payment_orders"
+	// OrdersInverseTable is the table name for the PaymentOrder entity.
 	// It exists in this package in order to avoid circular dependency with the "paymentorder" package.
-	OrderInverseTable = "payment_orders"
-	// OrderColumn is the table column denoting the order relation/edge.
-	OrderColumn = "order_id"
+	OrdersInverseTable = "payment_orders"
+	// OrdersColumn is the table column denoting the orders relation/edge.
+	OrdersColumn = "invoice_id"
 	// UserTable is the table that holds the user relation/edge.
 	UserTable = "payment_invoices"
 	// UserInverseTable is the table name for the User entity.
@@ -73,7 +71,6 @@ const (
 // Columns holds all SQL columns for paymentinvoice fields.
 var Columns = []string{
 	FieldID,
-	FieldOrderID,
 	FieldUserID,
 	FieldTitleName,
 	FieldTaxID,
@@ -139,11 +136,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByOrderID orders the results by the order_id field.
-func ByOrderID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrderID, opts...).ToFunc()
 }
 
 // ByUserID orders the results by the user_id field.
@@ -226,10 +218,17 @@ func ByUpdatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdatedAt, opts...).ToFunc()
 }
 
-// ByOrderField orders the results by order field.
-func ByOrderField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByOrdersCount orders the results by orders count.
+func ByOrdersCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newOrderStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborsCount(s, newOrdersStep(), opts...)
+	}
+}
+
+// ByOrders orders the results by orders terms.
+func ByOrders(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newOrdersStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
 
@@ -239,11 +238,11 @@ func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
 	}
 }
-func newOrderStep() *sqlgraph.Step {
+func newOrdersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(OrderInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, true, OrderTable, OrderColumn),
+		sqlgraph.To(OrdersInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, OrdersTable, OrdersColumn),
 	)
 }
 func newUserStep() *sqlgraph.Step {

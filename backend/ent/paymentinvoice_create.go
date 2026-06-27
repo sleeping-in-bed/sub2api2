@@ -24,12 +24,6 @@ type PaymentInvoiceCreate struct {
 	conflict []sql.ConflictOption
 }
 
-// SetOrderID sets the "order_id" field.
-func (_c *PaymentInvoiceCreate) SetOrderID(v int64) *PaymentInvoiceCreate {
-	_c.mutation.SetOrderID(v)
-	return _c
-}
-
 // SetUserID sets the "user_id" field.
 func (_c *PaymentInvoiceCreate) SetUserID(v int64) *PaymentInvoiceCreate {
 	_c.mutation.SetUserID(v)
@@ -230,9 +224,19 @@ func (_c *PaymentInvoiceCreate) SetNillableUpdatedAt(v *time.Time) *PaymentInvoi
 	return _c
 }
 
-// SetOrder sets the "order" edge to the PaymentOrder entity.
-func (_c *PaymentInvoiceCreate) SetOrder(v *PaymentOrder) *PaymentInvoiceCreate {
-	return _c.SetOrderID(v.ID)
+// AddOrderIDs adds the "orders" edge to the PaymentOrder entity by IDs.
+func (_c *PaymentInvoiceCreate) AddOrderIDs(ids ...int64) *PaymentInvoiceCreate {
+	_c.mutation.AddOrderIDs(ids...)
+	return _c
+}
+
+// AddOrders adds the "orders" edges to the PaymentOrder entity.
+func (_c *PaymentInvoiceCreate) AddOrders(v ...*PaymentOrder) *PaymentInvoiceCreate {
+	ids := make([]int64, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddOrderIDs(ids...)
 }
 
 // SetUser sets the "user" edge to the User entity.
@@ -303,9 +307,6 @@ func (_c *PaymentInvoiceCreate) defaults() {
 
 // check runs all checks and user-defined validators on the builder.
 func (_c *PaymentInvoiceCreate) check() error {
-	if _, ok := _c.mutation.OrderID(); !ok {
-		return &ValidationError{Name: "order_id", err: errors.New(`ent: missing required field "PaymentInvoice.order_id"`)}
-	}
 	if _, ok := _c.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "PaymentInvoice.user_id"`)}
 	}
@@ -367,9 +368,6 @@ func (_c *PaymentInvoiceCreate) check() error {
 	}
 	if _, ok := _c.mutation.UpdatedAt(); !ok {
 		return &ValidationError{Name: "updated_at", err: errors.New(`ent: missing required field "PaymentInvoice.updated_at"`)}
-	}
-	if len(_c.mutation.OrderIDs()) == 0 {
-		return &ValidationError{Name: "order", err: errors.New(`ent: missing required edge "PaymentInvoice.order"`)}
 	}
 	if len(_c.mutation.UserIDs()) == 0 {
 		return &ValidationError{Name: "user", err: errors.New(`ent: missing required edge "PaymentInvoice.user"`)}
@@ -461,12 +459,12 @@ func (_c *PaymentInvoiceCreate) createSpec() (*PaymentInvoice, *sqlgraph.CreateS
 		_spec.SetField(paymentinvoice.FieldUpdatedAt, field.TypeTime, value)
 		_node.UpdatedAt = value
 	}
-	if nodes := _c.mutation.OrderIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.OrdersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: true,
-			Table:   paymentinvoice.OrderTable,
-			Columns: []string{paymentinvoice.OrderColumn},
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   paymentinvoice.OrdersTable,
+			Columns: []string{paymentinvoice.OrdersColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(paymentorder.FieldID, field.TypeInt64),
@@ -475,7 +473,6 @@ func (_c *PaymentInvoiceCreate) createSpec() (*PaymentInvoice, *sqlgraph.CreateS
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.OrderID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := _c.mutation.UserIDs(); len(nodes) > 0 {
@@ -502,7 +499,7 @@ func (_c *PaymentInvoiceCreate) createSpec() (*PaymentInvoice, *sqlgraph.CreateS
 // of the `INSERT` statement. For example:
 //
 //	client.PaymentInvoice.Create().
-//		SetOrderID(v).
+//		SetUserID(v).
 //		OnConflict(
 //			// Update the row with the new values
 //			// the was proposed for insertion.
@@ -511,7 +508,7 @@ func (_c *PaymentInvoiceCreate) createSpec() (*PaymentInvoice, *sqlgraph.CreateS
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.PaymentInvoiceUpsert) {
-//			SetOrderID(v+v).
+//			SetUserID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *PaymentInvoiceCreate) OnConflict(opts ...sql.ConflictOption) *PaymentInvoiceUpsertOne {
@@ -546,18 +543,6 @@ type (
 		*sql.UpdateSet
 	}
 )
-
-// SetOrderID sets the "order_id" field.
-func (u *PaymentInvoiceUpsert) SetOrderID(v int64) *PaymentInvoiceUpsert {
-	u.Set(paymentinvoice.FieldOrderID, v)
-	return u
-}
-
-// UpdateOrderID sets the "order_id" field to the value that was provided on create.
-func (u *PaymentInvoiceUpsert) UpdateOrderID() *PaymentInvoiceUpsert {
-	u.SetExcluded(paymentinvoice.FieldOrderID)
-	return u
-}
 
 // SetUserID sets the "user_id" field.
 func (u *PaymentInvoiceUpsert) SetUserID(v int64) *PaymentInvoiceUpsert {
@@ -830,20 +815,6 @@ func (u *PaymentInvoiceUpsertOne) Update(set func(*PaymentInvoiceUpsert)) *Payme
 		set(&PaymentInvoiceUpsert{UpdateSet: update})
 	}))
 	return u
-}
-
-// SetOrderID sets the "order_id" field.
-func (u *PaymentInvoiceUpsertOne) SetOrderID(v int64) *PaymentInvoiceUpsertOne {
-	return u.Update(func(s *PaymentInvoiceUpsert) {
-		s.SetOrderID(v)
-	})
-}
-
-// UpdateOrderID sets the "order_id" field to the value that was provided on create.
-func (u *PaymentInvoiceUpsertOne) UpdateOrderID() *PaymentInvoiceUpsertOne {
-	return u.Update(func(s *PaymentInvoiceUpsert) {
-		s.UpdateOrderID()
-	})
 }
 
 // SetUserID sets the "user_id" field.
@@ -1247,7 +1218,7 @@ func (_c *PaymentInvoiceCreateBulk) ExecX(ctx context.Context) {
 //		// Override some of the fields with custom
 //		// update values.
 //		Update(func(u *ent.PaymentInvoiceUpsert) {
-//			SetOrderID(v+v).
+//			SetUserID(v+v).
 //		}).
 //		Exec(ctx)
 func (_c *PaymentInvoiceCreateBulk) OnConflict(opts ...sql.ConflictOption) *PaymentInvoiceUpsertBulk {
@@ -1321,20 +1292,6 @@ func (u *PaymentInvoiceUpsertBulk) Update(set func(*PaymentInvoiceUpsert)) *Paym
 		set(&PaymentInvoiceUpsert{UpdateSet: update})
 	}))
 	return u
-}
-
-// SetOrderID sets the "order_id" field.
-func (u *PaymentInvoiceUpsertBulk) SetOrderID(v int64) *PaymentInvoiceUpsertBulk {
-	return u.Update(func(s *PaymentInvoiceUpsert) {
-		s.SetOrderID(v)
-	})
-}
-
-// UpdateOrderID sets the "order_id" field to the value that was provided on create.
-func (u *PaymentInvoiceUpsertBulk) UpdateOrderID() *PaymentInvoiceUpsertBulk {
-	return u.Update(func(s *PaymentInvoiceUpsert) {
-		s.UpdateOrderID()
-	})
 }
 
 // SetUserID sets the "user_id" field.

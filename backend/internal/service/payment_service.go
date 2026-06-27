@@ -14,6 +14,7 @@ import (
 
 	dbent "github.com/Wei-Shaw/sub2api/ent"
 	"github.com/Wei-Shaw/sub2api/ent/paymentproviderinstance"
+	"github.com/google/uuid"
 	"github.com/Wei-Shaw/sub2api/internal/payment"
 	"github.com/Wei-Shaw/sub2api/internal/payment/provider"
 )
@@ -88,6 +89,7 @@ type CreateOrderRequest struct {
 
 type CreateOrderResponse struct {
 	OrderID      int64                           `json:"order_id"`
+	OrderUUID    string                          `json:"order_uuid,omitempty"`
 	Amount       float64                         `json:"amount"`
 	PayAmount    float64                         `json:"pay_amount"`
 	FeeRate      float64                         `json:"fee_rate"`
@@ -108,6 +110,10 @@ type CreateOrderResponse struct {
 	ExpiresAt    time.Time                       `json:"expires_at"`
 	PaymentMode  string                          `json:"payment_mode,omitempty"`
 	ResumeToken  string                          `json:"resume_token,omitempty"`
+}
+
+func PaymentOrderUUID(orderID int64) string {
+	return uuid.NewSHA1(uuid.NameSpaceOID, []byte(fmt.Sprintf("payment-order:%d", orderID))).String()
 }
 
 type OrderListParams struct {

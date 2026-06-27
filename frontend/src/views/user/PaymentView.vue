@@ -328,6 +328,7 @@ interface WeixinJSBridgeLike {
 function emptyPaymentState(): PaymentRecoverySnapshot {
   return {
     orderId: 0,
+    orderUuid: '',
     amount: 0,
     qrCode: '',
     expiresAt: '',
@@ -404,6 +405,9 @@ async function redirectToPaymentResult(state: PaymentRecoverySnapshot): Promise<
   const query: Record<string, string | undefined> = {}
   if (state.orderId > 0) {
     query.order_id = String(state.orderId)
+  }
+  if (state.orderUuid) {
+    query.order_uuid = state.orderUuid
   }
   if (state.outTradeNo) {
     query.out_trade_no = state.outTradeNo

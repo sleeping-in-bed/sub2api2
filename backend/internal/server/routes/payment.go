@@ -38,11 +38,18 @@ func RegisterPaymentRoutes(
 			orders.GET("/my", paymentHandler.GetMyOrders)
 			orders.GET("/:id", paymentHandler.GetOrder)
 			orders.POST("/:id/cancel", paymentHandler.CancelOrder)
-			orders.POST("/:id/invoice", paymentHandler.RequestInvoice)
 			orders.POST("/:id/refund-request", paymentHandler.RequestRefund)
 			orders.GET("/refund-eligible-providers", paymentHandler.GetRefundEligibleProviders)
 		}
-		authenticated.GET("/invoices/:id/download", paymentHandler.DownloadInvoice)
+		invoices := authenticated.Group("/invoices")
+		{
+			invoices.GET("/summary", paymentHandler.GetInvoiceSummary)
+			invoices.GET("/available-orders", paymentHandler.ListInvoiceAvailableOrders)
+			invoices.GET("", paymentHandler.ListMyInvoices)
+			invoices.POST("", paymentHandler.CreateInvoice)
+			invoices.GET("/:id", paymentHandler.GetMyInvoice)
+			invoices.GET("/:id/download", paymentHandler.DownloadInvoice)
+		}
 	}
 
 	// --- Public payment endpoints (no auth) ---

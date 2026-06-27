@@ -386,6 +386,7 @@ type RefundRequestBody struct {
 }
 
 type CreateInvoiceRequestBody struct {
+	OrderIDs  []int64 `json:"order_ids"`
 	TitleName string `json:"title_name"`
 	TaxID     string `json:"tax_id"`
 }
@@ -417,17 +418,94 @@ func (h *PaymentHandler) RequestRefund(c *gin.Context) {
 	response.Success(c, gin.H{"message": "refund requested"})
 }
 
-// RequestInvoice submits invoice information for a completed order.
-// POST /api/v1/payment/orders/:id/invoice
-func (h *PaymentHandler) RequestInvoice(c *gin.Context) {
+// GetInvoiceSummary returns the current user's invoiceable amount summary.
+// GET /api/v1/payment/invoices/summary
+func (h *PaymentHandler) GetInvoiceSummary(c *gin.Context) {
 	subject, ok := requireAuth(c)
 	if !ok {
 		return
 	}
 
-	orderID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	totalPayAmount, orderCount, err := h.paymentService.GetInvoiceAvailableSummary(c.Request.Context(), subject.UserID)
 	if err != nil {
-		response.BadRequest(c, "Invalid order ID")
+		response.ErrorFrom(c, err)
+		return
+	}
+	response.Success(c, gin.H{
+		"available_pay_amount": totalPayAmount,
+		"available_order_count": orderCount,
+		"minimum_pay_amount": 100.0,
+	})
+}
+
+// ListInvoiceAvailableOrders returns completed uninvoiced orders for the authenticated user.
+// GET /api/v1/payment/invoices/available-orders
+func (h *PaymentHandler) ListInvoiceAvailableOrders(c *gin.Context) {
+	subject, ok := requireAuth(c)
+	if !ok {
+		return
+	}
+
+	page, pageSize := response.ParsePagination(c)
+	orders, total, err := h.paymentService.ListInvoiceAvailableOrders(c.Request.Context(), subject.UserID, service.OrderListParams{
+		Page:     page,
+		PageSize: pageSize,
+	})
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	response.Paginated(c, sanitizePaymentOrdersForResponse(orders), int64(total), page, pageSize)
+}
+
+// ListMyInvoices returns the authenticated user's invoice history.
+// GET /api/v1/payment/invoices
+func (h *PaymentHandler) ListMyInvoices(c *gin.Context) {
+	subject, ok := requireAuth(c)
+	if !ok {
+		return
+	}
+
+	page, pageSize := response.ParsePagination(c)
+	invoices, total, err := h.paymentService.ListUserInvoices(c.Request.Context(), subject.UserID, service.PaymentInvoiceListParams{
+		Page:     page,
+		PageSize: pageSize,
+		Status:   c.Query("status"),
+	})
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	response.Paginated(c, sanitizePaymentInvoicesForResponse(invoices), int64(total), page, pageSize)
+}
+
+// GetMyInvoice returns a single invoice record for the authenticated user.
+// GET /api/v1/payment/invoices/:id
+func (h *PaymentHandler) GetMyInvoice(c *gin.Context) {
+	subject, ok := requireAuth(c)
+	if !ok {
+		return
+	}
+
+	invoiceID, err := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err != nil {
+		response.BadRequest(c, "Invalid invoice ID")
+		return
+	}
+
+	invoice, err := h.paymentService.GetUserInvoiceByID(c.Request.Context(), invoiceID, subject.UserID)
+	if err != nil {
+		response.ErrorFrom(c, err)
+		return
+	}
+	response.Success(c, sanitizePaymentInvoiceForResponse(invoice))
+}
+
+// CreateInvoice submits invoice information for completed uninvoiced orders.
+// POST /api/v1/payment/invoices
+func (h *PaymentHandler) CreateInvoice(c *gin.Context) {
+	subject, ok := requireAuth(c)
+	if !ok {
 		return
 	}
 
@@ -437,7 +515,7 @@ func (h *PaymentHandler) RequestInvoice(c *gin.Context) {
 		return
 	}
 
-	invoice, err := h.paymentService.RequestInvoice(c.Request.Context(), orderID, subject.UserID, req.TitleName, req.TaxID)
+	invoice, err := h.paymentService.RequestInvoice(c.Request.Context(), req.OrderIDs, subject.UserID, req.TitleName, req.TaxID)
 	if err != nil {
 		response.ErrorFrom(c, err)
 		return
@@ -625,6 +703,7 @@ func isMobile(c *gin.Context) bool {
 
 type PaymentOrderResult struct {
 	ID                  int64      `json:"id"`
+	OrderUUID           string     `json:"order_uuid"`
 	UserID              int64      `json:"user_id"`
 	Amount              float64    `json:"amount"`
 	PayAmount           float64    `json:"pay_amount"`
@@ -645,23 +724,42 @@ type PaymentOrderResult struct {
 	RefundRequestReason *string    `json:"refund_request_reason,omitempty"`
 	PlanID              *int64     `json:"plan_id,omitempty"`
 	ProviderInstanceID  *string    `json:"provider_instance_id,omitempty"`
-	Invoice             *PaymentInvoiceResult `json:"invoice,omitempty"`
+	Invoice             *PaymentInvoiceSummaryResult `json:"invoice,omitempty"`
+}
+
+type PaymentInvoiceSummaryResult struct {
+	ID             int64      `json:"id"`
+	UserID         int64      `json:"user_id"`
+	TitleName      string     `json:"title_name"`
+	TaxID          string     `json:"tax_id"`
+	Status         string     `json:"status"`
+	RequestedAt    time.Time  `json:"requested_at"`
+	IssuedAt       *time.Time `json:"issued_at,omitempty"`
+	FailedAt       *time.Time `json:"failed_at,omitempty"`
+	FailedReason   *string    `json:"failed_reason,omitempty"`
+	FileName       *string    `json:"file_name,omitempty"`
+	ContentType    *string    `json:"content_type,omitempty"`
+	ByteSize       int64      `json:"byte_size"`
+	OrderCount     int        `json:"order_count"`
+	TotalAmount    float64    `json:"total_amount"`
+	TotalPayAmount float64    `json:"total_pay_amount"`
+}
+
+type PaymentInvoiceOrderResult struct {
+	ID          int64      `json:"id"`
+	OrderUUID   string     `json:"order_uuid"`
+	Status      string     `json:"status"`
+	OrderType   string     `json:"order_type"`
+	PaymentType string     `json:"payment_type"`
+	Amount      float64    `json:"amount"`
+	PayAmount   float64    `json:"pay_amount"`
+	CreatedAt   time.Time  `json:"created_at"`
+	CompletedAt *time.Time `json:"completed_at,omitempty"`
 }
 
 type PaymentInvoiceResult struct {
-	ID         int64      `json:"id"`
-	OrderID    int64      `json:"order_id"`
-	UserID     int64      `json:"user_id"`
-	TitleName  string     `json:"title_name"`
-	TaxID      string     `json:"tax_id"`
-	Status     string     `json:"status"`
-	RequestedAt time.Time `json:"requested_at"`
-	IssuedAt   *time.Time `json:"issued_at,omitempty"`
-	FailedAt   *time.Time `json:"failed_at,omitempty"`
-	FailedReason *string  `json:"failed_reason,omitempty"`
-	FileName   *string    `json:"file_name,omitempty"`
-	ContentType *string   `json:"content_type,omitempty"`
-	ByteSize   int64      `json:"byte_size"`
+	PaymentInvoiceSummaryResult
+	Orders []PaymentInvoiceOrderResult `json:"orders,omitempty"`
 }
 
 func sanitizePaymentOrdersForResponse(orders []*dbent.PaymentOrder) []PaymentOrderResult {
@@ -680,6 +778,7 @@ func sanitizePaymentOrderForResponse(order *dbent.PaymentOrder) *PaymentOrderRes
 	}
 	return &PaymentOrderResult{
 		ID:                  order.ID,
+		OrderUUID:           service.PaymentOrderUUID(order.ID),
 		UserID:              order.UserID,
 		Amount:              order.Amount,
 		PayAmount:           order.PayAmount,
@@ -700,7 +799,31 @@ func sanitizePaymentOrderForResponse(order *dbent.PaymentOrder) *PaymentOrderRes
 		RefundRequestReason: order.RefundRequestReason,
 		PlanID:              order.PlanID,
 		ProviderInstanceID:  order.ProviderInstanceID,
-		Invoice:             sanitizePaymentInvoiceForResponse(order.Edges.Invoice),
+		Invoice:             sanitizePaymentInvoiceSummaryForResponse(order.Edges.Invoice),
+	}
+}
+
+func sanitizePaymentInvoiceSummaryForResponse(invoice *dbent.PaymentInvoice) *PaymentInvoiceSummaryResult {
+	if invoice == nil {
+		return nil
+	}
+	totalAmount, totalPayAmount := sumInvoiceOrderAmounts(invoice.Edges.Orders)
+	return &PaymentInvoiceSummaryResult{
+		ID:             invoice.ID,
+		UserID:         invoice.UserID,
+		TitleName:      invoice.TitleName,
+		TaxID:          invoice.TaxID,
+		Status:         invoice.Status,
+		RequestedAt:    invoice.RequestedAt,
+		IssuedAt:       invoice.IssuedAt,
+		FailedAt:       invoice.FailedAt,
+		FailedReason:   invoice.FailedReason,
+		FileName:       invoice.FileName,
+		ContentType:    invoice.ContentType,
+		ByteSize:       invoice.ByteSize,
+		OrderCount:     len(invoice.Edges.Orders),
+		TotalAmount:    totalAmount,
+		TotalPayAmount: totalPayAmount,
 	}
 }
 
@@ -708,21 +831,52 @@ func sanitizePaymentInvoiceForResponse(invoice *dbent.PaymentInvoice) *PaymentIn
 	if invoice == nil {
 		return nil
 	}
-	return &PaymentInvoiceResult{
-		ID:           invoice.ID,
-		OrderID:      invoice.OrderID,
-		UserID:       invoice.UserID,
-		TitleName:    invoice.TitleName,
-		TaxID:        invoice.TaxID,
-		Status:       invoice.Status,
-		RequestedAt:  invoice.RequestedAt,
-		IssuedAt:     invoice.IssuedAt,
-		FailedAt:     invoice.FailedAt,
-		FailedReason: invoice.FailedReason,
-		FileName:     invoice.FileName,
-		ContentType:  invoice.ContentType,
-		ByteSize:     invoice.ByteSize,
+
+	orders := make([]PaymentInvoiceOrderResult, 0, len(invoice.Edges.Orders))
+	for _, order := range invoice.Edges.Orders {
+		if order == nil {
+			continue
+		}
+		orders = append(orders, PaymentInvoiceOrderResult{
+			ID:          order.ID,
+			OrderUUID:   service.PaymentOrderUUID(order.ID),
+			Status:      order.Status,
+			OrderType:   order.OrderType,
+			PaymentType: order.PaymentType,
+			Amount:      order.Amount,
+			PayAmount:   order.PayAmount,
+			CreatedAt:   order.CreatedAt,
+			CompletedAt: order.CompletedAt,
+		})
 	}
+
+	return &PaymentInvoiceResult{
+		PaymentInvoiceSummaryResult: *sanitizePaymentInvoiceSummaryForResponse(invoice),
+		Orders:                      orders,
+	}
+}
+
+func sanitizePaymentInvoicesForResponse(invoices []*dbent.PaymentInvoice) []PaymentInvoiceResult {
+	out := make([]PaymentInvoiceResult, 0, len(invoices))
+	for _, invoice := range invoices {
+		if item := sanitizePaymentInvoiceForResponse(invoice); item != nil {
+			out = append(out, *item)
+		}
+	}
+	return out
+}
+
+func sumInvoiceOrderAmounts(orders []*dbent.PaymentOrder) (float64, float64) {
+	totalAmount := 0.0
+	totalPayAmount := 0.0
+	for _, order := range orders {
+		if order == nil {
+			continue
+		}
+		totalAmount += order.Amount
+		totalPayAmount += order.PayAmount
+	}
+	return totalAmount, totalPayAmount
 }
 
 func isWeChatBrowser(c *gin.Context) bool {

@@ -50,6 +50,7 @@ import { formatPaymentAmount } from '@/components/payment/currency'
 
 const orderFactory = (status: string) => ({
   id: 42,
+  order_uuid: '41a4b0f3-d88f-5fdc-9b1f-9ff3f0e6f42b',
   user_id: 9,
   amount: 88,
   pay_amount: 88,
@@ -65,6 +66,7 @@ const orderFactory = (status: string) => ({
 
 const recoverySnapshotFactory = (resumeToken: string) => ({
   orderId: 42,
+  orderUuid: '41a4b0f3-d88f-5fdc-9b1f-9ff3f0e6f42b',
   amount: 88,
   qrCode: '',
   expiresAt: '2099-01-01T00:10:00.000Z',
@@ -106,6 +108,7 @@ describe('PaymentResultView', () => {
     }
     window.localStorage.setItem(PAYMENT_RECOVERY_STORAGE_KEY, JSON.stringify({
       orderId: 42,
+      orderUuid: '41a4b0f3-d88f-5fdc-9b1f-9ff3f0e6f42b',
       amount: 88,
       qrCode: '',
       expiresAt: '2099-01-01T00:10:00.000Z',
@@ -152,6 +155,7 @@ describe('PaymentResultView', () => {
     }
     window.localStorage.setItem(PAYMENT_RECOVERY_STORAGE_KEY, JSON.stringify({
       orderId: 42,
+      orderUuid: '41a4b0f3-d88f-5fdc-9b1f-9ff3f0e6f42b',
       amount: 88,
       qrCode: '',
       expiresAt: '2099-01-01T00:10:00.000Z',

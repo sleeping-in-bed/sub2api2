@@ -1,9 +1,9 @@
 <template>
   <DataTable :columns="columns" :data="orders" :loading="loading">
-    <template #cell-id="{ value }">
-      <span class="font-mono text-sm">#{{ value }}</span>
+    <template #cell-order_uuid="{ value }">
+      <span class="font-mono text-sm">{{ value }}</span>
     </template>
-    <template #cell-out_trade_no="{ value }">
+    <template #cell-id="{ value }">
       <span class="text-sm text-gray-900 dark:text-white">{{ value }}</span>
     </template>
     <template v-if="showUser" #cell-user_email="{ value, row }">
@@ -48,19 +48,23 @@ import OrderStatusBadge from '@/components/payment/OrderStatusBadge.vue'
 
 const { t } = useI18n()
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   orders: PaymentOrder[]
   loading: boolean
   showUser?: boolean
-}>()
+  showOrderId?: boolean
+}>(), {
+  showUser: false,
+  showOrderId: true,
+})
 
 function formatDate(dateStr: string) { return new Date(dateStr).toLocaleString() }
 
 const columns = computed((): Column[] => {
-  const cols: Column[] = [
-    { key: 'id', label: t('payment.orders.orderId') },
-    { key: 'out_trade_no', label: t('payment.orders.orderNo') },
-  ]
+  const cols: Column[] = []
+  if (props.showOrderId !== false) {
+    cols.push({ key: 'order_uuid', label: t('payment.orders.orderId') })
+  }
   if (props.showUser) {
     cols.push({ key: 'user_email', label: t('payment.admin.colUser') })
   }

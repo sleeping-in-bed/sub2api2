@@ -418,6 +418,26 @@ func (_u *PaymentOrderUpdate) ClearProviderSnapshot() *PaymentOrderUpdate {
 	return _u
 }
 
+// SetInvoiceID sets the "invoice_id" field.
+func (_u *PaymentOrderUpdate) SetInvoiceID(v int64) *PaymentOrderUpdate {
+	_u.mutation.SetInvoiceID(v)
+	return _u
+}
+
+// SetNillableInvoiceID sets the "invoice_id" field if the given value is not nil.
+func (_u *PaymentOrderUpdate) SetNillableInvoiceID(v *int64) *PaymentOrderUpdate {
+	if v != nil {
+		_u.SetInvoiceID(*v)
+	}
+	return _u
+}
+
+// ClearInvoiceID clears the value of the "invoice_id" field.
+func (_u *PaymentOrderUpdate) ClearInvoiceID() *PaymentOrderUpdate {
+	_u.mutation.ClearInvoiceID()
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *PaymentOrderUpdate) SetStatus(v string) *PaymentOrderUpdate {
 	_u.mutation.SetStatus(v)
@@ -718,20 +738,6 @@ func (_u *PaymentOrderUpdate) SetUpdatedAt(v time.Time) *PaymentOrderUpdate {
 // SetUser sets the "user" edge to the User entity.
 func (_u *PaymentOrderUpdate) SetUser(v *User) *PaymentOrderUpdate {
 	return _u.SetUserID(v.ID)
-}
-
-// SetInvoiceID sets the "invoice" edge to the PaymentInvoice entity by ID.
-func (_u *PaymentOrderUpdate) SetInvoiceID(id int64) *PaymentOrderUpdate {
-	_u.mutation.SetInvoiceID(id)
-	return _u
-}
-
-// SetNillableInvoiceID sets the "invoice" edge to the PaymentInvoice entity by ID if the given value is not nil.
-func (_u *PaymentOrderUpdate) SetNillableInvoiceID(id *int64) *PaymentOrderUpdate {
-	if id != nil {
-		_u = _u.SetInvoiceID(*id)
-	}
-	return _u
 }
 
 // SetInvoice sets the "invoice" edge to the PaymentInvoice entity.
@@ -1100,8 +1106,8 @@ func (_u *PaymentOrderUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if _u.mutation.InvoiceCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   paymentorder.InvoiceTable,
 			Columns: []string{paymentorder.InvoiceColumn},
 			Bidi:    false,
@@ -1113,8 +1119,8 @@ func (_u *PaymentOrderUpdate) sqlSave(ctx context.Context) (_node int, err error
 	}
 	if nodes := _u.mutation.InvoiceIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   paymentorder.InvoiceTable,
 			Columns: []string{paymentorder.InvoiceColumn},
 			Bidi:    false,
@@ -1535,6 +1541,26 @@ func (_u *PaymentOrderUpdateOne) ClearProviderSnapshot() *PaymentOrderUpdateOne 
 	return _u
 }
 
+// SetInvoiceID sets the "invoice_id" field.
+func (_u *PaymentOrderUpdateOne) SetInvoiceID(v int64) *PaymentOrderUpdateOne {
+	_u.mutation.SetInvoiceID(v)
+	return _u
+}
+
+// SetNillableInvoiceID sets the "invoice_id" field if the given value is not nil.
+func (_u *PaymentOrderUpdateOne) SetNillableInvoiceID(v *int64) *PaymentOrderUpdateOne {
+	if v != nil {
+		_u.SetInvoiceID(*v)
+	}
+	return _u
+}
+
+// ClearInvoiceID clears the value of the "invoice_id" field.
+func (_u *PaymentOrderUpdateOne) ClearInvoiceID() *PaymentOrderUpdateOne {
+	_u.mutation.ClearInvoiceID()
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *PaymentOrderUpdateOne) SetStatus(v string) *PaymentOrderUpdateOne {
 	_u.mutation.SetStatus(v)
@@ -1835,20 +1861,6 @@ func (_u *PaymentOrderUpdateOne) SetUpdatedAt(v time.Time) *PaymentOrderUpdateOn
 // SetUser sets the "user" edge to the User entity.
 func (_u *PaymentOrderUpdateOne) SetUser(v *User) *PaymentOrderUpdateOne {
 	return _u.SetUserID(v.ID)
-}
-
-// SetInvoiceID sets the "invoice" edge to the PaymentInvoice entity by ID.
-func (_u *PaymentOrderUpdateOne) SetInvoiceID(id int64) *PaymentOrderUpdateOne {
-	_u.mutation.SetInvoiceID(id)
-	return _u
-}
-
-// SetNillableInvoiceID sets the "invoice" edge to the PaymentInvoice entity by ID if the given value is not nil.
-func (_u *PaymentOrderUpdateOne) SetNillableInvoiceID(id *int64) *PaymentOrderUpdateOne {
-	if id != nil {
-		_u = _u.SetInvoiceID(*id)
-	}
-	return _u
 }
 
 // SetInvoice sets the "invoice" edge to the PaymentInvoice entity.
@@ -2247,8 +2259,8 @@ func (_u *PaymentOrderUpdateOne) sqlSave(ctx context.Context) (_node *PaymentOrd
 	}
 	if _u.mutation.InvoiceCleared() {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   paymentorder.InvoiceTable,
 			Columns: []string{paymentorder.InvoiceColumn},
 			Bidi:    false,
@@ -2260,8 +2272,8 @@ func (_u *PaymentOrderUpdateOne) sqlSave(ctx context.Context) (_node *PaymentOrd
 	}
 	if nodes := _u.mutation.InvoiceIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.O2O,
-			Inverse: false,
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
 			Table:   paymentorder.InvoiceTable,
 			Columns: []string{paymentorder.InvoiceColumn},
 			Bidi:    false,

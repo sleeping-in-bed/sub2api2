@@ -151,40 +151,31 @@ type AdminPaymentOrderResult struct {
 }
 
 type AdminPaymentInvoiceSummary struct {
-	ID           int64      `json:"id"`
-	OrderID      int64      `json:"order_id"`
-	UserID       int64      `json:"user_id"`
-	TitleName    string     `json:"title_name"`
-	TaxID        string     `json:"tax_id"`
-	Status       string     `json:"status"`
-	RequestedAt  time.Time  `json:"requested_at"`
-	IssuedAt     *time.Time `json:"issued_at,omitempty"`
-	FailedAt     *time.Time `json:"failed_at,omitempty"`
-	FailedReason *string    `json:"failed_reason,omitempty"`
-	FileName     *string    `json:"file_name,omitempty"`
-	ContentType  *string    `json:"content_type,omitempty"`
-	ByteSize     int64      `json:"byte_size"`
+	ID             int64      `json:"id"`
+	UserID         int64      `json:"user_id"`
+	TitleName      string     `json:"title_name"`
+	TaxID          string     `json:"tax_id"`
+	Status         string     `json:"status"`
+	RequestedAt    time.Time  `json:"requested_at"`
+	IssuedAt       *time.Time `json:"issued_at,omitempty"`
+	FailedAt       *time.Time `json:"failed_at,omitempty"`
+	FailedReason   *string    `json:"failed_reason,omitempty"`
+	FileName       *string    `json:"file_name,omitempty"`
+	ContentType    *string    `json:"content_type,omitempty"`
+	ByteSize       int64      `json:"byte_size"`
+	OrderCount     int        `json:"order_count"`
+	TotalAmount    float64    `json:"total_amount"`
+	TotalPayAmount float64    `json:"total_pay_amount"`
 }
 
 type AdminPaymentInvoiceResult struct {
-	ID           int64                    `json:"id"`
-	OrderID      int64                    `json:"order_id"`
-	UserID       int64                    `json:"user_id"`
-	TitleName    string                   `json:"title_name"`
-	TaxID        string                   `json:"tax_id"`
-	Status       string                   `json:"status"`
-	RequestedAt  time.Time                `json:"requested_at"`
-	IssuedAt     *time.Time               `json:"issued_at,omitempty"`
-	FailedAt     *time.Time               `json:"failed_at,omitempty"`
-	FailedReason *string                  `json:"failed_reason,omitempty"`
-	FileName     *string                  `json:"file_name,omitempty"`
-	ContentType  *string                  `json:"content_type,omitempty"`
-	ByteSize     int64                    `json:"byte_size"`
-	Order        *AdminPaymentInvoiceOrder `json:"order,omitempty"`
+	AdminPaymentInvoiceSummary
+	Orders []AdminPaymentInvoiceOrder `json:"orders,omitempty"`
 }
 
 type AdminPaymentInvoiceOrder struct {
 	ID          int64      `json:"id"`
+	OrderUUID   string     `json:"order_uuid"`
 	UserID      int64      `json:"user_id"`
 	UserEmail   string     `json:"user_email"`
 	UserName    string     `json:"user_name"`
@@ -421,19 +412,21 @@ func sanitizeAdminPaymentInvoiceSummary(invoice *dbent.PaymentInvoice) *AdminPay
 		return nil
 	}
 	return &AdminPaymentInvoiceSummary{
-		ID:           invoice.ID,
-		OrderID:      invoice.OrderID,
-		UserID:       invoice.UserID,
-		TitleName:    invoice.TitleName,
-		TaxID:        invoice.TaxID,
-		Status:       invoice.Status,
-		RequestedAt:  invoice.RequestedAt,
-		IssuedAt:     invoice.IssuedAt,
-		FailedAt:     invoice.FailedAt,
-		FailedReason: invoice.FailedReason,
-		FileName:     invoice.FileName,
-		ContentType:  invoice.ContentType,
-		ByteSize:     invoice.ByteSize,
+		ID:             invoice.ID,
+		UserID:         invoice.UserID,
+		TitleName:      invoice.TitleName,
+		TaxID:          invoice.TaxID,
+		Status:         invoice.Status,
+		RequestedAt:    invoice.RequestedAt,
+		IssuedAt:       invoice.IssuedAt,
+		FailedAt:       invoice.FailedAt,
+		FailedReason:   invoice.FailedReason,
+		FileName:       invoice.FileName,
+		ContentType:    invoice.ContentType,
+		ByteSize:       invoice.ByteSize,
+		OrderCount:     len(invoice.Edges.Orders),
+		TotalAmount:    sumAdminInvoiceOrderAmount(invoice.Edges.Orders),
+		TotalPayAmount: sumAdminInvoiceOrderPayAmount(invoice.Edges.Orders),
 	}
 }
 
@@ -442,40 +435,32 @@ func sanitizeAdminPaymentInvoiceForResponse(invoice *dbent.PaymentInvoice) *Admi
 		return nil
 	}
 
-	var order *AdminPaymentInvoiceOrder
-	if invoice.Edges.Order != nil {
-		order = &AdminPaymentInvoiceOrder{
-			ID:          invoice.Edges.Order.ID,
-			UserID:      invoice.Edges.Order.UserID,
-			UserEmail:   invoice.Edges.Order.UserEmail,
-			UserName:    invoice.Edges.Order.UserName,
-			UserNotes:   invoice.Edges.Order.UserNotes,
-			OutTradeNo:  invoice.Edges.Order.OutTradeNo,
-			Status:      invoice.Edges.Order.Status,
-			OrderType:   invoice.Edges.Order.OrderType,
-			PaymentType: invoice.Edges.Order.PaymentType,
-			Amount:      invoice.Edges.Order.Amount,
-			PayAmount:   invoice.Edges.Order.PayAmount,
-			CreatedAt:   invoice.Edges.Order.CreatedAt,
-			CompletedAt: invoice.Edges.Order.CompletedAt,
+	orders := make([]AdminPaymentInvoiceOrder, 0, len(invoice.Edges.Orders))
+	for _, order := range invoice.Edges.Orders {
+		if order == nil {
+			continue
 		}
+		orders = append(orders, AdminPaymentInvoiceOrder{
+			ID:          order.ID,
+			OrderUUID:   service.PaymentOrderUUID(order.ID),
+			UserID:      order.UserID,
+			UserEmail:   order.UserEmail,
+			UserName:    order.UserName,
+			UserNotes:   order.UserNotes,
+			OutTradeNo:  order.OutTradeNo,
+			Status:      order.Status,
+			OrderType:   order.OrderType,
+			PaymentType: order.PaymentType,
+			Amount:      order.Amount,
+			PayAmount:   order.PayAmount,
+			CreatedAt:   order.CreatedAt,
+			CompletedAt: order.CompletedAt,
+		})
 	}
 
 	return &AdminPaymentInvoiceResult{
-		ID:           invoice.ID,
-		OrderID:      invoice.OrderID,
-		UserID:       invoice.UserID,
-		TitleName:    invoice.TitleName,
-		TaxID:        invoice.TaxID,
-		Status:       invoice.Status,
-		RequestedAt:  invoice.RequestedAt,
-		IssuedAt:     invoice.IssuedAt,
-		FailedAt:     invoice.FailedAt,
-		FailedReason: invoice.FailedReason,
-		FileName:     invoice.FileName,
-		ContentType:  invoice.ContentType,
-		ByteSize:     invoice.ByteSize,
-		Order:        order,
+		AdminPaymentInvoiceSummary: *sanitizeAdminPaymentInvoiceSummary(invoice),
+		Orders:                     orders,
 	}
 }
 
@@ -487,6 +472,28 @@ func sanitizeAdminPaymentInvoicesForResponse(invoices []*dbent.PaymentInvoice) [
 		}
 	}
 	return out
+}
+
+func sumAdminInvoiceOrderAmount(orders []*dbent.PaymentOrder) float64 {
+	total := 0.0
+	for _, order := range orders {
+		if order == nil {
+			continue
+		}
+		total += order.Amount
+	}
+	return total
+}
+
+func sumAdminInvoiceOrderPayAmount(orders []*dbent.PaymentOrder) float64 {
+	total := 0.0
+	for _, order := range orders {
+		if order == nil {
+			continue
+		}
+		total += order.PayAmount
+	}
+	return total
 }
 
 // --- Subscription Plans ---

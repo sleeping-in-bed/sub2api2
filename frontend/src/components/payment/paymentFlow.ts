@@ -32,6 +32,7 @@ export type PaymentLaunchKind =
 
 export interface PaymentRecoverySnapshot {
   orderId: number
+  orderUuid: string
   amount: number
   qrCode: string
   expiresAt: string
@@ -147,6 +148,7 @@ export function decidePaymentLaunch(
   const visibleMethod = normalizeVisibleMethod(context.visibleMethod) || context.visibleMethod
   const baseState = createPaymentRecoverySnapshot({
     orderId: result.order_id,
+    orderUuid: result.order_uuid || '',
     amount: result.amount,
     qrCode: result.qr_code || '',
     expiresAt: result.expires_at || '',
@@ -265,6 +267,7 @@ export function readPaymentRecoverySnapshot(
     const parsed = JSON.parse(raw) as Partial<PaymentRecoverySnapshot>
     if (
       typeof parsed.orderId !== 'number'
+      || typeof parsed.orderUuid !== 'string'
       || typeof parsed.amount !== 'number'
       || typeof parsed.qrCode !== 'string'
       || typeof parsed.expiresAt !== 'string'
@@ -295,6 +298,7 @@ export function readPaymentRecoverySnapshot(
 
     return {
       orderId: parsed.orderId,
+      orderUuid: parsed.orderUuid,
       amount: parsed.amount,
       qrCode: parsed.qrCode,
       expiresAt: parsed.expiresAt,

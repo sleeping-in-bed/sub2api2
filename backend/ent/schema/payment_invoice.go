@@ -16,7 +16,7 @@ import (
 //
 // 删除策略：硬删除
 // PaymentInvoice 使用硬删除而非软删除，原因如下：
-//   - 发票申请与订单是一对一的附属数据，订单删除时可一并清理
+//   - 发票申请与订单是稳定的主从关系，一张发票可以包含多笔订单
 //   - 发票状态通过 status 字段追踪，无需额外软删除过滤
 //   - 减少查询复杂度，避免后台列表额外处理软删除条件
 type PaymentInvoice struct {
@@ -31,7 +31,6 @@ func (PaymentInvoice) Annotations() []schema.Annotation {
 
 func (PaymentInvoice) Fields() []ent.Field {
 	return []ent.Field{
-		field.Int64("order_id"),
 		field.Int64("user_id"),
 		field.String("title_name").
 			MaxLen(200),
@@ -89,11 +88,7 @@ func (PaymentInvoice) Fields() []ent.Field {
 
 func (PaymentInvoice) Edges() []ent.Edge {
 	return []ent.Edge{
-		edge.From("order", PaymentOrder.Type).
-			Ref("invoice").
-			Field("order_id").
-			Unique().
-			Required(),
+		edge.To("orders", PaymentOrder.Type),
 		edge.From("user", User.Type).
 			Ref("payment_invoices").
 			Field("user_id").
@@ -104,8 +99,6 @@ func (PaymentInvoice) Edges() []ent.Edge {
 
 func (PaymentInvoice) Indexes() []ent.Index {
 	return []ent.Index{
-		index.Fields("order_id").
-			Unique(),
 		index.Fields("user_id"),
 		index.Fields("status"),
 		index.Fields("requested_at"),

@@ -3212,15 +3212,15 @@ func (c *PaymentInvoiceClient) GetX(ctx context.Context, id int64) *PaymentInvoi
 	return obj
 }
 
-// QueryOrder queries the order edge of a PaymentInvoice.
-func (c *PaymentInvoiceClient) QueryOrder(_m *PaymentInvoice) *PaymentOrderQuery {
+// QueryOrders queries the orders edge of a PaymentInvoice.
+func (c *PaymentInvoiceClient) QueryOrders(_m *PaymentInvoice) *PaymentOrderQuery {
 	query := (&PaymentOrderClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(paymentinvoice.Table, paymentinvoice.FieldID, id),
 			sqlgraph.To(paymentorder.Table, paymentorder.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, paymentinvoice.OrderTable, paymentinvoice.OrderColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, paymentinvoice.OrdersTable, paymentinvoice.OrdersColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -3401,7 +3401,7 @@ func (c *PaymentOrderClient) QueryInvoice(_m *PaymentOrder) *PaymentInvoiceQuery
 		step := sqlgraph.NewStep(
 			sqlgraph.From(paymentorder.Table, paymentorder.FieldID, id),
 			sqlgraph.To(paymentinvoice.Table, paymentinvoice.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, paymentorder.InvoiceTable, paymentorder.InvoiceColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, paymentorder.InvoiceTable, paymentorder.InvoiceColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil

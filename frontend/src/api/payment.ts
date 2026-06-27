@@ -12,6 +12,8 @@ import type {
   CheckoutInfoResponse,
   CreateOrderRequest,
   CreateOrderResult,
+  PaymentInvoice,
+  PaymentInvoiceSummaryResponse,
   PaymentOrder
 } from '@/types/payment'
 import type { BasePaginationResponse } from '@/types'
@@ -62,9 +64,29 @@ export const paymentAPI = {
     return apiClient.post(`/payment/orders/${id}/cancel`)
   },
 
-  /** Submit invoice information for a completed order */
-  createInvoice(id: number, data: { title_name: string; tax_id: string }) {
-    return apiClient.post(`/payment/orders/${id}/invoice`, data)
+  /** Get current user's invoiceable amount summary */
+  getInvoiceSummary() {
+    return apiClient.get<PaymentInvoiceSummaryResponse>('/payment/invoices/summary')
+  },
+
+  /** Get completed uninvoiced orders for invoice selection */
+  getInvoiceAvailableOrders(params?: { page?: number; page_size?: number }) {
+    return apiClient.get<BasePaginationResponse<PaymentOrder>>('/payment/invoices/available-orders', { params })
+  },
+
+  /** Get current user's invoice history */
+  getMyInvoices(params?: { page?: number; page_size?: number; status?: string }) {
+    return apiClient.get<BasePaginationResponse<PaymentInvoice>>('/payment/invoices', { params })
+  },
+
+  /** Get a specific invoice record */
+  getInvoice(id: number) {
+    return apiClient.get<PaymentInvoice>(`/payment/invoices/${id}`)
+  },
+
+  /** Submit invoice information for selected completed orders */
+  createInvoice(data: { order_ids: number[]; title_name: string; tax_id: string }) {
+    return apiClient.post<PaymentInvoice>('/payment/invoices', data)
   },
 
   /** Verify order payment status with upstream provider */

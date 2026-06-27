@@ -834,7 +834,6 @@ var (
 		{Name: "sha256", Type: field.TypeString, Nullable: true, Size: 64},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
-		{Name: "order_id", Type: field.TypeInt64, Unique: true},
 		{Name: "user_id", Type: field.TypeInt64},
 	}
 	// PaymentInvoicesTable holds the schema information for the "payment_invoices" table.
@@ -844,28 +843,17 @@ var (
 		PrimaryKey: []*schema.Column{PaymentInvoicesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "payment_invoices_payment_orders_invoice",
-				Columns:    []*schema.Column{PaymentInvoicesColumns[16]},
-				RefColumns: []*schema.Column{PaymentOrdersColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
 				Symbol:     "payment_invoices_users_payment_invoices",
-				Columns:    []*schema.Column{PaymentInvoicesColumns[17]},
+				Columns:    []*schema.Column{PaymentInvoicesColumns[16]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 		},
 		Indexes: []*schema.Index{
 			{
-				Name:    "paymentinvoice_order_id",
-				Unique:  true,
-				Columns: []*schema.Column{PaymentInvoicesColumns[16]},
-			},
-			{
 				Name:    "paymentinvoice_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{PaymentInvoicesColumns[17]},
+				Columns: []*schema.Column{PaymentInvoicesColumns[16]},
 			},
 			{
 				Name:    "paymentinvoice_status",
@@ -930,6 +918,7 @@ var (
 		{Name: "src_url", Type: field.TypeString, Nullable: true, SchemaType: map[string]string{"postgres": "text"}},
 		{Name: "created_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
 		{Name: "updated_at", Type: field.TypeTime, SchemaType: map[string]string{"postgres": "timestamptz"}},
+		{Name: "invoice_id", Type: field.TypeInt64, Nullable: true},
 		{Name: "user_id", Type: field.TypeInt64},
 	}
 	// PaymentOrdersTable holds the schema information for the "payment_orders" table.
@@ -939,8 +928,14 @@ var (
 		PrimaryKey: []*schema.Column{PaymentOrdersColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "payment_orders_users_payment_orders",
+				Symbol:     "payment_orders_payment_invoices_orders",
 				Columns:    []*schema.Column{PaymentOrdersColumns[39]},
+				RefColumns: []*schema.Column{PaymentInvoicesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "payment_orders_users_payment_orders",
+				Columns:    []*schema.Column{PaymentOrdersColumns[40]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -957,7 +952,7 @@ var (
 			{
 				Name:    "paymentorder_user_id",
 				Unique:  false,
-				Columns: []*schema.Column{PaymentOrdersColumns[39]},
+				Columns: []*schema.Column{PaymentOrdersColumns[40]},
 			},
 			{
 				Name:    "paymentorder_status",
@@ -988,6 +983,11 @@ var (
 				Name:    "paymentorder_order_type",
 				Unique:  false,
 				Columns: []*schema.Column{PaymentOrdersColumns[14]},
+			},
+			{
+				Name:    "paymentorder_invoice_id",
+				Unique:  false,
+				Columns: []*schema.Column{PaymentOrdersColumns[39]},
 			},
 		},
 	}
@@ -1951,12 +1951,12 @@ func init() {
 	PaymentAuditLogsTable.Annotation = &entsql.Annotation{
 		Table: "payment_audit_logs",
 	}
-	PaymentInvoicesTable.ForeignKeys[0].RefTable = PaymentOrdersTable
-	PaymentInvoicesTable.ForeignKeys[1].RefTable = UsersTable
+	PaymentInvoicesTable.ForeignKeys[0].RefTable = UsersTable
 	PaymentInvoicesTable.Annotation = &entsql.Annotation{
 		Table: "payment_invoices",
 	}
-	PaymentOrdersTable.ForeignKeys[0].RefTable = UsersTable
+	PaymentOrdersTable.ForeignKeys[0].RefTable = PaymentInvoicesTable
+	PaymentOrdersTable.ForeignKeys[1].RefTable = UsersTable
 	PaymentOrdersTable.Annotation = &entsql.Annotation{
 		Table: "payment_orders",
 	}

@@ -19,7 +19,7 @@
             <div class="space-y-2 text-sm">
               <div class="flex justify-between">
                 <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.orderId') }}</span>
-                <span class="font-medium text-gray-900 dark:text-white">#{{ orderId }}</span>
+                <span class="font-mono text-gray-900 dark:text-white">{{ orderUuid }}</span>
               </div>
               <div v-if="amount > 0" class="flex justify-between">
                 <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.amount') }}</span>
@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick } from 'vue'
+import { computed, ref, onMounted, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { extractI18nErrorMessage } from '@/utils/apiError'
@@ -79,12 +79,15 @@ const POPUP_METHODS = new Set(['alipay', 'wechat_pay'])
 
 const props = defineProps<{
   orderId: number
+  orderUuid?: string
   amount: number
   clientSecret: string
   orderType?: 'balance' | 'subscription'
   publishableKey: string
   payAmount: number
 }>()
+
+const orderUuid = computed(() => props.orderUuid || String(props.orderId))
 
 const emit = defineEmits<{ success: []; done: []; back: []; redirect: [orderId: number, payUrl: string] }>()
 

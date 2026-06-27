@@ -56,6 +56,8 @@ const (
 	FieldProviderKey = "provider_key"
 	// FieldProviderSnapshot holds the string denoting the provider_snapshot field in the database.
 	FieldProviderSnapshot = "provider_snapshot"
+	// FieldInvoiceID holds the string denoting the invoice_id field in the database.
+	FieldInvoiceID = "invoice_id"
 	// FieldStatus holds the string denoting the status field in the database.
 	FieldStatus = "status"
 	// FieldRefundAmount holds the string denoting the refund_amount field in the database.
@@ -106,12 +108,12 @@ const (
 	// UserColumn is the table column denoting the user relation/edge.
 	UserColumn = "user_id"
 	// InvoiceTable is the table that holds the invoice relation/edge.
-	InvoiceTable = "payment_invoices"
+	InvoiceTable = "payment_orders"
 	// InvoiceInverseTable is the table name for the PaymentInvoice entity.
 	// It exists in this package in order to avoid circular dependency with the "paymentinvoice" package.
 	InvoiceInverseTable = "payment_invoices"
 	// InvoiceColumn is the table column denoting the invoice relation/edge.
-	InvoiceColumn = "order_id"
+	InvoiceColumn = "invoice_id"
 )
 
 // Columns holds all SQL columns for paymentorder fields.
@@ -138,6 +140,7 @@ var Columns = []string{
 	FieldProviderInstanceID,
 	FieldProviderKey,
 	FieldProviderSnapshot,
+	FieldInvoiceID,
 	FieldStatus,
 	FieldRefundAmount,
 	FieldRefundReason,
@@ -323,6 +326,11 @@ func ByProviderKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldProviderKey, opts...).ToFunc()
 }
 
+// ByInvoiceID orders the results by the invoice_id field.
+func ByInvoiceID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldInvoiceID, opts...).ToFunc()
+}
+
 // ByStatus orders the results by the status field.
 func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldStatus, opts...).ToFunc()
@@ -437,6 +445,6 @@ func newInvoiceStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(InvoiceInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.O2O, false, InvoiceTable, InvoiceColumn),
+		sqlgraph.Edge(sqlgraph.M2O, true, InvoiceTable, InvoiceColumn),
 	)
 }

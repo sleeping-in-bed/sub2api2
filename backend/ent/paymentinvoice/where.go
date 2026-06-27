@@ -55,11 +55,6 @@ func IDLTE(id int64) predicate.PaymentInvoice {
 	return predicate.PaymentInvoice(sql.FieldLTE(FieldID, id))
 }
 
-// OrderID applies equality check predicate on the "order_id" field. It's identical to OrderIDEQ.
-func OrderID(v int64) predicate.PaymentInvoice {
-	return predicate.PaymentInvoice(sql.FieldEQ(FieldOrderID, v))
-}
-
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v int64) predicate.PaymentInvoice {
 	return predicate.PaymentInvoice(sql.FieldEQ(FieldUserID, v))
@@ -138,26 +133,6 @@ func CreatedAt(v time.Time) predicate.PaymentInvoice {
 // UpdatedAt applies equality check predicate on the "updated_at" field. It's identical to UpdatedAtEQ.
 func UpdatedAt(v time.Time) predicate.PaymentInvoice {
 	return predicate.PaymentInvoice(sql.FieldEQ(FieldUpdatedAt, v))
-}
-
-// OrderIDEQ applies the EQ predicate on the "order_id" field.
-func OrderIDEQ(v int64) predicate.PaymentInvoice {
-	return predicate.PaymentInvoice(sql.FieldEQ(FieldOrderID, v))
-}
-
-// OrderIDNEQ applies the NEQ predicate on the "order_id" field.
-func OrderIDNEQ(v int64) predicate.PaymentInvoice {
-	return predicate.PaymentInvoice(sql.FieldNEQ(FieldOrderID, v))
-}
-
-// OrderIDIn applies the In predicate on the "order_id" field.
-func OrderIDIn(vs ...int64) predicate.PaymentInvoice {
-	return predicate.PaymentInvoice(sql.FieldIn(FieldOrderID, vs...))
-}
-
-// OrderIDNotIn applies the NotIn predicate on the "order_id" field.
-func OrderIDNotIn(vs ...int64) predicate.PaymentInvoice {
-	return predicate.PaymentInvoice(sql.FieldNotIn(FieldOrderID, vs...))
 }
 
 // UserIDEQ applies the EQ predicate on the "user_id" field.
@@ -1075,21 +1050,21 @@ func UpdatedAtLTE(v time.Time) predicate.PaymentInvoice {
 	return predicate.PaymentInvoice(sql.FieldLTE(FieldUpdatedAt, v))
 }
 
-// HasOrder applies the HasEdge predicate on the "order" edge.
-func HasOrder() predicate.PaymentInvoice {
+// HasOrders applies the HasEdge predicate on the "orders" edge.
+func HasOrders() predicate.PaymentInvoice {
 	return predicate.PaymentInvoice(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, true, OrderTable, OrderColumn),
+			sqlgraph.Edge(sqlgraph.O2M, false, OrdersTable, OrdersColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasOrderWith applies the HasEdge predicate on the "order" edge with a given conditions (other predicates).
-func HasOrderWith(preds ...predicate.PaymentOrder) predicate.PaymentInvoice {
+// HasOrdersWith applies the HasEdge predicate on the "orders" edge with a given conditions (other predicates).
+func HasOrdersWith(preds ...predicate.PaymentOrder) predicate.PaymentInvoice {
 	return predicate.PaymentInvoice(func(s *sql.Selector) {
-		step := newOrderStep()
+		step := newOrdersStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

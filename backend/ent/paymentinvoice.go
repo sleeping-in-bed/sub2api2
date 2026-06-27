@@ -10,7 +10,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/Wei-Shaw/sub2api/ent/paymentinvoice"
-	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/user"
 )
 
@@ -19,8 +18,6 @@ type PaymentInvoice struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int64 `json:"id,omitempty"`
-	// OrderID holds the value of the "order_id" field.
-	OrderID int64 `json:"order_id,omitempty"`
 	// UserID holds the value of the "user_id" field.
 	UserID int64 `json:"user_id,omitempty"`
 	// TitleName holds the value of the "title_name" field.
@@ -61,8 +58,8 @@ type PaymentInvoice struct {
 
 // PaymentInvoiceEdges holds the relations/edges for other nodes in the graph.
 type PaymentInvoiceEdges struct {
-	// Order holds the value of the order edge.
-	Order *PaymentOrder `json:"order,omitempty"`
+	// Orders holds the value of the orders edge.
+	Orders []*PaymentOrder `json:"orders,omitempty"`
 	// User holds the value of the user edge.
 	User *User `json:"user,omitempty"`
 	// loadedTypes holds the information for reporting if a
@@ -70,15 +67,13 @@ type PaymentInvoiceEdges struct {
 	loadedTypes [2]bool
 }
 
-// OrderOrErr returns the Order value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e PaymentInvoiceEdges) OrderOrErr() (*PaymentOrder, error) {
-	if e.Order != nil {
-		return e.Order, nil
-	} else if e.loadedTypes[0] {
-		return nil, &NotFoundError{label: paymentorder.Label}
+// OrdersOrErr returns the Orders value or an error if the edge
+// was not loaded in eager-loading.
+func (e PaymentInvoiceEdges) OrdersOrErr() ([]*PaymentOrder, error) {
+	if e.loadedTypes[0] {
+		return e.Orders, nil
 	}
-	return nil, &NotLoadedError{edge: "order"}
+	return nil, &NotLoadedError{edge: "orders"}
 }
 
 // UserOrErr returns the User value or an error if the edge
@@ -97,7 +92,7 @@ func (*PaymentInvoice) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case paymentinvoice.FieldID, paymentinvoice.FieldOrderID, paymentinvoice.FieldUserID, paymentinvoice.FieldByteSize:
+		case paymentinvoice.FieldID, paymentinvoice.FieldUserID, paymentinvoice.FieldByteSize:
 			values[i] = new(sql.NullInt64)
 		case paymentinvoice.FieldTitleName, paymentinvoice.FieldTaxID, paymentinvoice.FieldStatus, paymentinvoice.FieldFailedReason, paymentinvoice.FieldStorageProvider, paymentinvoice.FieldStorageKey, paymentinvoice.FieldFileName, paymentinvoice.FieldContentType, paymentinvoice.FieldSha256:
 			values[i] = new(sql.NullString)
@@ -124,12 +119,6 @@ func (_m *PaymentInvoice) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int64(value.Int64)
-		case paymentinvoice.FieldOrderID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field order_id", values[i])
-			} else if value.Valid {
-				_m.OrderID = value.Int64
-			}
 		case paymentinvoice.FieldUserID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field user_id", values[i])
@@ -246,9 +235,9 @@ func (_m *PaymentInvoice) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryOrder queries the "order" edge of the PaymentInvoice entity.
-func (_m *PaymentInvoice) QueryOrder() *PaymentOrderQuery {
-	return NewPaymentInvoiceClient(_m.config).QueryOrder(_m)
+// QueryOrders queries the "orders" edge of the PaymentInvoice entity.
+func (_m *PaymentInvoice) QueryOrders() *PaymentOrderQuery {
+	return NewPaymentInvoiceClient(_m.config).QueryOrders(_m)
 }
 
 // QueryUser queries the "user" edge of the PaymentInvoice entity.
@@ -279,9 +268,6 @@ func (_m *PaymentInvoice) String() string {
 	var builder strings.Builder
 	builder.WriteString("PaymentInvoice(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
-	builder.WriteString("order_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.OrderID))
-	builder.WriteString(", ")
 	builder.WriteString("user_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UserID))
 	builder.WriteString(", ")

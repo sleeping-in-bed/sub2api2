@@ -4,7 +4,6 @@ package ent
 
 import (
 	"context"
-	"database/sql/driver"
 	"fmt"
 	"math"
 
@@ -101,7 +100,7 @@ func (_q *PaymentOrderQuery) QueryInvoice() *PaymentInvoiceQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(paymentorder.Table, paymentorder.FieldID, selector),
 			sqlgraph.To(paymentinvoice.Table, paymentinvoice.FieldID),
-			sqlgraph.Edge(sqlgraph.O2O, false, paymentorder.InvoiceTable, paymentorder.InvoiceColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, paymentorder.InvoiceTable, paymentorder.InvoiceColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -480,29 +479,34 @@ func (_q *PaymentOrderQuery) loadUser(ctx context.Context, query *UserQuery, nod
 	return nil
 }
 func (_q *PaymentOrderQuery) loadInvoice(ctx context.Context, query *PaymentInvoiceQuery, nodes []*PaymentOrder, init func(*PaymentOrder), assign func(*PaymentOrder, *PaymentInvoice)) error {
-	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int64]*PaymentOrder)
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*PaymentOrder)
 	for i := range nodes {
-		fks = append(fks, nodes[i].ID)
-		nodeids[nodes[i].ID] = nodes[i]
+		if nodes[i].InvoiceID == nil {
+			continue
+		}
+		fk := *nodes[i].InvoiceID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
 	}
-	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(paymentinvoice.FieldOrderID)
+	if len(ids) == 0 {
+		return nil
 	}
-	query.Where(predicate.PaymentInvoice(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(paymentorder.InvoiceColumn), fks...))
-	}))
+	query.Where(paymentinvoice.IDIn(ids...))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.OrderID
-		node, ok := nodeids[fk]
+		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "order_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "invoice_id" returned %v`, n.ID)
 		}
-		assign(node, n)
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
 	}
 	return nil
 }
@@ -537,6 +541,9 @@ func (_q *PaymentOrderQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withUser != nil {
 			_spec.Node.AddColumnOnce(paymentorder.FieldUserID)
+		}
+		if _q.withInvoice != nil {
+			_spec.Node.AddColumnOnce(paymentorder.FieldInvoiceID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {
