@@ -1724,7 +1724,7 @@ const executeCcsImport = (row: ApiKey, clientType: CcSwitchClientType) => {
       };
     }
   })`
-  const providerName = (publicSettings.value?.site_name || 'MagaAI').trim() || 'MagaAI'
+  const providerName = (publicSettings.value?.site_name || 'MindAI').trim() || 'MindAI'
   const deeplink = buildCcSwitchImportDeeplink({
     baseUrl,
     platform,

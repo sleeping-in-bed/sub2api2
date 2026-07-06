@@ -54,7 +54,7 @@ describe("admin settings auth source defaults helpers", () => {
     });
     expect(state.oidc).toEqual({
       balance: 0,
-      concurrency: 5,
+      concurrency: 20,
       subscriptions: [],
       grant_on_signup: false,
       grant_on_first_bind: false,
@@ -62,7 +62,7 @@ describe("admin settings auth source defaults helpers", () => {
     });
     expect(state.wechat).toEqual({
       balance: 0,
-      concurrency: 5,
+      concurrency: 20,
       subscriptions: [],
       grant_on_signup: false,
       grant_on_first_bind: false,

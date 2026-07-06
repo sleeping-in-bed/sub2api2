@@ -22,7 +22,7 @@ const (
 	quotaDimWeekly = "weekly"
 	quotaDimTotal  = "total"
 
-	defaultSiteName = "MagaAI"
+	defaultSiteName = "MindAI"
 )
 
 // quotaDimLabels maps dimension names to display labels.
