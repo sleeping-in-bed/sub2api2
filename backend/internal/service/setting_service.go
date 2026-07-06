@@ -666,6 +666,12 @@ func (s *SettingService) effectiveWeChatConnectOAuthConfig(settings map[string]s
 
 // NewSettingService 创建系统设置服务实例
 func NewSettingService(settingRepo SettingRepository, cfg *config.Config) *SettingService {
+	if cfg != nil && !cfg.Signup.PromoCodeRequiredOnSignupExplicit {
+		if enabled, explicit := config.PromoCodeRequiredOnSignupFromEnv(); explicit {
+			cfg.Signup.PromoCodeRequiredOnSignup = enabled
+			cfg.Signup.PromoCodeRequiredOnSignupExplicit = true
+		}
+	}
 	return &SettingService{
 		settingRepo: settingRepo,
 		cfg:         cfg,
@@ -951,6 +957,9 @@ func (s *SettingService) GetPublicSettings(ctx context.Context) (*PublicSettings
 		balanceLowNotifyThreshold = v
 	}
 	promoCodeRequiredOnSignup := settings[SettingKeyPromoCodeRequiredOnSignup] == "true"
+	if s != nil && s.cfg != nil && s.cfg.Signup.PromoCodeRequiredOnSignupExplicit {
+		promoCodeRequiredOnSignup = s.cfg.Signup.PromoCodeRequiredOnSignup
+	}
 
 	return &PublicSettings{
 		RegistrationEnabled:              settings[SettingKeyRegistrationEnabled] == "true",
@@ -2575,6 +2584,9 @@ func (s *SettingService) IsPromoCodeEnabled(ctx context.Context) bool {
 
 // IsPromoCodeRequiredOnSignup 检查注册时是否必须填写有效优惠码。
 func (s *SettingService) IsPromoCodeRequiredOnSignup(ctx context.Context) bool {
+	if s != nil && s.cfg != nil && s.cfg.Signup.PromoCodeRequiredOnSignupExplicit {
+		return s.cfg.Signup.PromoCodeRequiredOnSignup
+	}
 	value, err := s.settingRepo.GetValue(ctx, SettingKeyPromoCodeRequiredOnSignup)
 	if err != nil {
 		return false // 默认关闭

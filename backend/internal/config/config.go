@@ -93,6 +93,12 @@ type Config struct {
 	Gemini                  GeminiConfig                  `mapstructure:"gemini"`
 	Update                  UpdateConfig                  `mapstructure:"update"`
 	Idempotency             IdempotencyConfig             `mapstructure:"idempotency"`
+	Signup                  SignupConfig                  `mapstructure:"signup"`
+}
+
+type SignupConfig struct {
+	PromoCodeRequiredOnSignup         bool `mapstructure:"promo_code_required_on_signup"`
+	PromoCodeRequiredOnSignupExplicit bool `mapstructure:"-"`
 }
 
 type LogConfig struct {
@@ -1412,6 +1418,13 @@ func load(allowMissingJWTSecret bool) (*Config, error) {
 	if cfg.Server.Mode == "" {
 		cfg.Server.Mode = "debug"
 	}
+	cfg.Signup.PromoCodeRequiredOnSignupExplicit = hasExplicitConfigOrEnv(
+		"signup.promo_code_required_on_signup",
+		"SIGNUP_PROMO_CODE_REQUIRED_ON_SIGNUP",
+	) || hasExplicitConfigOrEnv(
+		"promo_code_required_on_signup",
+		"PROMO_CODE_REQUIRED_ON_SIGNUP",
+	)
 	cfg.Server.FrontendURL = strings.TrimSpace(cfg.Server.FrontendURL)
 	cfg.JWT.Secret = strings.TrimSpace(cfg.JWT.Secret)
 	cfg.LinuxDo.ClientID = strings.TrimSpace(cfg.LinuxDo.ClientID)
@@ -2878,6 +2891,30 @@ func GetServerAddress() string {
 	host := v.GetString("server.host")
 	port := v.GetInt("server.port")
 	return fmt.Sprintf("%s:%d", host, port)
+}
+
+func PromoCodeRequiredOnSignupFromEnv() (bool, bool) {
+	keys := []string{
+		"SIGNUP_PROMO_CODE_REQUIRED_ON_SIGNUP",
+		"PROMO_CODE_REQUIRED_ON_SIGNUP",
+	}
+
+	for _, key := range keys {
+		raw, ok := os.LookupEnv(key)
+		if !ok {
+			continue
+		}
+		switch strings.ToLower(strings.TrimSpace(raw)) {
+		case "1", "true", "yes", "on":
+			return true, true
+		case "0", "false", "no", "off", "":
+			return false, true
+		default:
+			return false, true
+		}
+	}
+
+	return false, false
 }
 
 // ValidateAbsoluteHTTPURL 验证是否为有效的绝对 HTTP(S) URL
