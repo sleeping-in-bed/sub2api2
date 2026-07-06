@@ -106,6 +106,26 @@ func TestSettingService_GetPublicSettings_ExposesPromoCodeRequiredOnSignup(t *te
 	require.True(t, settings.PromoCodeEnabled)
 }
 
+func TestSettingService_GetPublicSettings_EnvOverridePromoCodeRequiredOnSignup(t *testing.T) {
+	repo := &settingPublicRepoStub{
+		values: map[string]string{
+			SettingKeyPromoCodeEnabled:           "true",
+			SettingKeyPromoCodeRequiredOnSignup:  "true",
+		},
+	}
+	svc := NewSettingService(repo, &config.Config{
+		Signup: config.SignupConfig{
+			PromoCodeRequiredOnSignup:         false,
+			PromoCodeRequiredOnSignupExplicit: true,
+		},
+	})
+
+	settings, err := svc.GetPublicSettings(context.Background())
+	require.NoError(t, err)
+	require.False(t, settings.PromoCodeRequiredOnSignup)
+	require.True(t, settings.PromoCodeEnabled)
+}
+
 func TestSettingService_GetPublicSettings_ExposesAllowUserViewErrorRequests(t *testing.T) {
 	repo := &settingPublicRepoStub{
 		values: map[string]string{

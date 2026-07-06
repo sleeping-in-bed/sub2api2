@@ -114,6 +114,41 @@ func TestSettingHandler_GetPublicSettings_ExposesPromoCodeRequiredOnSignup(t *te
 	require.True(t, resp.Data.PromoCodeEnabled)
 }
 
+func TestSettingHandler_GetPublicSettings_EnvOverridePromoCodeRequiredOnSignup(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+
+	repo := &settingHandlerPublicRepoStub{
+		values: map[string]string{
+			service.SettingKeyPromoCodeEnabled:           "true",
+			service.SettingKeyPromoCodeRequiredOnSignup:  "true",
+		},
+	}
+	h := NewSettingHandler(service.NewSettingService(repo, &config.Config{
+		Signup: config.SignupConfig{
+			PromoCodeRequiredOnSignup:         false,
+			PromoCodeRequiredOnSignupExplicit: true,
+		},
+	}), "test-version")
+
+	recorder := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(recorder)
+	c.Request = httptest.NewRequest(http.MethodGet, "/api/v1/settings/public", nil)
+
+	h.GetPublicSettings(c)
+
+	require.Equal(t, http.StatusOK, recorder.Code)
+
+	var resp struct {
+		Code int `json:"code"`
+		Data struct {
+			PromoCodeRequiredOnSignup bool `json:"promo_code_required_on_signup"`
+		} `json:"data"`
+	}
+	require.NoError(t, json.Unmarshal(recorder.Body.Bytes(), &resp))
+	require.Equal(t, 0, resp.Code)
+	require.False(t, resp.Data.PromoCodeRequiredOnSignup)
+}
+
 func TestSettingHandler_GetPublicSettings_ExposesWeChatOAuthModeCapabilities(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	h := NewSettingHandler(service.NewSettingService(&settingHandlerPublicRepoStub{

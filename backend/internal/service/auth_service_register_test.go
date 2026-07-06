@@ -326,6 +326,19 @@ func TestAuthService_Register_PromoCodeRequiredOnSignup(t *testing.T) {
 	require.ErrorIs(t, err, ErrPromoCodeRequired)
 }
 
+func TestAuthService_Register_PromoCodeRequiredOnSignup_EnvOverride(t *testing.T) {
+	repo := &userRepoStub{}
+	service := newAuthService(repo, map[string]string{
+		SettingKeyRegistrationEnabled:       "true",
+		SettingKeyPromoCodeRequiredOnSignup: "true",
+	}, nil, nil)
+	service.settingService.cfg.Signup.PromoCodeRequiredOnSignup = false
+	service.settingService.cfg.Signup.PromoCodeRequiredOnSignupExplicit = true
+
+	_, _, err := service.RegisterWithVerification(context.Background(), "user@test.com", "password", "", "", "", "")
+	require.NoError(t, err)
+}
+
 func TestAuthService_Register_EmailVerifyEnabledButServiceNotConfigured(t *testing.T) {
 	repo := &userRepoStub{}
 	// 邮件验证开启但 emailCache 为 nil（emailService 未配置）
