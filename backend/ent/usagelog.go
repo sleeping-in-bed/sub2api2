@@ -57,6 +57,14 @@ type UsageLog struct {
 	CacheCreationTokens int `json:"cache_creation_tokens,omitempty"`
 	// CacheReadTokens holds the value of the "cache_read_tokens" field.
 	CacheReadTokens int `json:"cache_read_tokens,omitempty"`
+	// 上游原始输入 token 数
+	RawInputTokens int `json:"raw_input_tokens,omitempty"`
+	// 上游原始输出 token 数
+	RawOutputTokens int `json:"raw_output_tokens,omitempty"`
+	// 上游原始缓存写入 token 数
+	RawCacheCreationTokens int `json:"raw_cache_creation_tokens,omitempty"`
+	// 上游原始缓存命中 token 数
+	RawCacheReadTokens int `json:"raw_cache_read_tokens,omitempty"`
 	// CacheCreation5mTokens holds the value of the "cache_creation_5m_tokens" field.
 	CacheCreation5mTokens int `json:"cache_creation_5m_tokens,omitempty"`
 	// CacheCreation1hTokens holds the value of the "cache_creation_1h_tokens" field.
@@ -75,6 +83,22 @@ type UsageLog struct {
 	ActualCost float64 `json:"actual_cost,omitempty"`
 	// RateMultiplier holds the value of the "rate_multiplier" field.
 	RateMultiplier float64 `json:"rate_multiplier,omitempty"`
+	// 分组输入 Token 记账倍率快照
+	GroupInputTokenMultiplier float64 `json:"group_input_token_multiplier,omitempty"`
+	// 分组输出 Token 记账倍率快照
+	GroupOutputTokenMultiplier float64 `json:"group_output_token_multiplier,omitempty"`
+	// 分组缓存写入 Token 记账倍率快照
+	GroupCacheCreationTokenMultiplier float64 `json:"group_cache_creation_token_multiplier,omitempty"`
+	// 分组缓存命中 Token 记账倍率快照
+	GroupCacheReadTokenMultiplier float64 `json:"group_cache_read_token_multiplier,omitempty"`
+	// 分组隐藏输入费率倍率快照
+	GroupHiddenInputRateMultiplier float64 `json:"group_hidden_input_rate_multiplier,omitempty"`
+	// 分组隐藏输出费率倍率快照
+	GroupHiddenOutputRateMultiplier float64 `json:"group_hidden_output_rate_multiplier,omitempty"`
+	// 分组隐藏缓存写入费率倍率快照
+	GroupHiddenCacheCreationRateMultiplier float64 `json:"group_hidden_cache_creation_rate_multiplier,omitempty"`
+	// 分组隐藏缓存命中费率倍率快照
+	GroupHiddenCacheReadRateMultiplier float64 `json:"group_hidden_cache_read_rate_multiplier,omitempty"`
 	// AccountRateMultiplier holds the value of the "account_rate_multiplier" field.
 	AccountRateMultiplier *float64 `json:"account_rate_multiplier,omitempty"`
 	// BillingType holds the value of the "billing_type" field.
@@ -192,9 +216,9 @@ func (*UsageLog) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case usagelog.FieldStream, usagelog.FieldCacheTTLOverridden:
 			values[i] = new(sql.NullBool)
-		case usagelog.FieldInputCost, usagelog.FieldOutputCost, usagelog.FieldCacheCreationCost, usagelog.FieldCacheReadCost, usagelog.FieldTotalCost, usagelog.FieldActualCost, usagelog.FieldRateMultiplier, usagelog.FieldAccountRateMultiplier:
+		case usagelog.FieldInputCost, usagelog.FieldOutputCost, usagelog.FieldCacheCreationCost, usagelog.FieldCacheReadCost, usagelog.FieldTotalCost, usagelog.FieldActualCost, usagelog.FieldRateMultiplier, usagelog.FieldGroupInputTokenMultiplier, usagelog.FieldGroupOutputTokenMultiplier, usagelog.FieldGroupCacheCreationTokenMultiplier, usagelog.FieldGroupCacheReadTokenMultiplier, usagelog.FieldGroupHiddenInputRateMultiplier, usagelog.FieldGroupHiddenOutputRateMultiplier, usagelog.FieldGroupHiddenCacheCreationRateMultiplier, usagelog.FieldGroupHiddenCacheReadRateMultiplier, usagelog.FieldAccountRateMultiplier:
 			values[i] = new(sql.NullFloat64)
-		case usagelog.FieldID, usagelog.FieldUserID, usagelog.FieldAPIKeyID, usagelog.FieldAccountID, usagelog.FieldChannelID, usagelog.FieldGroupID, usagelog.FieldSubscriptionID, usagelog.FieldInputTokens, usagelog.FieldOutputTokens, usagelog.FieldCacheCreationTokens, usagelog.FieldCacheReadTokens, usagelog.FieldCacheCreation5mTokens, usagelog.FieldCacheCreation1hTokens, usagelog.FieldBillingType, usagelog.FieldDurationMs, usagelog.FieldFirstTokenMs, usagelog.FieldImageCount:
+		case usagelog.FieldID, usagelog.FieldUserID, usagelog.FieldAPIKeyID, usagelog.FieldAccountID, usagelog.FieldChannelID, usagelog.FieldGroupID, usagelog.FieldSubscriptionID, usagelog.FieldInputTokens, usagelog.FieldOutputTokens, usagelog.FieldCacheCreationTokens, usagelog.FieldCacheReadTokens, usagelog.FieldRawInputTokens, usagelog.FieldRawOutputTokens, usagelog.FieldRawCacheCreationTokens, usagelog.FieldRawCacheReadTokens, usagelog.FieldCacheCreation5mTokens, usagelog.FieldCacheCreation1hTokens, usagelog.FieldBillingType, usagelog.FieldDurationMs, usagelog.FieldFirstTokenMs, usagelog.FieldImageCount:
 			values[i] = new(sql.NullInt64)
 		case usagelog.FieldRequestID, usagelog.FieldModel, usagelog.FieldRequestedModel, usagelog.FieldUpstreamModel, usagelog.FieldModelMappingChain, usagelog.FieldBillingTier, usagelog.FieldBillingMode, usagelog.FieldUserAgent, usagelog.FieldIPAddress, usagelog.FieldImageSize, usagelog.FieldImageInputSize, usagelog.FieldImageOutputSize, usagelog.FieldImageSizeSource:
 			values[i] = new(sql.NullString)
@@ -331,6 +355,30 @@ func (_m *UsageLog) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.CacheReadTokens = int(value.Int64)
 			}
+		case usagelog.FieldRawInputTokens:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field raw_input_tokens", values[i])
+			} else if value.Valid {
+				_m.RawInputTokens = int(value.Int64)
+			}
+		case usagelog.FieldRawOutputTokens:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field raw_output_tokens", values[i])
+			} else if value.Valid {
+				_m.RawOutputTokens = int(value.Int64)
+			}
+		case usagelog.FieldRawCacheCreationTokens:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field raw_cache_creation_tokens", values[i])
+			} else if value.Valid {
+				_m.RawCacheCreationTokens = int(value.Int64)
+			}
+		case usagelog.FieldRawCacheReadTokens:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field raw_cache_read_tokens", values[i])
+			} else if value.Valid {
+				_m.RawCacheReadTokens = int(value.Int64)
+			}
 		case usagelog.FieldCacheCreation5mTokens:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field cache_creation_5m_tokens", values[i])
@@ -384,6 +432,54 @@ func (_m *UsageLog) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field rate_multiplier", values[i])
 			} else if value.Valid {
 				_m.RateMultiplier = value.Float64
+			}
+		case usagelog.FieldGroupInputTokenMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field group_input_token_multiplier", values[i])
+			} else if value.Valid {
+				_m.GroupInputTokenMultiplier = value.Float64
+			}
+		case usagelog.FieldGroupOutputTokenMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field group_output_token_multiplier", values[i])
+			} else if value.Valid {
+				_m.GroupOutputTokenMultiplier = value.Float64
+			}
+		case usagelog.FieldGroupCacheCreationTokenMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field group_cache_creation_token_multiplier", values[i])
+			} else if value.Valid {
+				_m.GroupCacheCreationTokenMultiplier = value.Float64
+			}
+		case usagelog.FieldGroupCacheReadTokenMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field group_cache_read_token_multiplier", values[i])
+			} else if value.Valid {
+				_m.GroupCacheReadTokenMultiplier = value.Float64
+			}
+		case usagelog.FieldGroupHiddenInputRateMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field group_hidden_input_rate_multiplier", values[i])
+			} else if value.Valid {
+				_m.GroupHiddenInputRateMultiplier = value.Float64
+			}
+		case usagelog.FieldGroupHiddenOutputRateMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field group_hidden_output_rate_multiplier", values[i])
+			} else if value.Valid {
+				_m.GroupHiddenOutputRateMultiplier = value.Float64
+			}
+		case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field group_hidden_cache_creation_rate_multiplier", values[i])
+			} else if value.Valid {
+				_m.GroupHiddenCacheCreationRateMultiplier = value.Float64
+			}
+		case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field group_hidden_cache_read_rate_multiplier", values[i])
+			} else if value.Valid {
+				_m.GroupHiddenCacheReadRateMultiplier = value.Float64
 			}
 		case usagelog.FieldAccountRateMultiplier:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -614,6 +710,18 @@ func (_m *UsageLog) String() string {
 	builder.WriteString("cache_read_tokens=")
 	builder.WriteString(fmt.Sprintf("%v", _m.CacheReadTokens))
 	builder.WriteString(", ")
+	builder.WriteString("raw_input_tokens=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RawInputTokens))
+	builder.WriteString(", ")
+	builder.WriteString("raw_output_tokens=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RawOutputTokens))
+	builder.WriteString(", ")
+	builder.WriteString("raw_cache_creation_tokens=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RawCacheCreationTokens))
+	builder.WriteString(", ")
+	builder.WriteString("raw_cache_read_tokens=")
+	builder.WriteString(fmt.Sprintf("%v", _m.RawCacheReadTokens))
+	builder.WriteString(", ")
 	builder.WriteString("cache_creation_5m_tokens=")
 	builder.WriteString(fmt.Sprintf("%v", _m.CacheCreation5mTokens))
 	builder.WriteString(", ")
@@ -640,6 +748,30 @@ func (_m *UsageLog) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("rate_multiplier=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RateMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("group_input_token_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.GroupInputTokenMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("group_output_token_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.GroupOutputTokenMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("group_cache_creation_token_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.GroupCacheCreationTokenMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("group_cache_read_token_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.GroupCacheReadTokenMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("group_hidden_input_rate_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.GroupHiddenInputRateMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("group_hidden_output_rate_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.GroupHiddenOutputRateMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("group_hidden_cache_creation_rate_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.GroupHiddenCacheCreationRateMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("group_hidden_cache_read_rate_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.GroupHiddenCacheReadRateMultiplier))
 	builder.WriteString(", ")
 	if v := _m.AccountRateMultiplier; v != nil {
 		builder.WriteString("account_rate_multiplier=")

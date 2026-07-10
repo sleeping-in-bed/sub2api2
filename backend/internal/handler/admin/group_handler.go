@@ -86,6 +86,14 @@ type CreateGroupRequest struct {
 	Description      string             `json:"description"`
 	Platform         string             `json:"platform" binding:"omitempty,oneof=anthropic openai gemini antigravity"`
 	RateMultiplier   float64            `json:"rate_multiplier"`
+	InputTokenMultiplier              *float64 `json:"input_token_multiplier"`
+	OutputTokenMultiplier             *float64 `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier      *float64 `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier          *float64 `json:"cache_read_token_multiplier"`
+	HiddenInputRateMultiplier         *float64 `json:"hidden_input_rate_multiplier"`
+	HiddenOutputRateMultiplier        *float64 `json:"hidden_output_rate_multiplier"`
+	HiddenCacheCreationRateMultiplier *float64 `json:"hidden_cache_creation_rate_multiplier"`
+	HiddenCacheReadRateMultiplier     *float64 `json:"hidden_cache_read_rate_multiplier"`
 	IsExclusive      bool               `json:"is_exclusive"`
 	SubscriptionType string             `json:"subscription_type" binding:"omitempty,oneof=standard subscription"`
 	DailyLimitUSD    optionalLimitField `json:"daily_limit_usd"`
@@ -126,6 +134,14 @@ type UpdateGroupRequest struct {
 	Description      *string            `json:"description"`
 	Platform         string             `json:"platform" binding:"omitempty,oneof=anthropic openai gemini antigravity"`
 	RateMultiplier   *float64           `json:"rate_multiplier"`
+	InputTokenMultiplier              *float64 `json:"input_token_multiplier"`
+	OutputTokenMultiplier             *float64 `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier      *float64 `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier          *float64 `json:"cache_read_token_multiplier"`
+	HiddenInputRateMultiplier         *float64 `json:"hidden_input_rate_multiplier"`
+	HiddenOutputRateMultiplier        *float64 `json:"hidden_output_rate_multiplier"`
+	HiddenCacheCreationRateMultiplier *float64 `json:"hidden_cache_creation_rate_multiplier"`
+	HiddenCacheReadRateMultiplier     *float64 `json:"hidden_cache_read_rate_multiplier"`
 	IsExclusive      *bool              `json:"is_exclusive"`
 	Status           string             `json:"status" binding:"omitempty,oneof=active inactive"`
 	SubscriptionType string             `json:"subscription_type" binding:"omitempty,oneof=standard subscription"`
@@ -159,6 +175,50 @@ type UpdateGroupRequest struct {
 	RPMLimit *int `json:"rpm_limit"`
 	// 从指定分组复制账号（同步操作：先清空当前分组的账号绑定，再绑定源分组的账号）
 	CopyAccountsFromGroupIDs []int64 `json:"copy_accounts_from_group_ids"`
+}
+
+func validateGroupPositiveMultiplierRequest(value *float64, field string) error {
+	if value != nil && *value <= 0 {
+		return fmt.Errorf("%s must be > 0", field)
+	}
+	return nil
+}
+
+func validateGroupMultiplierFields(
+	inputTokenMultiplier *float64,
+	outputTokenMultiplier *float64,
+	cacheCreationTokenMultiplier *float64,
+	cacheReadTokenMultiplier *float64,
+	hiddenInputRateMultiplier *float64,
+	hiddenOutputRateMultiplier *float64,
+	hiddenCacheCreationRateMultiplier *float64,
+	hiddenCacheReadRateMultiplier *float64,
+) error {
+	if err := validateGroupPositiveMultiplierRequest(inputTokenMultiplier, "input_token_multiplier"); err != nil {
+		return err
+	}
+	if err := validateGroupPositiveMultiplierRequest(outputTokenMultiplier, "output_token_multiplier"); err != nil {
+		return err
+	}
+	if err := validateGroupPositiveMultiplierRequest(cacheCreationTokenMultiplier, "cache_creation_token_multiplier"); err != nil {
+		return err
+	}
+	if err := validateGroupPositiveMultiplierRequest(cacheReadTokenMultiplier, "cache_read_token_multiplier"); err != nil {
+		return err
+	}
+	if err := validateGroupPositiveMultiplierRequest(hiddenInputRateMultiplier, "hidden_input_rate_multiplier"); err != nil {
+		return err
+	}
+	if err := validateGroupPositiveMultiplierRequest(hiddenOutputRateMultiplier, "hidden_output_rate_multiplier"); err != nil {
+		return err
+	}
+	if err := validateGroupPositiveMultiplierRequest(hiddenCacheCreationRateMultiplier, "hidden_cache_creation_rate_multiplier"); err != nil {
+		return err
+	}
+	if err := validateGroupPositiveMultiplierRequest(hiddenCacheReadRateMultiplier, "hidden_cache_read_rate_multiplier"); err != nil {
+		return err
+	}
+	return nil
 }
 
 // List handles listing all groups with pagination
@@ -276,12 +336,33 @@ func (h *GroupHandler) Create(c *gin.Context) {
 		response.BadRequest(c, "Invalid request: "+err.Error())
 		return
 	}
+	if err := validateGroupMultiplierFields(
+		req.InputTokenMultiplier,
+		req.OutputTokenMultiplier,
+		req.CacheCreationTokenMultiplier,
+		req.CacheReadTokenMultiplier,
+		req.HiddenInputRateMultiplier,
+		req.HiddenOutputRateMultiplier,
+		req.HiddenCacheCreationRateMultiplier,
+		req.HiddenCacheReadRateMultiplier,
+	); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
 
 	group, err := h.adminService.CreateGroup(c.Request.Context(), &service.CreateGroupInput{
 		Name:                            req.Name,
 		Description:                     req.Description,
 		Platform:                        req.Platform,
 		RateMultiplier:                  req.RateMultiplier,
+		InputTokenMultiplier:            req.InputTokenMultiplier,
+		OutputTokenMultiplier:           req.OutputTokenMultiplier,
+		CacheCreationTokenMultiplier:    req.CacheCreationTokenMultiplier,
+		CacheReadTokenMultiplier:        req.CacheReadTokenMultiplier,
+		HiddenInputRateMultiplier:       req.HiddenInputRateMultiplier,
+		HiddenOutputRateMultiplier:      req.HiddenOutputRateMultiplier,
+		HiddenCacheCreationRateMultiplier: req.HiddenCacheCreationRateMultiplier,
+		HiddenCacheReadRateMultiplier:   req.HiddenCacheReadRateMultiplier,
 		IsExclusive:                     req.IsExclusive,
 		SubscriptionType:                req.SubscriptionType,
 		DailyLimitUSD:                   req.DailyLimitUSD.ToServiceInput(),
@@ -331,12 +412,33 @@ func (h *GroupHandler) Update(c *gin.Context) {
 		response.BadRequest(c, "Invalid request: "+err.Error())
 		return
 	}
+	if err := validateGroupMultiplierFields(
+		req.InputTokenMultiplier,
+		req.OutputTokenMultiplier,
+		req.CacheCreationTokenMultiplier,
+		req.CacheReadTokenMultiplier,
+		req.HiddenInputRateMultiplier,
+		req.HiddenOutputRateMultiplier,
+		req.HiddenCacheCreationRateMultiplier,
+		req.HiddenCacheReadRateMultiplier,
+	); err != nil {
+		response.BadRequest(c, err.Error())
+		return
+	}
 
 	group, err := h.adminService.UpdateGroup(c.Request.Context(), groupID, &service.UpdateGroupInput{
 		Name:                            req.Name,
 		Description:                     req.Description,
 		Platform:                        req.Platform,
 		RateMultiplier:                  req.RateMultiplier,
+		InputTokenMultiplier:            req.InputTokenMultiplier,
+		OutputTokenMultiplier:           req.OutputTokenMultiplier,
+		CacheCreationTokenMultiplier:    req.CacheCreationTokenMultiplier,
+		CacheReadTokenMultiplier:        req.CacheReadTokenMultiplier,
+		HiddenInputRateMultiplier:       req.HiddenInputRateMultiplier,
+		HiddenOutputRateMultiplier:      req.HiddenOutputRateMultiplier,
+		HiddenCacheCreationRateMultiplier: req.HiddenCacheCreationRateMultiplier,
+		HiddenCacheReadRateMultiplier:   req.HiddenCacheReadRateMultiplier,
 		IsExclusive:                     req.IsExclusive,
 		Status:                          req.Status,
 		SubscriptionType:                req.SubscriptionType,

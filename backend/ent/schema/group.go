@@ -45,6 +45,38 @@ func (Group) Fields() []ent.Field {
 		field.Float("rate_multiplier").
 			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
 			Default(1.0),
+		field.Float("input_token_multiplier").
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Default(1.0).
+			Comment("输入 Token 记账倍率"),
+		field.Float("output_token_multiplier").
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Default(1.0).
+			Comment("输出 Token 记账倍率"),
+		field.Float("cache_creation_token_multiplier").
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Default(1.0).
+			Comment("缓存写入 Token 记账倍率"),
+		field.Float("cache_read_token_multiplier").
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Default(1.0).
+			Comment("缓存命中 Token 记账倍率"),
+		field.Float("hidden_input_rate_multiplier").
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Default(1.0).
+			Comment("隐藏输入费率倍率，仅影响金额"),
+		field.Float("hidden_output_rate_multiplier").
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Default(1.0).
+			Comment("隐藏输出费率倍率，仅影响金额"),
+		field.Float("hidden_cache_creation_rate_multiplier").
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Default(1.0).
+			Comment("隐藏缓存写入费率倍率，仅影响金额"),
+		field.Float("hidden_cache_read_rate_multiplier").
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Default(1.0).
+			Comment("隐藏缓存命中费率倍率，仅影响金额"),
 		field.Bool("is_exclusive").
 			Default(false),
 		field.String("status").

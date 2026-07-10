@@ -38,60 +38,11 @@ func TestUsageLogRepositoryCreateSyncRequestTypeAndLegacyFields(t *testing.T) {
 		OpenAIWSMode:   false,
 		CreatedAt:      createdAt,
 	}
+	expectedLog := *log
+	expectedPrepared := prepareUsageLogInsert(&expectedLog)
 
 	mock.ExpectQuery("INSERT INTO usage_logs").
-		WithArgs(
-			log.UserID,
-			log.APIKeyID,
-			log.AccountID,
-			log.RequestID,
-			log.Model,
-			log.RequestedModel,
-			sqlmock.AnyArg(), // upstream_model
-			sqlmock.AnyArg(), // group_id
-			sqlmock.AnyArg(), // subscription_id
-			log.InputTokens,
-			log.OutputTokens,
-			log.CacheCreationTokens,
-			log.CacheReadTokens,
-			log.CacheCreation5mTokens,
-			log.CacheCreation1hTokens,
-			log.ImageOutputTokens,
-			log.ImageOutputCost,
-			log.InputCost,
-			log.OutputCost,
-			log.CacheCreationCost,
-			log.CacheReadCost,
-			log.TotalCost,
-			log.ActualCost,
-			log.RateMultiplier,
-			log.AccountRateMultiplier,
-			log.BillingType,
-			int16(service.RequestTypeWSV2),
-			true,
-			true,
-			sqlmock.AnyArg(), // duration_ms
-			sqlmock.AnyArg(), // first_token_ms
-			sqlmock.AnyArg(), // user_agent
-			sqlmock.AnyArg(), // ip_address
-			log.ImageCount,
-			sqlmock.AnyArg(), // image_size
-			sqlmock.AnyArg(), // image_input_size
-			sqlmock.AnyArg(), // image_output_size
-			sqlmock.AnyArg(), // image_size_source
-			sqlmock.AnyArg(), // image_size_breakdown
-			sqlmock.AnyArg(), // service_tier
-			sqlmock.AnyArg(), // reasoning_effort
-			sqlmock.AnyArg(), // inbound_endpoint
-			sqlmock.AnyArg(), // upstream_endpoint
-			log.CacheTTLOverridden,
-			sqlmock.AnyArg(), // channel_id
-			sqlmock.AnyArg(), // model_mapping_chain
-			sqlmock.AnyArg(), // billing_tier
-			sqlmock.AnyArg(), // billing_mode
-			sqlmock.AnyArg(), // account_stats_cost
-			createdAt,
-		).
+		WithArgs(anySliceToDriverValues(expectedPrepared.args)...).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "created_at"}).AddRow(int64(99), createdAt))
 
 	inserted, err := repo.Create(context.Background(), log)
@@ -121,60 +72,11 @@ func TestUsageLogRepositoryCreate_PersistsServiceTier(t *testing.T) {
 		ServiceTier:    &serviceTier,
 		CreatedAt:      createdAt,
 	}
+	expectedLog := *log
+	expectedPrepared := prepareUsageLogInsert(&expectedLog)
 
 	mock.ExpectQuery("INSERT INTO usage_logs").
-		WithArgs(
-			log.UserID,
-			log.APIKeyID,
-			log.AccountID,
-			log.RequestID,
-			log.Model,
-			log.RequestedModel,
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			log.InputTokens,
-			log.OutputTokens,
-			log.CacheCreationTokens,
-			log.CacheReadTokens,
-			log.CacheCreation5mTokens,
-			log.CacheCreation1hTokens,
-			log.ImageOutputTokens,
-			log.ImageOutputCost,
-			log.InputCost,
-			log.OutputCost,
-			log.CacheCreationCost,
-			log.CacheReadCost,
-			log.TotalCost,
-			log.ActualCost,
-			log.RateMultiplier,
-			log.AccountRateMultiplier,
-			log.BillingType,
-			int16(service.RequestTypeSync),
-			false,
-			false,
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			log.ImageCount,
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(), // image_input_size
-			sqlmock.AnyArg(), // image_output_size
-			sqlmock.AnyArg(), // image_size_source
-			sqlmock.AnyArg(), // image_size_breakdown
-			serviceTier,
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			sqlmock.AnyArg(),
-			log.CacheTTLOverridden,
-			sqlmock.AnyArg(), // channel_id
-			sqlmock.AnyArg(), // model_mapping_chain
-			sqlmock.AnyArg(), // billing_tier
-			sqlmock.AnyArg(), // billing_mode
-			sqlmock.AnyArg(), // account_stats_cost
-			createdAt,
-		).
+		WithArgs(anySliceToDriverValues(expectedPrepared.args)...).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "created_at"}).AddRow(int64(100), createdAt))
 
 	inserted, err := repo.Create(context.Background(), log)
@@ -259,11 +161,12 @@ func TestPrepareUsageLogInsert_PersistsImageSizeMetadata(t *testing.T) {
 		CreatedAt:          time.Date(2025, 1, 6, 12, 0, 0, 0, time.UTC),
 	})
 
-	require.Equal(t, sql.NullString{String: imageSize, Valid: true}, prepared.args[34])
-	require.Equal(t, sql.NullString{String: inputSize, Valid: true}, prepared.args[35])
-	require.Equal(t, sql.NullString{String: outputSize, Valid: true}, prepared.args[36])
-	require.Equal(t, sql.NullString{String: source, Valid: true}, prepared.args[37])
-	breakdownJSON, ok := prepared.args[38].(string)
+	require.Equal(t, 2, prepared.args[45])
+	require.Equal(t, sql.NullString{String: imageSize, Valid: true}, prepared.args[46])
+	require.Equal(t, sql.NullString{String: inputSize, Valid: true}, prepared.args[47])
+	require.Equal(t, sql.NullString{String: outputSize, Valid: true}, prepared.args[48])
+	require.Equal(t, sql.NullString{String: source, Valid: true}, prepared.args[49])
+	breakdownJSON, ok := prepared.args[50].(string)
 	require.True(t, ok)
 	require.JSONEq(t, `{"1K":1,"4K":1}`, breakdownJSON)
 }
@@ -611,10 +514,14 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			sql.NullString{},
 			sql.NullInt64{},
 			sql.NullInt64{},
-			0, 0, 0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0,
 			0, 0.0, // image_output_tokens, image_output_cost
 			0.0, 0.0, 0.0, 0.0, 0.8, 0.8,
 			1.0,
+			1.0, 1.0, 1.0, 1.0,
+			1.0, 1.0, 1.0, 1.0,
 			sql.NullFloat64{},
 			int16(service.BillingTypeBalance),
 			int16(service.RequestTypeSync),
@@ -672,6 +579,10 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			2,                 // output_tokens
 			3,                 // cache_creation_tokens
 			4,                 // cache_read_tokens
+			1,                 // raw_input_tokens
+			2,                 // raw_output_tokens
+			3,                 // raw_cache_creation_tokens
+			4,                 // raw_cache_read_tokens
 			5,                 // cache_creation_5m_tokens
 			6,                 // cache_creation_1h_tokens
 			0,                 // image_output_tokens
@@ -683,6 +594,14 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			1.0,               // total_cost
 			0.9,               // actual_cost
 			1.0,               // rate_multiplier
+			1.0,               // group_input_token_multiplier
+			1.0,               // group_output_token_multiplier
+			1.0,               // group_cache_creation_token_multiplier
+			1.0,               // group_cache_read_token_multiplier
+			1.0,               // group_hidden_input_rate_multiplier
+			1.0,               // group_hidden_output_rate_multiplier
+			1.0,               // group_hidden_cache_creation_rate_multiplier
+			1.0,               // group_hidden_cache_read_rate_multiplier
 			sql.NullFloat64{}, // account_rate_multiplier
 			int16(service.BillingTypeBalance),
 			int16(service.RequestTypeWSV2),
@@ -731,10 +650,14 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			sql.NullString{},
 			sql.NullInt64{},
 			sql.NullInt64{},
-			1, 2, 3, 4, 5, 6,
+			1, 2, 3, 4,
+			1, 2, 3, 4,
+			5, 6,
 			0, 0.0, // image_output_tokens, image_output_cost
 			0.1, 0.2, 0.3, 0.4, 1.0, 0.9,
 			1.0,
+			1.0, 1.0, 1.0, 1.0,
+			1.0, 1.0, 1.0, 1.0,
 			sql.NullFloat64{},
 			int16(service.BillingTypeBalance),
 			int16(service.RequestTypeUnknown),
@@ -783,10 +706,14 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			sql.NullString{},
 			sql.NullInt64{},
 			sql.NullInt64{},
-			1, 2, 3, 4, 5, 6,
+			1, 2, 3, 4,
+			1, 2, 3, 4,
+			5, 6,
 			0, 0.0, // image_output_tokens, image_output_cost
 			0.1, 0.2, 0.3, 0.4, 1.0, 0.9,
 			1.0,
+			1.0, 1.0, 1.0, 1.0,
+			1.0, 1.0, 1.0, 1.0,
 			sql.NullFloat64{},
 			int16(service.BillingTypeBalance),
 			int16(service.RequestTypeSync),

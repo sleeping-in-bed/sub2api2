@@ -31,6 +31,22 @@ type Group struct {
 	Description *string `json:"description,omitempty"`
 	// RateMultiplier holds the value of the "rate_multiplier" field.
 	RateMultiplier float64 `json:"rate_multiplier,omitempty"`
+	// 输入 Token 记账倍率
+	InputTokenMultiplier float64 `json:"input_token_multiplier,omitempty"`
+	// 输出 Token 记账倍率
+	OutputTokenMultiplier float64 `json:"output_token_multiplier,omitempty"`
+	// 缓存写入 Token 记账倍率
+	CacheCreationTokenMultiplier float64 `json:"cache_creation_token_multiplier,omitempty"`
+	// 缓存命中 Token 记账倍率
+	CacheReadTokenMultiplier float64 `json:"cache_read_token_multiplier,omitempty"`
+	// 隐藏输入费率倍率，仅影响金额
+	HiddenInputRateMultiplier float64 `json:"hidden_input_rate_multiplier,omitempty"`
+	// 隐藏输出费率倍率，仅影响金额
+	HiddenOutputRateMultiplier float64 `json:"hidden_output_rate_multiplier,omitempty"`
+	// 隐藏缓存写入费率倍率，仅影响金额
+	HiddenCacheCreationRateMultiplier float64 `json:"hidden_cache_creation_rate_multiplier,omitempty"`
+	// 隐藏缓存命中费率倍率，仅影响金额
+	HiddenCacheReadRateMultiplier float64 `json:"hidden_cache_read_rate_multiplier,omitempty"`
 	// IsExclusive holds the value of the "is_exclusive" field.
 	IsExclusive bool `json:"is_exclusive,omitempty"`
 	// Status holds the value of the "status" field.
@@ -199,7 +215,7 @@ func (*Group) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case group.FieldIsExclusive, group.FieldAllowImageGeneration, group.FieldImageRateIndependent, group.FieldClaudeCodeOnly, group.FieldModelRoutingEnabled, group.FieldMcpXMLInject, group.FieldAllowMessagesDispatch, group.FieldRequireOauthOnly, group.FieldRequirePrivacySet:
 			values[i] = new(sql.NullBool)
-		case group.FieldRateMultiplier, group.FieldDailyLimitUsd, group.FieldWeeklyLimitUsd, group.FieldMonthlyLimitUsd, group.FieldImageRateMultiplier, group.FieldImagePrice1k, group.FieldImagePrice2k, group.FieldImagePrice4k:
+		case group.FieldRateMultiplier, group.FieldInputTokenMultiplier, group.FieldOutputTokenMultiplier, group.FieldCacheCreationTokenMultiplier, group.FieldCacheReadTokenMultiplier, group.FieldHiddenInputRateMultiplier, group.FieldHiddenOutputRateMultiplier, group.FieldHiddenCacheCreationRateMultiplier, group.FieldHiddenCacheReadRateMultiplier, group.FieldDailyLimitUsd, group.FieldWeeklyLimitUsd, group.FieldMonthlyLimitUsd, group.FieldImageRateMultiplier, group.FieldImagePrice1k, group.FieldImagePrice2k, group.FieldImagePrice4k:
 			values[i] = new(sql.NullFloat64)
 		case group.FieldID, group.FieldDefaultValidityDays, group.FieldFallbackGroupID, group.FieldFallbackGroupIDOnInvalidRequest, group.FieldSortOrder, group.FieldRpmLimit:
 			values[i] = new(sql.NullInt64)
@@ -265,6 +281,54 @@ func (_m *Group) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field rate_multiplier", values[i])
 			} else if value.Valid {
 				_m.RateMultiplier = value.Float64
+			}
+		case group.FieldInputTokenMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field input_token_multiplier", values[i])
+			} else if value.Valid {
+				_m.InputTokenMultiplier = value.Float64
+			}
+		case group.FieldOutputTokenMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field output_token_multiplier", values[i])
+			} else if value.Valid {
+				_m.OutputTokenMultiplier = value.Float64
+			}
+		case group.FieldCacheCreationTokenMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field cache_creation_token_multiplier", values[i])
+			} else if value.Valid {
+				_m.CacheCreationTokenMultiplier = value.Float64
+			}
+		case group.FieldCacheReadTokenMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field cache_read_token_multiplier", values[i])
+			} else if value.Valid {
+				_m.CacheReadTokenMultiplier = value.Float64
+			}
+		case group.FieldHiddenInputRateMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field hidden_input_rate_multiplier", values[i])
+			} else if value.Valid {
+				_m.HiddenInputRateMultiplier = value.Float64
+			}
+		case group.FieldHiddenOutputRateMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field hidden_output_rate_multiplier", values[i])
+			} else if value.Valid {
+				_m.HiddenOutputRateMultiplier = value.Float64
+			}
+		case group.FieldHiddenCacheCreationRateMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field hidden_cache_creation_rate_multiplier", values[i])
+			} else if value.Valid {
+				_m.HiddenCacheCreationRateMultiplier = value.Float64
+			}
+		case group.FieldHiddenCacheReadRateMultiplier:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field hidden_cache_read_rate_multiplier", values[i])
+			} else if value.Valid {
+				_m.HiddenCacheReadRateMultiplier = value.Float64
 			}
 		case group.FieldIsExclusive:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -553,6 +617,30 @@ func (_m *Group) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("rate_multiplier=")
 	builder.WriteString(fmt.Sprintf("%v", _m.RateMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("input_token_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.InputTokenMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("output_token_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.OutputTokenMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("cache_creation_token_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CacheCreationTokenMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("cache_read_token_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.CacheReadTokenMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("hidden_input_rate_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.HiddenInputRateMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("hidden_output_rate_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.HiddenOutputRateMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("hidden_cache_creation_rate_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.HiddenCacheCreationRateMultiplier))
+	builder.WriteString(", ")
+	builder.WriteString("hidden_cache_read_rate_multiplier=")
+	builder.WriteString(fmt.Sprintf("%v", _m.HiddenCacheReadRateMultiplier))
 	builder.WriteString(", ")
 	builder.WriteString("is_exclusive=")
 	builder.WriteString(fmt.Sprintf("%v", _m.IsExclusive))

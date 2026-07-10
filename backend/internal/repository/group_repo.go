@@ -42,6 +42,14 @@ func (r *groupRepository) Create(ctx context.Context, groupIn *service.Group) er
 		SetDescription(groupIn.Description).
 		SetPlatform(groupIn.Platform).
 		SetRateMultiplier(groupIn.RateMultiplier).
+		SetInputTokenMultiplier(groupIn.InputTokenMultiplier).
+		SetOutputTokenMultiplier(groupIn.OutputTokenMultiplier).
+		SetCacheCreationTokenMultiplier(groupIn.CacheCreationTokenMultiplier).
+		SetCacheReadTokenMultiplier(groupIn.CacheReadTokenMultiplier).
+		SetHiddenInputRateMultiplier(groupIn.HiddenInputRateMultiplier).
+		SetHiddenOutputRateMultiplier(groupIn.HiddenOutputRateMultiplier).
+		SetHiddenCacheCreationRateMultiplier(groupIn.HiddenCacheCreationRateMultiplier).
+		SetHiddenCacheReadRateMultiplier(groupIn.HiddenCacheReadRateMultiplier).
 		SetSortOrder(groupIn.SortOrder).
 		SetIsExclusive(groupIn.IsExclusive).
 		SetStatus(groupIn.Status).
@@ -121,6 +129,14 @@ func (r *groupRepository) Update(ctx context.Context, groupIn *service.Group) er
 		SetDescription(groupIn.Description).
 		SetPlatform(groupIn.Platform).
 		SetRateMultiplier(groupIn.RateMultiplier).
+		SetInputTokenMultiplier(groupIn.InputTokenMultiplier).
+		SetOutputTokenMultiplier(groupIn.OutputTokenMultiplier).
+		SetCacheCreationTokenMultiplier(groupIn.CacheCreationTokenMultiplier).
+		SetCacheReadTokenMultiplier(groupIn.CacheReadTokenMultiplier).
+		SetHiddenInputRateMultiplier(groupIn.HiddenInputRateMultiplier).
+		SetHiddenOutputRateMultiplier(groupIn.HiddenOutputRateMultiplier).
+		SetHiddenCacheCreationRateMultiplier(groupIn.HiddenCacheCreationRateMultiplier).
+		SetHiddenCacheReadRateMultiplier(groupIn.HiddenCacheReadRateMultiplier).
 		SetIsExclusive(groupIn.IsExclusive).
 		SetStatus(groupIn.Status).
 		SetSubscriptionType(groupIn.SubscriptionType).

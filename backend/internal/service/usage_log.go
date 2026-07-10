@@ -135,6 +135,10 @@ type UsageLog struct {
 	OutputTokens        int
 	CacheCreationTokens int
 	CacheReadTokens     int
+	RawInputTokens      int
+	RawOutputTokens     int
+	RawCacheCreationTokens int
+	RawCacheReadTokens  int
 
 	CacheCreation5mTokens int `gorm:"column:cache_creation_5m_tokens"`
 	CacheCreation1hTokens int `gorm:"column:cache_creation_1h_tokens"`
@@ -149,6 +153,14 @@ type UsageLog struct {
 	TotalCost         float64
 	ActualCost        float64
 	RateMultiplier    float64
+	GroupInputTokenMultiplier         float64
+	GroupOutputTokenMultiplier        float64
+	GroupCacheCreationTokenMultiplier float64
+	GroupCacheReadTokenMultiplier     float64
+	GroupHiddenInputRateMultiplier    float64
+	GroupHiddenOutputRateMultiplier   float64
+	GroupHiddenCacheCreationRateMultiplier float64
+	GroupHiddenCacheReadRateMultiplier float64
 	// AccountRateMultiplier 账号计费倍率快照（nil 表示历史数据，按 1.0 处理）
 	AccountRateMultiplier *float64
 	// AccountStatsCost 账号统计定价预计算费用（nil = 使用默认公式 total_cost × account_rate_multiplier）

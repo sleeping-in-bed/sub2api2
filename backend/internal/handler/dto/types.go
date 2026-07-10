@@ -88,6 +88,14 @@ type Group struct {
 	Description    string  `json:"description"`
 	Platform       string  `json:"platform"`
 	RateMultiplier float64 `json:"rate_multiplier"`
+	InputTokenMultiplier              float64 `json:"input_token_multiplier"`
+	OutputTokenMultiplier             float64 `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier      float64 `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier          float64 `json:"cache_read_token_multiplier"`
+	HiddenInputRateMultiplier         float64 `json:"hidden_input_rate_multiplier"`
+	HiddenOutputRateMultiplier        float64 `json:"hidden_output_rate_multiplier"`
+	HiddenCacheCreationRateMultiplier float64 `json:"hidden_cache_creation_rate_multiplier"`
+	HiddenCacheReadRateMultiplier     float64 `json:"hidden_cache_read_rate_multiplier"`
 	IsExclusive    bool    `json:"is_exclusive"`
 	Status         string  `json:"status"`
 

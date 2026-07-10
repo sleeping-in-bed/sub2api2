@@ -9337,8 +9337,20 @@ func (s *GatewayService) recordUsageCore(ctx context.Context, input *recordUsage
 		requestedModel = input.OriginalModel
 	}
 
+	rawTokens := UsageTokens{
+		InputTokens:         result.Usage.InputTokens,
+		OutputTokens:        result.Usage.OutputTokens,
+		CacheCreationTokens: result.Usage.CacheCreationInputTokens,
+		CacheReadTokens:     result.Usage.CacheReadInputTokens,
+		CacheCreation5mTokens: result.Usage.CacheCreation5mTokens,
+		CacheCreation1hTokens: result.Usage.CacheCreation1hTokens,
+		ImageOutputTokens:   result.Usage.ImageOutputTokens,
+	}
+	adjustedTokens := applyGroupTokenMultiplierToUsageTokens(apiKey.Group, rawTokens)
+
 	// 计算费用
-	cost := s.calculateRecordUsageCost(ctx, result, apiKey, billingModel, multiplier, imageMultiplier, opts)
+	cost := s.calculateRecordUsageCost(ctx, result, apiKey, billingModel, multiplier, imageMultiplier, adjustedTokens, opts)
+	applyGroupHiddenRateMultipliersToCostBreakdown(apiKey.Group, cost)
 	applyAccountTokenMultiplierToCostBreakdown(account, cost)
 
 	// 判断计费方式：订阅模式 vs 余额模式
@@ -9351,21 +9363,13 @@ func (s *GatewayService) recordUsageCore(ctx context.Context, input *recordUsage
 	// 创建使用日志
 	accountRateMultiplier := account.BillingRateMultiplier()
 	usageLog := s.buildRecordUsageLog(ctx, input, result, apiKey, user, account, subscription,
-		requestedModel, multiplier, imageMultiplier, accountRateMultiplier, billingType, cacheTTLOverridden, cost, opts)
+		requestedModel, multiplier, imageMultiplier, accountRateMultiplier, billingType, cacheTTLOverridden, rawTokens, adjustedTokens, cost, opts)
 
 	// 计算账号统计定价费用（使用最终上游模型匹配自定义规则）
 	if apiKey.GroupID != nil {
 		applyAccountStatsCost(ctx, usageLog, s.channelService, s.billingService,
 			account.ID, *apiKey.GroupID, result.UpstreamModel, result.Model,
-			// Anthropic's input_tokens excludes cache_read and cache_creation (billed separately);
-			// OpenAI gateway uses actualInputTokens which also excludes cache_read for the same reason.
-			UsageTokens{
-				InputTokens:         result.Usage.InputTokens,
-				OutputTokens:        result.Usage.OutputTokens,
-				CacheCreationTokens: result.Usage.CacheCreationInputTokens,
-				CacheReadTokens:     result.Usage.CacheReadInputTokens,
-				ImageOutputTokens:   result.Usage.ImageOutputTokens,
-			},
+			adjustedTokens,
 			cost.TotalCost,
 		)
 	}
@@ -9414,18 +9418,19 @@ func (s *GatewayService) calculateRecordUsageCost(
 	billingModel string,
 	multiplier float64,
 	imageMultiplier float64,
+	tokens UsageTokens,
 	opts *recordUsageOpts,
 ) *CostBreakdown {
 	// 图片生成：渠道定价为 token 计费时走 token 路径，否则走图片计费
 	if result.ImageCount > 0 {
 		if resolved := s.resolveChannelPricing(ctx, billingModel, apiKey); resolved != nil && resolved.Mode == BillingModeToken {
-			return s.calculateTokenCost(ctx, result, apiKey, billingModel, multiplier, opts)
+			return s.calculateTokenCost(ctx, result, apiKey, billingModel, multiplier, tokens, opts)
 		}
 		return s.calculateImageCost(ctx, result, apiKey, billingModel, imageMultiplier)
 	}
 
 	// Token 计费
-	return s.calculateTokenCost(ctx, result, apiKey, billingModel, multiplier, opts)
+	return s.calculateTokenCost(ctx, result, apiKey, billingModel, multiplier, tokens, opts)
 }
 
 // resolveChannelPricing 检查指定模型是否存在渠道级别定价。
@@ -9494,18 +9499,9 @@ func (s *GatewayService) calculateTokenCost(
 	apiKey *APIKey,
 	billingModel string,
 	multiplier float64,
+	tokens UsageTokens,
 	opts *recordUsageOpts,
 ) *CostBreakdown {
-	tokens := UsageTokens{
-		InputTokens:           result.Usage.InputTokens,
-		OutputTokens:          result.Usage.OutputTokens,
-		CacheCreationTokens:   result.Usage.CacheCreationInputTokens,
-		CacheReadTokens:       result.Usage.CacheReadInputTokens,
-		CacheCreation5mTokens: result.Usage.CacheCreation5mTokens,
-		CacheCreation1hTokens: result.Usage.CacheCreation1hTokens,
-		ImageOutputTokens:     result.Usage.ImageOutputTokens,
-	}
-
 	var cost *CostBreakdown
 	var err error
 
@@ -9553,6 +9549,8 @@ func (s *GatewayService) buildRecordUsageLog(
 	accountRateMultiplier float64,
 	billingType int8,
 	cacheTTLOverridden bool,
+	rawTokens UsageTokens,
+	adjustedTokens UsageTokens,
 	cost *CostBreakdown,
 	opts *recordUsageOpts,
 ) *UsageLog {
@@ -9569,12 +9567,24 @@ func (s *GatewayService) buildRecordUsageLog(
 		ReasoningEffort:       result.ReasoningEffort,
 		InboundEndpoint:       optionalTrimmedStringPtr(input.InboundEndpoint),
 		UpstreamEndpoint:      optionalTrimmedStringPtr(input.UpstreamEndpoint),
-		InputTokens:           result.Usage.InputTokens,
-		OutputTokens:          result.Usage.OutputTokens,
-		CacheCreationTokens:   result.Usage.CacheCreationInputTokens,
-		CacheReadTokens:       result.Usage.CacheReadInputTokens,
-		CacheCreation5mTokens: result.Usage.CacheCreation5mTokens,
-		CacheCreation1hTokens: result.Usage.CacheCreation1hTokens,
+		InputTokens:           adjustedTokens.InputTokens,
+		OutputTokens:          adjustedTokens.OutputTokens,
+		CacheCreationTokens:   adjustedTokens.CacheCreationTokens,
+		CacheReadTokens:       adjustedTokens.CacheReadTokens,
+		RawInputTokens:        rawTokens.InputTokens,
+		RawOutputTokens:       rawTokens.OutputTokens,
+		RawCacheCreationTokens: rawTokens.CacheCreationTokens,
+		RawCacheReadTokens:    rawTokens.CacheReadTokens,
+		CacheCreation5mTokens: adjustedTokens.CacheCreation5mTokens,
+		CacheCreation1hTokens: adjustedTokens.CacheCreation1hTokens,
+		GroupInputTokenMultiplier:         apiKey.Group.InputTokenMultiplierOrDefault(),
+		GroupOutputTokenMultiplier:        apiKey.Group.OutputTokenMultiplierOrDefault(),
+		GroupCacheCreationTokenMultiplier: apiKey.Group.CacheCreationTokenMultiplierOrDefault(),
+		GroupCacheReadTokenMultiplier:     apiKey.Group.CacheReadTokenMultiplierOrDefault(),
+		GroupHiddenInputRateMultiplier:    apiKey.Group.HiddenInputRateMultiplierOrDefault(),
+		GroupHiddenOutputRateMultiplier:   apiKey.Group.HiddenOutputRateMultiplierOrDefault(),
+		GroupHiddenCacheCreationRateMultiplier: apiKey.Group.HiddenCacheCreationRateMultiplierOrDefault(),
+		GroupHiddenCacheReadRateMultiplier: apiKey.Group.HiddenCacheReadRateMultiplierOrDefault(),
 		ImageOutputTokens:     result.Usage.ImageOutputTokens,
 		RateMultiplier:        multiplier,
 		AccountRateMultiplier: &accountRateMultiplier,

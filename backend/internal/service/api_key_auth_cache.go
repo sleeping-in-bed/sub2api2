@@ -63,6 +63,14 @@ type APIKeyAuthGroupSnapshot struct {
 	Status                          string   `json:"status"`
 	SubscriptionType                string   `json:"subscription_type"`
 	RateMultiplier                  float64  `json:"rate_multiplier"`
+	InputTokenMultiplier            float64  `json:"input_token_multiplier"`
+	OutputTokenMultiplier           float64  `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier    float64  `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier        float64  `json:"cache_read_token_multiplier"`
+	HiddenInputRateMultiplier       float64  `json:"hidden_input_rate_multiplier"`
+	HiddenOutputRateMultiplier      float64  `json:"hidden_output_rate_multiplier"`
+	HiddenCacheCreationRateMultiplier float64 `json:"hidden_cache_creation_rate_multiplier"`
+	HiddenCacheReadRateMultiplier   float64  `json:"hidden_cache_read_rate_multiplier"`
 	DailyLimitUSD                   *float64 `json:"daily_limit_usd,omitempty"`
 	WeeklyLimitUSD                  *float64 `json:"weekly_limit_usd,omitempty"`
 	MonthlyLimitUSD                 *float64 `json:"monthly_limit_usd,omitempty"`

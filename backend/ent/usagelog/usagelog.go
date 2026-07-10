@@ -48,6 +48,14 @@ const (
 	FieldCacheCreationTokens = "cache_creation_tokens"
 	// FieldCacheReadTokens holds the string denoting the cache_read_tokens field in the database.
 	FieldCacheReadTokens = "cache_read_tokens"
+	// FieldRawInputTokens holds the string denoting the raw_input_tokens field in the database.
+	FieldRawInputTokens = "raw_input_tokens"
+	// FieldRawOutputTokens holds the string denoting the raw_output_tokens field in the database.
+	FieldRawOutputTokens = "raw_output_tokens"
+	// FieldRawCacheCreationTokens holds the string denoting the raw_cache_creation_tokens field in the database.
+	FieldRawCacheCreationTokens = "raw_cache_creation_tokens"
+	// FieldRawCacheReadTokens holds the string denoting the raw_cache_read_tokens field in the database.
+	FieldRawCacheReadTokens = "raw_cache_read_tokens"
 	// FieldCacheCreation5mTokens holds the string denoting the cache_creation_5m_tokens field in the database.
 	FieldCacheCreation5mTokens = "cache_creation_5m_tokens"
 	// FieldCacheCreation1hTokens holds the string denoting the cache_creation_1h_tokens field in the database.
@@ -66,6 +74,22 @@ const (
 	FieldActualCost = "actual_cost"
 	// FieldRateMultiplier holds the string denoting the rate_multiplier field in the database.
 	FieldRateMultiplier = "rate_multiplier"
+	// FieldGroupInputTokenMultiplier holds the string denoting the group_input_token_multiplier field in the database.
+	FieldGroupInputTokenMultiplier = "group_input_token_multiplier"
+	// FieldGroupOutputTokenMultiplier holds the string denoting the group_output_token_multiplier field in the database.
+	FieldGroupOutputTokenMultiplier = "group_output_token_multiplier"
+	// FieldGroupCacheCreationTokenMultiplier holds the string denoting the group_cache_creation_token_multiplier field in the database.
+	FieldGroupCacheCreationTokenMultiplier = "group_cache_creation_token_multiplier"
+	// FieldGroupCacheReadTokenMultiplier holds the string denoting the group_cache_read_token_multiplier field in the database.
+	FieldGroupCacheReadTokenMultiplier = "group_cache_read_token_multiplier"
+	// FieldGroupHiddenInputRateMultiplier holds the string denoting the group_hidden_input_rate_multiplier field in the database.
+	FieldGroupHiddenInputRateMultiplier = "group_hidden_input_rate_multiplier"
+	// FieldGroupHiddenOutputRateMultiplier holds the string denoting the group_hidden_output_rate_multiplier field in the database.
+	FieldGroupHiddenOutputRateMultiplier = "group_hidden_output_rate_multiplier"
+	// FieldGroupHiddenCacheCreationRateMultiplier holds the string denoting the group_hidden_cache_creation_rate_multiplier field in the database.
+	FieldGroupHiddenCacheCreationRateMultiplier = "group_hidden_cache_creation_rate_multiplier"
+	// FieldGroupHiddenCacheReadRateMultiplier holds the string denoting the group_hidden_cache_read_rate_multiplier field in the database.
+	FieldGroupHiddenCacheReadRateMultiplier = "group_hidden_cache_read_rate_multiplier"
 	// FieldAccountRateMultiplier holds the string denoting the account_rate_multiplier field in the database.
 	FieldAccountRateMultiplier = "account_rate_multiplier"
 	// FieldBillingType holds the string denoting the billing_type field in the database.
@@ -165,6 +189,10 @@ var Columns = []string{
 	FieldOutputTokens,
 	FieldCacheCreationTokens,
 	FieldCacheReadTokens,
+	FieldRawInputTokens,
+	FieldRawOutputTokens,
+	FieldRawCacheCreationTokens,
+	FieldRawCacheReadTokens,
 	FieldCacheCreation5mTokens,
 	FieldCacheCreation1hTokens,
 	FieldInputCost,
@@ -174,6 +202,14 @@ var Columns = []string{
 	FieldTotalCost,
 	FieldActualCost,
 	FieldRateMultiplier,
+	FieldGroupInputTokenMultiplier,
+	FieldGroupOutputTokenMultiplier,
+	FieldGroupCacheCreationTokenMultiplier,
+	FieldGroupCacheReadTokenMultiplier,
+	FieldGroupHiddenInputRateMultiplier,
+	FieldGroupHiddenOutputRateMultiplier,
+	FieldGroupHiddenCacheCreationRateMultiplier,
+	FieldGroupHiddenCacheReadRateMultiplier,
 	FieldAccountRateMultiplier,
 	FieldBillingType,
 	FieldStream,
@@ -224,6 +260,14 @@ var (
 	DefaultCacheCreationTokens int
 	// DefaultCacheReadTokens holds the default value on creation for the "cache_read_tokens" field.
 	DefaultCacheReadTokens int
+	// DefaultRawInputTokens holds the default value on creation for the "raw_input_tokens" field.
+	DefaultRawInputTokens int
+	// DefaultRawOutputTokens holds the default value on creation for the "raw_output_tokens" field.
+	DefaultRawOutputTokens int
+	// DefaultRawCacheCreationTokens holds the default value on creation for the "raw_cache_creation_tokens" field.
+	DefaultRawCacheCreationTokens int
+	// DefaultRawCacheReadTokens holds the default value on creation for the "raw_cache_read_tokens" field.
+	DefaultRawCacheReadTokens int
 	// DefaultCacheCreation5mTokens holds the default value on creation for the "cache_creation_5m_tokens" field.
 	DefaultCacheCreation5mTokens int
 	// DefaultCacheCreation1hTokens holds the default value on creation for the "cache_creation_1h_tokens" field.
@@ -242,6 +286,22 @@ var (
 	DefaultActualCost float64
 	// DefaultRateMultiplier holds the default value on creation for the "rate_multiplier" field.
 	DefaultRateMultiplier float64
+	// DefaultGroupInputTokenMultiplier holds the default value on creation for the "group_input_token_multiplier" field.
+	DefaultGroupInputTokenMultiplier float64
+	// DefaultGroupOutputTokenMultiplier holds the default value on creation for the "group_output_token_multiplier" field.
+	DefaultGroupOutputTokenMultiplier float64
+	// DefaultGroupCacheCreationTokenMultiplier holds the default value on creation for the "group_cache_creation_token_multiplier" field.
+	DefaultGroupCacheCreationTokenMultiplier float64
+	// DefaultGroupCacheReadTokenMultiplier holds the default value on creation for the "group_cache_read_token_multiplier" field.
+	DefaultGroupCacheReadTokenMultiplier float64
+	// DefaultGroupHiddenInputRateMultiplier holds the default value on creation for the "group_hidden_input_rate_multiplier" field.
+	DefaultGroupHiddenInputRateMultiplier float64
+	// DefaultGroupHiddenOutputRateMultiplier holds the default value on creation for the "group_hidden_output_rate_multiplier" field.
+	DefaultGroupHiddenOutputRateMultiplier float64
+	// DefaultGroupHiddenCacheCreationRateMultiplier holds the default value on creation for the "group_hidden_cache_creation_rate_multiplier" field.
+	DefaultGroupHiddenCacheCreationRateMultiplier float64
+	// DefaultGroupHiddenCacheReadRateMultiplier holds the default value on creation for the "group_hidden_cache_read_rate_multiplier" field.
+	DefaultGroupHiddenCacheReadRateMultiplier float64
 	// DefaultBillingType holds the default value on creation for the "billing_type" field.
 	DefaultBillingType int8
 	// DefaultStream holds the default value on creation for the "stream" field.
@@ -359,6 +419,26 @@ func ByCacheReadTokens(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCacheReadTokens, opts...).ToFunc()
 }
 
+// ByRawInputTokens orders the results by the raw_input_tokens field.
+func ByRawInputTokens(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRawInputTokens, opts...).ToFunc()
+}
+
+// ByRawOutputTokens orders the results by the raw_output_tokens field.
+func ByRawOutputTokens(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRawOutputTokens, opts...).ToFunc()
+}
+
+// ByRawCacheCreationTokens orders the results by the raw_cache_creation_tokens field.
+func ByRawCacheCreationTokens(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRawCacheCreationTokens, opts...).ToFunc()
+}
+
+// ByRawCacheReadTokens orders the results by the raw_cache_read_tokens field.
+func ByRawCacheReadTokens(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRawCacheReadTokens, opts...).ToFunc()
+}
+
 // ByCacheCreation5mTokens orders the results by the cache_creation_5m_tokens field.
 func ByCacheCreation5mTokens(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCacheCreation5mTokens, opts...).ToFunc()
@@ -402,6 +482,46 @@ func ByActualCost(opts ...sql.OrderTermOption) OrderOption {
 // ByRateMultiplier orders the results by the rate_multiplier field.
 func ByRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRateMultiplier, opts...).ToFunc()
+}
+
+// ByGroupInputTokenMultiplier orders the results by the group_input_token_multiplier field.
+func ByGroupInputTokenMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupInputTokenMultiplier, opts...).ToFunc()
+}
+
+// ByGroupOutputTokenMultiplier orders the results by the group_output_token_multiplier field.
+func ByGroupOutputTokenMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupOutputTokenMultiplier, opts...).ToFunc()
+}
+
+// ByGroupCacheCreationTokenMultiplier orders the results by the group_cache_creation_token_multiplier field.
+func ByGroupCacheCreationTokenMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupCacheCreationTokenMultiplier, opts...).ToFunc()
+}
+
+// ByGroupCacheReadTokenMultiplier orders the results by the group_cache_read_token_multiplier field.
+func ByGroupCacheReadTokenMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupCacheReadTokenMultiplier, opts...).ToFunc()
+}
+
+// ByGroupHiddenInputRateMultiplier orders the results by the group_hidden_input_rate_multiplier field.
+func ByGroupHiddenInputRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupHiddenInputRateMultiplier, opts...).ToFunc()
+}
+
+// ByGroupHiddenOutputRateMultiplier orders the results by the group_hidden_output_rate_multiplier field.
+func ByGroupHiddenOutputRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupHiddenOutputRateMultiplier, opts...).ToFunc()
+}
+
+// ByGroupHiddenCacheCreationRateMultiplier orders the results by the group_hidden_cache_creation_rate_multiplier field.
+func ByGroupHiddenCacheCreationRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupHiddenCacheCreationRateMultiplier, opts...).ToFunc()
+}
+
+// ByGroupHiddenCacheReadRateMultiplier orders the results by the group_hidden_cache_read_rate_multiplier field.
+func ByGroupHiddenCacheReadRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldGroupHiddenCacheReadRateMultiplier, opts...).ToFunc()
 }
 
 // ByAccountRateMultiplier orders the results by the account_rate_multiplier field.

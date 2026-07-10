@@ -117,6 +117,174 @@ func (_u *GroupUpdate) AddRateMultiplier(v float64) *GroupUpdate {
 	return _u
 }
 
+// SetInputTokenMultiplier sets the "input_token_multiplier" field.
+func (_u *GroupUpdate) SetInputTokenMultiplier(v float64) *GroupUpdate {
+	_u.mutation.ResetInputTokenMultiplier()
+	_u.mutation.SetInputTokenMultiplier(v)
+	return _u
+}
+
+// SetNillableInputTokenMultiplier sets the "input_token_multiplier" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableInputTokenMultiplier(v *float64) *GroupUpdate {
+	if v != nil {
+		_u.SetInputTokenMultiplier(*v)
+	}
+	return _u
+}
+
+// AddInputTokenMultiplier adds value to the "input_token_multiplier" field.
+func (_u *GroupUpdate) AddInputTokenMultiplier(v float64) *GroupUpdate {
+	_u.mutation.AddInputTokenMultiplier(v)
+	return _u
+}
+
+// SetOutputTokenMultiplier sets the "output_token_multiplier" field.
+func (_u *GroupUpdate) SetOutputTokenMultiplier(v float64) *GroupUpdate {
+	_u.mutation.ResetOutputTokenMultiplier()
+	_u.mutation.SetOutputTokenMultiplier(v)
+	return _u
+}
+
+// SetNillableOutputTokenMultiplier sets the "output_token_multiplier" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableOutputTokenMultiplier(v *float64) *GroupUpdate {
+	if v != nil {
+		_u.SetOutputTokenMultiplier(*v)
+	}
+	return _u
+}
+
+// AddOutputTokenMultiplier adds value to the "output_token_multiplier" field.
+func (_u *GroupUpdate) AddOutputTokenMultiplier(v float64) *GroupUpdate {
+	_u.mutation.AddOutputTokenMultiplier(v)
+	return _u
+}
+
+// SetCacheCreationTokenMultiplier sets the "cache_creation_token_multiplier" field.
+func (_u *GroupUpdate) SetCacheCreationTokenMultiplier(v float64) *GroupUpdate {
+	_u.mutation.ResetCacheCreationTokenMultiplier()
+	_u.mutation.SetCacheCreationTokenMultiplier(v)
+	return _u
+}
+
+// SetNillableCacheCreationTokenMultiplier sets the "cache_creation_token_multiplier" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableCacheCreationTokenMultiplier(v *float64) *GroupUpdate {
+	if v != nil {
+		_u.SetCacheCreationTokenMultiplier(*v)
+	}
+	return _u
+}
+
+// AddCacheCreationTokenMultiplier adds value to the "cache_creation_token_multiplier" field.
+func (_u *GroupUpdate) AddCacheCreationTokenMultiplier(v float64) *GroupUpdate {
+	_u.mutation.AddCacheCreationTokenMultiplier(v)
+	return _u
+}
+
+// SetCacheReadTokenMultiplier sets the "cache_read_token_multiplier" field.
+func (_u *GroupUpdate) SetCacheReadTokenMultiplier(v float64) *GroupUpdate {
+	_u.mutation.ResetCacheReadTokenMultiplier()
+	_u.mutation.SetCacheReadTokenMultiplier(v)
+	return _u
+}
+
+// SetNillableCacheReadTokenMultiplier sets the "cache_read_token_multiplier" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableCacheReadTokenMultiplier(v *float64) *GroupUpdate {
+	if v != nil {
+		_u.SetCacheReadTokenMultiplier(*v)
+	}
+	return _u
+}
+
+// AddCacheReadTokenMultiplier adds value to the "cache_read_token_multiplier" field.
+func (_u *GroupUpdate) AddCacheReadTokenMultiplier(v float64) *GroupUpdate {
+	_u.mutation.AddCacheReadTokenMultiplier(v)
+	return _u
+}
+
+// SetHiddenInputRateMultiplier sets the "hidden_input_rate_multiplier" field.
+func (_u *GroupUpdate) SetHiddenInputRateMultiplier(v float64) *GroupUpdate {
+	_u.mutation.ResetHiddenInputRateMultiplier()
+	_u.mutation.SetHiddenInputRateMultiplier(v)
+	return _u
+}
+
+// SetNillableHiddenInputRateMultiplier sets the "hidden_input_rate_multiplier" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableHiddenInputRateMultiplier(v *float64) *GroupUpdate {
+	if v != nil {
+		_u.SetHiddenInputRateMultiplier(*v)
+	}
+	return _u
+}
+
+// AddHiddenInputRateMultiplier adds value to the "hidden_input_rate_multiplier" field.
+func (_u *GroupUpdate) AddHiddenInputRateMultiplier(v float64) *GroupUpdate {
+	_u.mutation.AddHiddenInputRateMultiplier(v)
+	return _u
+}
+
+// SetHiddenOutputRateMultiplier sets the "hidden_output_rate_multiplier" field.
+func (_u *GroupUpdate) SetHiddenOutputRateMultiplier(v float64) *GroupUpdate {
+	_u.mutation.ResetHiddenOutputRateMultiplier()
+	_u.mutation.SetHiddenOutputRateMultiplier(v)
+	return _u
+}
+
+// SetNillableHiddenOutputRateMultiplier sets the "hidden_output_rate_multiplier" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableHiddenOutputRateMultiplier(v *float64) *GroupUpdate {
+	if v != nil {
+		_u.SetHiddenOutputRateMultiplier(*v)
+	}
+	return _u
+}
+
+// AddHiddenOutputRateMultiplier adds value to the "hidden_output_rate_multiplier" field.
+func (_u *GroupUpdate) AddHiddenOutputRateMultiplier(v float64) *GroupUpdate {
+	_u.mutation.AddHiddenOutputRateMultiplier(v)
+	return _u
+}
+
+// SetHiddenCacheCreationRateMultiplier sets the "hidden_cache_creation_rate_multiplier" field.
+func (_u *GroupUpdate) SetHiddenCacheCreationRateMultiplier(v float64) *GroupUpdate {
+	_u.mutation.ResetHiddenCacheCreationRateMultiplier()
+	_u.mutation.SetHiddenCacheCreationRateMultiplier(v)
+	return _u
+}
+
+// SetNillableHiddenCacheCreationRateMultiplier sets the "hidden_cache_creation_rate_multiplier" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableHiddenCacheCreationRateMultiplier(v *float64) *GroupUpdate {
+	if v != nil {
+		_u.SetHiddenCacheCreationRateMultiplier(*v)
+	}
+	return _u
+}
+
+// AddHiddenCacheCreationRateMultiplier adds value to the "hidden_cache_creation_rate_multiplier" field.
+func (_u *GroupUpdate) AddHiddenCacheCreationRateMultiplier(v float64) *GroupUpdate {
+	_u.mutation.AddHiddenCacheCreationRateMultiplier(v)
+	return _u
+}
+
+// SetHiddenCacheReadRateMultiplier sets the "hidden_cache_read_rate_multiplier" field.
+func (_u *GroupUpdate) SetHiddenCacheReadRateMultiplier(v float64) *GroupUpdate {
+	_u.mutation.ResetHiddenCacheReadRateMultiplier()
+	_u.mutation.SetHiddenCacheReadRateMultiplier(v)
+	return _u
+}
+
+// SetNillableHiddenCacheReadRateMultiplier sets the "hidden_cache_read_rate_multiplier" field if the given value is not nil.
+func (_u *GroupUpdate) SetNillableHiddenCacheReadRateMultiplier(v *float64) *GroupUpdate {
+	if v != nil {
+		_u.SetHiddenCacheReadRateMultiplier(*v)
+	}
+	return _u
+}
+
+// AddHiddenCacheReadRateMultiplier adds value to the "hidden_cache_read_rate_multiplier" field.
+func (_u *GroupUpdate) AddHiddenCacheReadRateMultiplier(v float64) *GroupUpdate {
+	_u.mutation.AddHiddenCacheReadRateMultiplier(v)
+	return _u
+}
+
 // SetIsExclusive sets the "is_exclusive" field.
 func (_u *GroupUpdate) SetIsExclusive(v bool) *GroupUpdate {
 	_u.mutation.SetIsExclusive(v)
@@ -980,6 +1148,54 @@ func (_u *GroupUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	if value, ok := _u.mutation.AddedRateMultiplier(); ok {
 		_spec.AddField(group.FieldRateMultiplier, field.TypeFloat64, value)
 	}
+	if value, ok := _u.mutation.InputTokenMultiplier(); ok {
+		_spec.SetField(group.FieldInputTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedInputTokenMultiplier(); ok {
+		_spec.AddField(group.FieldInputTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.OutputTokenMultiplier(); ok {
+		_spec.SetField(group.FieldOutputTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedOutputTokenMultiplier(); ok {
+		_spec.AddField(group.FieldOutputTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.CacheCreationTokenMultiplier(); ok {
+		_spec.SetField(group.FieldCacheCreationTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedCacheCreationTokenMultiplier(); ok {
+		_spec.AddField(group.FieldCacheCreationTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.CacheReadTokenMultiplier(); ok {
+		_spec.SetField(group.FieldCacheReadTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedCacheReadTokenMultiplier(); ok {
+		_spec.AddField(group.FieldCacheReadTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.HiddenInputRateMultiplier(); ok {
+		_spec.SetField(group.FieldHiddenInputRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedHiddenInputRateMultiplier(); ok {
+		_spec.AddField(group.FieldHiddenInputRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.HiddenOutputRateMultiplier(); ok {
+		_spec.SetField(group.FieldHiddenOutputRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedHiddenOutputRateMultiplier(); ok {
+		_spec.AddField(group.FieldHiddenOutputRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.HiddenCacheCreationRateMultiplier(); ok {
+		_spec.SetField(group.FieldHiddenCacheCreationRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedHiddenCacheCreationRateMultiplier(); ok {
+		_spec.AddField(group.FieldHiddenCacheCreationRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.HiddenCacheReadRateMultiplier(); ok {
+		_spec.SetField(group.FieldHiddenCacheReadRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedHiddenCacheReadRateMultiplier(); ok {
+		_spec.AddField(group.FieldHiddenCacheReadRateMultiplier, field.TypeFloat64, value)
+	}
 	if value, ok := _u.mutation.IsExclusive(); ok {
 		_spec.SetField(group.FieldIsExclusive, field.TypeBool, value)
 	}
@@ -1527,6 +1743,174 @@ func (_u *GroupUpdateOne) SetNillableRateMultiplier(v *float64) *GroupUpdateOne 
 // AddRateMultiplier adds value to the "rate_multiplier" field.
 func (_u *GroupUpdateOne) AddRateMultiplier(v float64) *GroupUpdateOne {
 	_u.mutation.AddRateMultiplier(v)
+	return _u
+}
+
+// SetInputTokenMultiplier sets the "input_token_multiplier" field.
+func (_u *GroupUpdateOne) SetInputTokenMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.ResetInputTokenMultiplier()
+	_u.mutation.SetInputTokenMultiplier(v)
+	return _u
+}
+
+// SetNillableInputTokenMultiplier sets the "input_token_multiplier" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableInputTokenMultiplier(v *float64) *GroupUpdateOne {
+	if v != nil {
+		_u.SetInputTokenMultiplier(*v)
+	}
+	return _u
+}
+
+// AddInputTokenMultiplier adds value to the "input_token_multiplier" field.
+func (_u *GroupUpdateOne) AddInputTokenMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.AddInputTokenMultiplier(v)
+	return _u
+}
+
+// SetOutputTokenMultiplier sets the "output_token_multiplier" field.
+func (_u *GroupUpdateOne) SetOutputTokenMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.ResetOutputTokenMultiplier()
+	_u.mutation.SetOutputTokenMultiplier(v)
+	return _u
+}
+
+// SetNillableOutputTokenMultiplier sets the "output_token_multiplier" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableOutputTokenMultiplier(v *float64) *GroupUpdateOne {
+	if v != nil {
+		_u.SetOutputTokenMultiplier(*v)
+	}
+	return _u
+}
+
+// AddOutputTokenMultiplier adds value to the "output_token_multiplier" field.
+func (_u *GroupUpdateOne) AddOutputTokenMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.AddOutputTokenMultiplier(v)
+	return _u
+}
+
+// SetCacheCreationTokenMultiplier sets the "cache_creation_token_multiplier" field.
+func (_u *GroupUpdateOne) SetCacheCreationTokenMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.ResetCacheCreationTokenMultiplier()
+	_u.mutation.SetCacheCreationTokenMultiplier(v)
+	return _u
+}
+
+// SetNillableCacheCreationTokenMultiplier sets the "cache_creation_token_multiplier" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableCacheCreationTokenMultiplier(v *float64) *GroupUpdateOne {
+	if v != nil {
+		_u.SetCacheCreationTokenMultiplier(*v)
+	}
+	return _u
+}
+
+// AddCacheCreationTokenMultiplier adds value to the "cache_creation_token_multiplier" field.
+func (_u *GroupUpdateOne) AddCacheCreationTokenMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.AddCacheCreationTokenMultiplier(v)
+	return _u
+}
+
+// SetCacheReadTokenMultiplier sets the "cache_read_token_multiplier" field.
+func (_u *GroupUpdateOne) SetCacheReadTokenMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.ResetCacheReadTokenMultiplier()
+	_u.mutation.SetCacheReadTokenMultiplier(v)
+	return _u
+}
+
+// SetNillableCacheReadTokenMultiplier sets the "cache_read_token_multiplier" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableCacheReadTokenMultiplier(v *float64) *GroupUpdateOne {
+	if v != nil {
+		_u.SetCacheReadTokenMultiplier(*v)
+	}
+	return _u
+}
+
+// AddCacheReadTokenMultiplier adds value to the "cache_read_token_multiplier" field.
+func (_u *GroupUpdateOne) AddCacheReadTokenMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.AddCacheReadTokenMultiplier(v)
+	return _u
+}
+
+// SetHiddenInputRateMultiplier sets the "hidden_input_rate_multiplier" field.
+func (_u *GroupUpdateOne) SetHiddenInputRateMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.ResetHiddenInputRateMultiplier()
+	_u.mutation.SetHiddenInputRateMultiplier(v)
+	return _u
+}
+
+// SetNillableHiddenInputRateMultiplier sets the "hidden_input_rate_multiplier" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableHiddenInputRateMultiplier(v *float64) *GroupUpdateOne {
+	if v != nil {
+		_u.SetHiddenInputRateMultiplier(*v)
+	}
+	return _u
+}
+
+// AddHiddenInputRateMultiplier adds value to the "hidden_input_rate_multiplier" field.
+func (_u *GroupUpdateOne) AddHiddenInputRateMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.AddHiddenInputRateMultiplier(v)
+	return _u
+}
+
+// SetHiddenOutputRateMultiplier sets the "hidden_output_rate_multiplier" field.
+func (_u *GroupUpdateOne) SetHiddenOutputRateMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.ResetHiddenOutputRateMultiplier()
+	_u.mutation.SetHiddenOutputRateMultiplier(v)
+	return _u
+}
+
+// SetNillableHiddenOutputRateMultiplier sets the "hidden_output_rate_multiplier" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableHiddenOutputRateMultiplier(v *float64) *GroupUpdateOne {
+	if v != nil {
+		_u.SetHiddenOutputRateMultiplier(*v)
+	}
+	return _u
+}
+
+// AddHiddenOutputRateMultiplier adds value to the "hidden_output_rate_multiplier" field.
+func (_u *GroupUpdateOne) AddHiddenOutputRateMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.AddHiddenOutputRateMultiplier(v)
+	return _u
+}
+
+// SetHiddenCacheCreationRateMultiplier sets the "hidden_cache_creation_rate_multiplier" field.
+func (_u *GroupUpdateOne) SetHiddenCacheCreationRateMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.ResetHiddenCacheCreationRateMultiplier()
+	_u.mutation.SetHiddenCacheCreationRateMultiplier(v)
+	return _u
+}
+
+// SetNillableHiddenCacheCreationRateMultiplier sets the "hidden_cache_creation_rate_multiplier" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableHiddenCacheCreationRateMultiplier(v *float64) *GroupUpdateOne {
+	if v != nil {
+		_u.SetHiddenCacheCreationRateMultiplier(*v)
+	}
+	return _u
+}
+
+// AddHiddenCacheCreationRateMultiplier adds value to the "hidden_cache_creation_rate_multiplier" field.
+func (_u *GroupUpdateOne) AddHiddenCacheCreationRateMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.AddHiddenCacheCreationRateMultiplier(v)
+	return _u
+}
+
+// SetHiddenCacheReadRateMultiplier sets the "hidden_cache_read_rate_multiplier" field.
+func (_u *GroupUpdateOne) SetHiddenCacheReadRateMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.ResetHiddenCacheReadRateMultiplier()
+	_u.mutation.SetHiddenCacheReadRateMultiplier(v)
+	return _u
+}
+
+// SetNillableHiddenCacheReadRateMultiplier sets the "hidden_cache_read_rate_multiplier" field if the given value is not nil.
+func (_u *GroupUpdateOne) SetNillableHiddenCacheReadRateMultiplier(v *float64) *GroupUpdateOne {
+	if v != nil {
+		_u.SetHiddenCacheReadRateMultiplier(*v)
+	}
+	return _u
+}
+
+// AddHiddenCacheReadRateMultiplier adds value to the "hidden_cache_read_rate_multiplier" field.
+func (_u *GroupUpdateOne) AddHiddenCacheReadRateMultiplier(v float64) *GroupUpdateOne {
+	_u.mutation.AddHiddenCacheReadRateMultiplier(v)
 	return _u
 }
 
@@ -2422,6 +2806,54 @@ func (_u *GroupUpdateOne) sqlSave(ctx context.Context) (_node *Group, err error)
 	}
 	if value, ok := _u.mutation.AddedRateMultiplier(); ok {
 		_spec.AddField(group.FieldRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.InputTokenMultiplier(); ok {
+		_spec.SetField(group.FieldInputTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedInputTokenMultiplier(); ok {
+		_spec.AddField(group.FieldInputTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.OutputTokenMultiplier(); ok {
+		_spec.SetField(group.FieldOutputTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedOutputTokenMultiplier(); ok {
+		_spec.AddField(group.FieldOutputTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.CacheCreationTokenMultiplier(); ok {
+		_spec.SetField(group.FieldCacheCreationTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedCacheCreationTokenMultiplier(); ok {
+		_spec.AddField(group.FieldCacheCreationTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.CacheReadTokenMultiplier(); ok {
+		_spec.SetField(group.FieldCacheReadTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedCacheReadTokenMultiplier(); ok {
+		_spec.AddField(group.FieldCacheReadTokenMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.HiddenInputRateMultiplier(); ok {
+		_spec.SetField(group.FieldHiddenInputRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedHiddenInputRateMultiplier(); ok {
+		_spec.AddField(group.FieldHiddenInputRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.HiddenOutputRateMultiplier(); ok {
+		_spec.SetField(group.FieldHiddenOutputRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedHiddenOutputRateMultiplier(); ok {
+		_spec.AddField(group.FieldHiddenOutputRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.HiddenCacheCreationRateMultiplier(); ok {
+		_spec.SetField(group.FieldHiddenCacheCreationRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedHiddenCacheCreationRateMultiplier(); ok {
+		_spec.AddField(group.FieldHiddenCacheCreationRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.HiddenCacheReadRateMultiplier(); ok {
+		_spec.SetField(group.FieldHiddenCacheReadRateMultiplier, field.TypeFloat64, value)
+	}
+	if value, ok := _u.mutation.AddedHiddenCacheReadRateMultiplier(); ok {
+		_spec.AddField(group.FieldHiddenCacheReadRateMultiplier, field.TypeFloat64, value)
 	}
 	if value, ok := _u.mutation.IsExclusive(); ok {
 		_spec.SetField(group.FieldIsExclusive, field.TypeBool, value)

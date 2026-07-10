@@ -48,6 +48,14 @@ type CreateGroupRequest struct {
 	Name                 string   `json:"name"`
 	Description          string   `json:"description"`
 	RateMultiplier       float64  `json:"rate_multiplier"`
+	InputTokenMultiplier *float64 `json:"input_token_multiplier"`
+	OutputTokenMultiplier *float64 `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier *float64 `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier *float64 `json:"cache_read_token_multiplier"`
+	HiddenInputRateMultiplier *float64 `json:"hidden_input_rate_multiplier"`
+	HiddenOutputRateMultiplier *float64 `json:"hidden_output_rate_multiplier"`
+	HiddenCacheCreationRateMultiplier *float64 `json:"hidden_cache_creation_rate_multiplier"`
+	HiddenCacheReadRateMultiplier *float64 `json:"hidden_cache_read_rate_multiplier"`
 	IsExclusive          bool     `json:"is_exclusive"`
 	AllowImageGeneration bool     `json:"allow_image_generation"`
 	ImageRateIndependent bool     `json:"image_rate_independent"`
@@ -59,6 +67,14 @@ type UpdateGroupRequest struct {
 	Name                 *string  `json:"name"`
 	Description          *string  `json:"description"`
 	RateMultiplier       *float64 `json:"rate_multiplier"`
+	InputTokenMultiplier *float64 `json:"input_token_multiplier"`
+	OutputTokenMultiplier *float64 `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier *float64 `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier *float64 `json:"cache_read_token_multiplier"`
+	HiddenInputRateMultiplier *float64 `json:"hidden_input_rate_multiplier"`
+	HiddenOutputRateMultiplier *float64 `json:"hidden_output_rate_multiplier"`
+	HiddenCacheCreationRateMultiplier *float64 `json:"hidden_cache_creation_rate_multiplier"`
+	HiddenCacheReadRateMultiplier *float64 `json:"hidden_cache_read_rate_multiplier"`
 	IsExclusive          *bool    `json:"is_exclusive"`
 	Status               *string  `json:"status"`
 	AllowImageGeneration *bool    `json:"allow_image_generation"`
@@ -104,12 +120,44 @@ func (s *GroupService) Create(ctx context.Context, req CreateGroupRequest) (*Gro
 		Description:          req.Description,
 		Platform:             PlatformAnthropic,
 		RateMultiplier:       req.RateMultiplier,
+		InputTokenMultiplier: 1.0,
+		OutputTokenMultiplier: 1.0,
+		CacheCreationTokenMultiplier: 1.0,
+		CacheReadTokenMultiplier: 1.0,
+		HiddenInputRateMultiplier: 1.0,
+		HiddenOutputRateMultiplier: 1.0,
+		HiddenCacheCreationRateMultiplier: 1.0,
+		HiddenCacheReadRateMultiplier: 1.0,
 		IsExclusive:          req.IsExclusive,
 		Status:               StatusActive,
 		SubscriptionType:     SubscriptionTypeStandard,
 		AllowImageGeneration: req.AllowImageGeneration,
 		ImageRateIndependent: req.ImageRateIndependent,
 		ImageRateMultiplier:  imageRateMultiplier,
+	}
+	if req.InputTokenMultiplier != nil {
+		group.InputTokenMultiplier = *req.InputTokenMultiplier
+	}
+	if req.OutputTokenMultiplier != nil {
+		group.OutputTokenMultiplier = *req.OutputTokenMultiplier
+	}
+	if req.CacheCreationTokenMultiplier != nil {
+		group.CacheCreationTokenMultiplier = *req.CacheCreationTokenMultiplier
+	}
+	if req.CacheReadTokenMultiplier != nil {
+		group.CacheReadTokenMultiplier = *req.CacheReadTokenMultiplier
+	}
+	if req.HiddenInputRateMultiplier != nil {
+		group.HiddenInputRateMultiplier = *req.HiddenInputRateMultiplier
+	}
+	if req.HiddenOutputRateMultiplier != nil {
+		group.HiddenOutputRateMultiplier = *req.HiddenOutputRateMultiplier
+	}
+	if req.HiddenCacheCreationRateMultiplier != nil {
+		group.HiddenCacheCreationRateMultiplier = *req.HiddenCacheCreationRateMultiplier
+	}
+	if req.HiddenCacheReadRateMultiplier != nil {
+		group.HiddenCacheReadRateMultiplier = *req.HiddenCacheReadRateMultiplier
 	}
 
 	if err := s.groupRepo.Create(ctx, group); err != nil {
@@ -172,6 +220,30 @@ func (s *GroupService) Update(ctx context.Context, id int64, req UpdateGroupRequ
 
 	if req.RateMultiplier != nil {
 		group.RateMultiplier = *req.RateMultiplier
+	}
+	if req.InputTokenMultiplier != nil {
+		group.InputTokenMultiplier = *req.InputTokenMultiplier
+	}
+	if req.OutputTokenMultiplier != nil {
+		group.OutputTokenMultiplier = *req.OutputTokenMultiplier
+	}
+	if req.CacheCreationTokenMultiplier != nil {
+		group.CacheCreationTokenMultiplier = *req.CacheCreationTokenMultiplier
+	}
+	if req.CacheReadTokenMultiplier != nil {
+		group.CacheReadTokenMultiplier = *req.CacheReadTokenMultiplier
+	}
+	if req.HiddenInputRateMultiplier != nil {
+		group.HiddenInputRateMultiplier = *req.HiddenInputRateMultiplier
+	}
+	if req.HiddenOutputRateMultiplier != nil {
+		group.HiddenOutputRateMultiplier = *req.HiddenOutputRateMultiplier
+	}
+	if req.HiddenCacheCreationRateMultiplier != nil {
+		group.HiddenCacheCreationRateMultiplier = *req.HiddenCacheCreationRateMultiplier
+	}
+	if req.HiddenCacheReadRateMultiplier != nil {
+		group.HiddenCacheReadRateMultiplier = *req.HiddenCacheReadRateMultiplier
 	}
 
 	if req.IsExclusive != nil {

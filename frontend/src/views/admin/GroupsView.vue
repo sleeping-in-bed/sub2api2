@@ -497,6 +497,62 @@
           />
           <p class="input-hint">{{ t("admin.groups.rateMultiplierHint") }}</p>
         </div>
+        <div class="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-dark-600">
+          <div>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t("admin.groups.tokenMultiplierSectionTitle") }}
+            </label>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              {{ t("admin.groups.tokenMultiplierSectionHint") }}
+            </p>
+          </div>
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.inputTokenMultiplier") }}</label>
+              <input v-model.number="createForm.input_token_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.outputTokenMultiplier") }}</label>
+              <input v-model.number="createForm.output_token_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.cacheCreationTokenMultiplier") }}</label>
+              <input v-model.number="createForm.cache_creation_token_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.cacheReadTokenMultiplier") }}</label>
+              <input v-model.number="createForm.cache_read_token_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+          </div>
+        </div>
+        <div class="space-y-3 rounded-lg border border-amber-200 bg-amber-50/40 p-4 dark:border-amber-900/40 dark:bg-amber-900/10">
+          <div>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t("admin.groups.hiddenRateSectionTitle") }}
+            </label>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              {{ t("admin.groups.hiddenRateSectionHint") }}
+            </p>
+          </div>
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.hiddenInputRateMultiplier") }}</label>
+              <input v-model.number="createForm.hidden_input_rate_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.hiddenOutputRateMultiplier") }}</label>
+              <input v-model.number="createForm.hidden_output_rate_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.hiddenCacheCreationRateMultiplier") }}</label>
+              <input v-model.number="createForm.hidden_cache_creation_rate_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.hiddenCacheReadRateMultiplier") }}</label>
+              <input v-model.number="createForm.hidden_cache_read_rate_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+          </div>
+        </div>
         <div>
           <label class="input-label">{{ t("admin.groups.form.rpmLimit") }}</label>
           <input
@@ -1782,6 +1838,62 @@
             class="input"
             data-tour="group-form-multiplier"
           />
+        </div>
+        <div class="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-dark-600">
+          <div>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t("admin.groups.tokenMultiplierSectionTitle") }}
+            </label>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              {{ t("admin.groups.tokenMultiplierSectionHint") }}
+            </p>
+          </div>
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.inputTokenMultiplier") }}</label>
+              <input v-model.number="editForm.input_token_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.outputTokenMultiplier") }}</label>
+              <input v-model.number="editForm.output_token_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.cacheCreationTokenMultiplier") }}</label>
+              <input v-model.number="editForm.cache_creation_token_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.cacheReadTokenMultiplier") }}</label>
+              <input v-model.number="editForm.cache_read_token_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+          </div>
+        </div>
+        <div class="space-y-3 rounded-lg border border-amber-200 bg-amber-50/40 p-4 dark:border-amber-900/40 dark:bg-amber-900/10">
+          <div>
+            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t("admin.groups.hiddenRateSectionTitle") }}
+            </label>
+            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              {{ t("admin.groups.hiddenRateSectionHint") }}
+            </p>
+          </div>
+          <div class="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.hiddenInputRateMultiplier") }}</label>
+              <input v-model.number="editForm.hidden_input_rate_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.hiddenOutputRateMultiplier") }}</label>
+              <input v-model.number="editForm.hidden_output_rate_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.hiddenCacheCreationRateMultiplier") }}</label>
+              <input v-model.number="editForm.hidden_cache_creation_rate_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+            <div>
+              <label class="input-label">{{ t("admin.groups.form.hiddenCacheReadRateMultiplier") }}</label>
+              <input v-model.number="editForm.hidden_cache_read_rate_multiplier" type="number" step="0.001" min="0.001" class="input" />
+            </div>
+          </div>
         </div>
         <div>
           <label class="input-label">{{ t("admin.groups.form.rpmLimit") }}</label>
@@ -3328,6 +3440,14 @@ const createForm = reactive({
   description: "",
   platform: "anthropic" as GroupPlatform,
   rate_multiplier: 1.0,
+  input_token_multiplier: 1.0,
+  output_token_multiplier: 1.0,
+  cache_creation_token_multiplier: 1.0,
+  cache_read_token_multiplier: 1.0,
+  hidden_input_rate_multiplier: 1.0,
+  hidden_output_rate_multiplier: 1.0,
+  hidden_cache_creation_rate_multiplier: 1.0,
+  hidden_cache_read_rate_multiplier: 1.0,
   is_exclusive: false,
   subscription_type: "standard" as SubscriptionType,
   daily_limit_usd: null as number | null,
@@ -3658,6 +3778,14 @@ const editForm = reactive({
   description: "",
   platform: "anthropic" as GroupPlatform,
   rate_multiplier: 1.0,
+  input_token_multiplier: 1.0,
+  output_token_multiplier: 1.0,
+  cache_creation_token_multiplier: 1.0,
+  cache_read_token_multiplier: 1.0,
+  hidden_input_rate_multiplier: 1.0,
+  hidden_output_rate_multiplier: 1.0,
+  hidden_cache_creation_rate_multiplier: 1.0,
+  hidden_cache_read_rate_multiplier: 1.0,
   is_exclusive: false,
   status: "active" as "active" | "inactive",
   subscription_type: "standard" as SubscriptionType,
@@ -3911,6 +4039,14 @@ const closeCreateModal = () => {
   createForm.description = "";
   createForm.platform = "anthropic";
   createForm.rate_multiplier = 1.0;
+  createForm.input_token_multiplier = 1.0;
+  createForm.output_token_multiplier = 1.0;
+  createForm.cache_creation_token_multiplier = 1.0;
+  createForm.cache_read_token_multiplier = 1.0;
+  createForm.hidden_input_rate_multiplier = 1.0;
+  createForm.hidden_output_rate_multiplier = 1.0;
+  createForm.hidden_cache_creation_rate_multiplier = 1.0;
+  createForm.hidden_cache_read_rate_multiplier = 1.0;
   createForm.is_exclusive = false;
   createForm.subscription_type = "standard";
   createForm.daily_limit_usd = null;
@@ -4036,6 +4172,14 @@ const handleEdit = async (group: AdminGroup) => {
   editForm.description = group.description || "";
   editForm.platform = group.platform;
   editForm.rate_multiplier = group.rate_multiplier;
+  editForm.input_token_multiplier = group.input_token_multiplier ?? 1;
+  editForm.output_token_multiplier = group.output_token_multiplier ?? 1;
+  editForm.cache_creation_token_multiplier = group.cache_creation_token_multiplier ?? 1;
+  editForm.cache_read_token_multiplier = group.cache_read_token_multiplier ?? 1;
+  editForm.hidden_input_rate_multiplier = group.hidden_input_rate_multiplier ?? 1;
+  editForm.hidden_output_rate_multiplier = group.hidden_output_rate_multiplier ?? 1;
+  editForm.hidden_cache_creation_rate_multiplier = group.hidden_cache_creation_rate_multiplier ?? 1;
+  editForm.hidden_cache_read_rate_multiplier = group.hidden_cache_read_rate_multiplier ?? 1;
   editForm.is_exclusive = group.is_exclusive;
   editForm.status = group.status;
   editForm.subscription_type = group.subscription_type || "standard";

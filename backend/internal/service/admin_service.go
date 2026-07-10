@@ -199,6 +199,14 @@ type CreateGroupInput struct {
 	Description      string
 	Platform         string
 	RateMultiplier   float64
+	InputTokenMultiplier              *float64
+	OutputTokenMultiplier             *float64
+	CacheCreationTokenMultiplier      *float64
+	CacheReadTokenMultiplier          *float64
+	HiddenInputRateMultiplier         *float64
+	HiddenOutputRateMultiplier        *float64
+	HiddenCacheCreationRateMultiplier *float64
+	HiddenCacheReadRateMultiplier     *float64
 	IsExclusive      bool
 	SubscriptionType string   // standard/subscription
 	DailyLimitUSD    *float64 // 日限额 (USD)
@@ -239,6 +247,14 @@ type UpdateGroupInput struct {
 	Description      *string
 	Platform         string
 	RateMultiplier   *float64 // 使用指针以支持设置为0
+	InputTokenMultiplier              *float64
+	OutputTokenMultiplier             *float64
+	CacheCreationTokenMultiplier      *float64
+	CacheReadTokenMultiplier          *float64
+	HiddenInputRateMultiplier         *float64
+	HiddenOutputRateMultiplier        *float64
+	HiddenCacheCreationRateMultiplier *float64
+	HiddenCacheReadRateMultiplier     *float64
 	IsExclusive      *bool
 	Status           string
 	SubscriptionType string   // standard/subscription
@@ -1805,6 +1821,62 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 	if input.RateMultiplier <= 0 {
 		return nil, errors.New("rate_multiplier must be > 0")
 	}
+	inputTokenMultiplier, err := resolveGroupMultiplierDefault(
+		"input_token_multiplier",
+		input.InputTokenMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
+	outputTokenMultiplier, err := resolveGroupMultiplierDefault(
+		"output_token_multiplier",
+		input.OutputTokenMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
+	cacheCreationTokenMultiplier, err := resolveGroupMultiplierDefault(
+		"cache_creation_token_multiplier",
+		input.CacheCreationTokenMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
+	cacheReadTokenMultiplier, err := resolveGroupMultiplierDefault(
+		"cache_read_token_multiplier",
+		input.CacheReadTokenMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
+	hiddenInputRateMultiplier, err := resolveGroupMultiplierDefault(
+		"hidden_input_rate_multiplier",
+		input.HiddenInputRateMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
+	hiddenOutputRateMultiplier, err := resolveGroupMultiplierDefault(
+		"hidden_output_rate_multiplier",
+		input.HiddenOutputRateMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
+	hiddenCacheCreationRateMultiplier, err := resolveGroupMultiplierDefault(
+		"hidden_cache_creation_rate_multiplier",
+		input.HiddenCacheCreationRateMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
+	hiddenCacheReadRateMultiplier, err := resolveGroupMultiplierDefault(
+		"hidden_cache_read_rate_multiplier",
+		input.HiddenCacheReadRateMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
 
 	platform := input.Platform
 	if platform == "" {
@@ -1893,6 +1965,14 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 		Description:                     input.Description,
 		Platform:                        platform,
 		RateMultiplier:                  input.RateMultiplier,
+		InputTokenMultiplier:            inputTokenMultiplier,
+		OutputTokenMultiplier:           outputTokenMultiplier,
+		CacheCreationTokenMultiplier:    cacheCreationTokenMultiplier,
+		CacheReadTokenMultiplier:        cacheReadTokenMultiplier,
+		HiddenInputRateMultiplier:       hiddenInputRateMultiplier,
+		HiddenOutputRateMultiplier:      hiddenOutputRateMultiplier,
+		HiddenCacheCreationRateMultiplier: hiddenCacheCreationRateMultiplier,
+		HiddenCacheReadRateMultiplier:   hiddenCacheReadRateMultiplier,
 		IsExclusive:                     input.IsExclusive,
 		Status:                          StatusActive,
 		SubscriptionType:                subscriptionType,
@@ -1970,6 +2050,16 @@ func normalizePrice(price *float64) *float64 {
 		return nil
 	}
 	return price
+}
+
+func resolveGroupMultiplierDefault(field string, value *float64) (float64, error) {
+	if value == nil {
+		return 1.0, nil
+	}
+	if *value <= 0 {
+		return 0, errors.New(field + " must be > 0")
+	}
+	return *value, nil
 }
 
 // validateFallbackGroup 校验降级分组的有效性
@@ -2061,6 +2151,62 @@ func (s *adminServiceImpl) UpdateGroup(ctx context.Context, id int64, input *Upd
 			return nil, errors.New("rate_multiplier must be > 0")
 		}
 		group.RateMultiplier = *input.RateMultiplier
+	}
+	if input.InputTokenMultiplier != nil {
+		value, err := resolveGroupMultiplierDefault("input_token_multiplier", input.InputTokenMultiplier)
+		if err != nil {
+			return nil, err
+		}
+		group.InputTokenMultiplier = value
+	}
+	if input.OutputTokenMultiplier != nil {
+		value, err := resolveGroupMultiplierDefault("output_token_multiplier", input.OutputTokenMultiplier)
+		if err != nil {
+			return nil, err
+		}
+		group.OutputTokenMultiplier = value
+	}
+	if input.CacheCreationTokenMultiplier != nil {
+		value, err := resolveGroupMultiplierDefault("cache_creation_token_multiplier", input.CacheCreationTokenMultiplier)
+		if err != nil {
+			return nil, err
+		}
+		group.CacheCreationTokenMultiplier = value
+	}
+	if input.CacheReadTokenMultiplier != nil {
+		value, err := resolveGroupMultiplierDefault("cache_read_token_multiplier", input.CacheReadTokenMultiplier)
+		if err != nil {
+			return nil, err
+		}
+		group.CacheReadTokenMultiplier = value
+	}
+	if input.HiddenInputRateMultiplier != nil {
+		value, err := resolveGroupMultiplierDefault("hidden_input_rate_multiplier", input.HiddenInputRateMultiplier)
+		if err != nil {
+			return nil, err
+		}
+		group.HiddenInputRateMultiplier = value
+	}
+	if input.HiddenOutputRateMultiplier != nil {
+		value, err := resolveGroupMultiplierDefault("hidden_output_rate_multiplier", input.HiddenOutputRateMultiplier)
+		if err != nil {
+			return nil, err
+		}
+		group.HiddenOutputRateMultiplier = value
+	}
+	if input.HiddenCacheCreationRateMultiplier != nil {
+		value, err := resolveGroupMultiplierDefault("hidden_cache_creation_rate_multiplier", input.HiddenCacheCreationRateMultiplier)
+		if err != nil {
+			return nil, err
+		}
+		group.HiddenCacheCreationRateMultiplier = value
+	}
+	if input.HiddenCacheReadRateMultiplier != nil {
+		value, err := resolveGroupMultiplierDefault("hidden_cache_read_rate_multiplier", input.HiddenCacheReadRateMultiplier)
+		if err != nil {
+			return nil, err
+		}
+		group.HiddenCacheReadRateMultiplier = value
 	}
 	if input.IsExclusive != nil {
 		group.IsExclusive = *input.IsExclusive

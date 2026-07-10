@@ -30,7 +30,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const usageLogSelectColumns = "id, user_id, api_key_id, account_id, request_id, model, requested_model, upstream_model, group_id, subscription_id, input_tokens, output_tokens, cache_creation_tokens, cache_read_tokens, cache_creation_5m_tokens, cache_creation_1h_tokens, image_output_tokens, image_output_cost, input_cost, output_cost, cache_creation_cost, cache_read_cost, total_cost, actual_cost, rate_multiplier, account_rate_multiplier, billing_type, request_type, stream, openai_ws_mode, duration_ms, first_token_ms, user_agent, ip_address, image_count, image_size, image_input_size, image_output_size, image_size_source, image_size_breakdown, service_tier, reasoning_effort, inbound_endpoint, upstream_endpoint, cache_ttl_overridden, channel_id, model_mapping_chain, billing_tier, billing_mode, account_stats_cost, created_at"
+const usageLogSelectColumns = "id, user_id, api_key_id, account_id, request_id, model, requested_model, upstream_model, group_id, subscription_id, input_tokens, output_tokens, cache_creation_tokens, cache_read_tokens, raw_input_tokens, raw_output_tokens, raw_cache_creation_tokens, raw_cache_read_tokens, cache_creation_5m_tokens, cache_creation_1h_tokens, image_output_tokens, image_output_cost, input_cost, output_cost, cache_creation_cost, cache_read_cost, total_cost, actual_cost, rate_multiplier, group_input_token_multiplier, group_output_token_multiplier, group_cache_creation_token_multiplier, group_cache_read_token_multiplier, group_hidden_input_rate_multiplier, group_hidden_output_rate_multiplier, group_hidden_cache_creation_rate_multiplier, group_hidden_cache_read_rate_multiplier, account_rate_multiplier, billing_type, request_type, stream, openai_ws_mode, duration_ms, first_token_ms, user_agent, ip_address, image_count, image_size, image_input_size, image_output_size, image_size_source, image_size_breakdown, service_tier, reasoning_effort, inbound_endpoint, upstream_endpoint, cache_ttl_overridden, channel_id, model_mapping_chain, billing_tier, billing_mode, account_stats_cost, created_at"
 
 // usageLogInsertArgTypes must stay in the same order as:
 //  1. prepareUsageLogInsert().args
@@ -53,6 +53,10 @@ var usageLogInsertArgTypes = [...]string{
 	"integer",     // output_tokens
 	"integer",     // cache_creation_tokens
 	"integer",     // cache_read_tokens
+	"integer",     // raw_input_tokens
+	"integer",     // raw_output_tokens
+	"integer",     // raw_cache_creation_tokens
+	"integer",     // raw_cache_read_tokens
 	"integer",     // cache_creation_5m_tokens
 	"integer",     // cache_creation_1h_tokens
 	"integer",     // image_output_tokens
@@ -64,6 +68,14 @@ var usageLogInsertArgTypes = [...]string{
 	"numeric",     // total_cost
 	"numeric",     // actual_cost
 	"numeric",     // rate_multiplier
+	"numeric",     // group_input_token_multiplier
+	"numeric",     // group_output_token_multiplier
+	"numeric",     // group_cache_creation_token_multiplier
+	"numeric",     // group_cache_read_token_multiplier
+	"numeric",     // group_hidden_input_rate_multiplier
+	"numeric",     // group_hidden_output_rate_multiplier
+	"numeric",     // group_hidden_cache_creation_rate_multiplier
+	"numeric",     // group_hidden_cache_read_rate_multiplier
 	"numeric",     // account_rate_multiplier
 	"smallint",    // billing_type
 	"smallint",    // request_type
@@ -370,6 +382,10 @@ func (r *usageLogRepository) createSingle(ctx context.Context, sqlq sqlExecutor,
 			output_tokens,
 			cache_creation_tokens,
 			cache_read_tokens,
+			raw_input_tokens,
+			raw_output_tokens,
+			raw_cache_creation_tokens,
+			raw_cache_read_tokens,
 			cache_creation_5m_tokens,
 			cache_creation_1h_tokens,
 			image_output_tokens,
@@ -381,6 +397,14 @@ func (r *usageLogRepository) createSingle(ctx context.Context, sqlq sqlExecutor,
 			total_cost,
 			actual_cost,
 			rate_multiplier,
+			group_input_token_multiplier,
+			group_output_token_multiplier,
+			group_cache_creation_token_multiplier,
+			group_cache_read_token_multiplier,
+			group_hidden_input_rate_multiplier,
+			group_hidden_output_rate_multiplier,
+			group_hidden_cache_creation_rate_multiplier,
+			group_hidden_cache_read_rate_multiplier,
 			account_rate_multiplier,
 			billing_type,
 			request_type,
@@ -412,8 +436,9 @@ func (r *usageLogRepository) createSingle(ctx context.Context, sqlq sqlExecutor,
 			$8, $9,
 			$10, $11, $12, $13,
 			$14, $15, $16, $17,
-			$18, $19, $20, $21, $22, $23,
-			$24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50
+			$18, $19, $20, $21, $22, $23, $24, $25,
+			$26, $27, $28, $29, $30, $31, $32, $33, $34,
+			$35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60, $61, $62
 		)
 		ON CONFLICT (request_id, api_key_id) DO NOTHING
 		RETURNING id, created_at
@@ -812,6 +837,10 @@ func buildUsageLogBatchInsertQuery(keys []string, preparedByKey map[string]usage
 			output_tokens,
 			cache_creation_tokens,
 			cache_read_tokens,
+			raw_input_tokens,
+			raw_output_tokens,
+			raw_cache_creation_tokens,
+			raw_cache_read_tokens,
 			cache_creation_5m_tokens,
 			cache_creation_1h_tokens,
 			image_output_tokens,
@@ -823,6 +852,14 @@ func buildUsageLogBatchInsertQuery(keys []string, preparedByKey map[string]usage
 			total_cost,
 			actual_cost,
 			rate_multiplier,
+			group_input_token_multiplier,
+			group_output_token_multiplier,
+			group_cache_creation_token_multiplier,
+			group_cache_read_token_multiplier,
+			group_hidden_input_rate_multiplier,
+			group_hidden_output_rate_multiplier,
+			group_hidden_cache_creation_rate_multiplier,
+			group_hidden_cache_read_rate_multiplier,
 			account_rate_multiplier,
 			billing_type,
 			request_type,
@@ -893,6 +930,10 @@ func buildUsageLogBatchInsertQuery(keys []string, preparedByKey map[string]usage
 				output_tokens,
 				cache_creation_tokens,
 				cache_read_tokens,
+				raw_input_tokens,
+				raw_output_tokens,
+				raw_cache_creation_tokens,
+				raw_cache_read_tokens,
 				cache_creation_5m_tokens,
 				cache_creation_1h_tokens,
 				image_output_tokens,
@@ -904,6 +945,14 @@ func buildUsageLogBatchInsertQuery(keys []string, preparedByKey map[string]usage
 				total_cost,
 				actual_cost,
 				rate_multiplier,
+				group_input_token_multiplier,
+				group_output_token_multiplier,
+				group_cache_creation_token_multiplier,
+				group_cache_read_token_multiplier,
+				group_hidden_input_rate_multiplier,
+				group_hidden_output_rate_multiplier,
+				group_hidden_cache_creation_rate_multiplier,
+				group_hidden_cache_read_rate_multiplier,
 				account_rate_multiplier,
 				billing_type,
 				request_type,
@@ -945,6 +994,10 @@ func buildUsageLogBatchInsertQuery(keys []string, preparedByKey map[string]usage
 				output_tokens,
 				cache_creation_tokens,
 				cache_read_tokens,
+				raw_input_tokens,
+				raw_output_tokens,
+				raw_cache_creation_tokens,
+				raw_cache_read_tokens,
 				cache_creation_5m_tokens,
 				cache_creation_1h_tokens,
 				image_output_tokens,
@@ -956,6 +1009,14 @@ func buildUsageLogBatchInsertQuery(keys []string, preparedByKey map[string]usage
 				total_cost,
 				actual_cost,
 				rate_multiplier,
+				group_input_token_multiplier,
+				group_output_token_multiplier,
+				group_cache_creation_token_multiplier,
+				group_cache_read_token_multiplier,
+				group_hidden_input_rate_multiplier,
+				group_hidden_output_rate_multiplier,
+				group_hidden_cache_creation_rate_multiplier,
+				group_hidden_cache_read_rate_multiplier,
 				account_rate_multiplier,
 				billing_type,
 				request_type,
@@ -1037,6 +1098,10 @@ func buildUsageLogBestEffortInsertQuery(preparedList []usageLogInsertPrepared) (
 			output_tokens,
 			cache_creation_tokens,
 			cache_read_tokens,
+			raw_input_tokens,
+			raw_output_tokens,
+			raw_cache_creation_tokens,
+			raw_cache_read_tokens,
 			cache_creation_5m_tokens,
 			cache_creation_1h_tokens,
 			image_output_tokens,
@@ -1048,6 +1113,14 @@ func buildUsageLogBestEffortInsertQuery(preparedList []usageLogInsertPrepared) (
 			total_cost,
 			actual_cost,
 			rate_multiplier,
+			group_input_token_multiplier,
+			group_output_token_multiplier,
+			group_cache_creation_token_multiplier,
+			group_cache_read_token_multiplier,
+			group_hidden_input_rate_multiplier,
+			group_hidden_output_rate_multiplier,
+			group_hidden_cache_creation_rate_multiplier,
+			group_hidden_cache_read_rate_multiplier,
 			account_rate_multiplier,
 			billing_type,
 			request_type,
@@ -1076,7 +1149,7 @@ func buildUsageLogBestEffortInsertQuery(preparedList []usageLogInsertPrepared) (
 			created_at
 		) AS (VALUES `)
 
-	args := make([]any, 0, len(preparedList)*50)
+	args := make([]any, 0, len(preparedList)*62)
 	argPos := 1
 	for idx, prepared := range preparedList {
 		if idx > 0 {
@@ -1115,6 +1188,10 @@ func buildUsageLogBestEffortInsertQuery(preparedList []usageLogInsertPrepared) (
 			output_tokens,
 			cache_creation_tokens,
 			cache_read_tokens,
+			raw_input_tokens,
+			raw_output_tokens,
+			raw_cache_creation_tokens,
+			raw_cache_read_tokens,
 			cache_creation_5m_tokens,
 			cache_creation_1h_tokens,
 			image_output_tokens,
@@ -1126,6 +1203,14 @@ func buildUsageLogBestEffortInsertQuery(preparedList []usageLogInsertPrepared) (
 			total_cost,
 			actual_cost,
 			rate_multiplier,
+			group_input_token_multiplier,
+			group_output_token_multiplier,
+			group_cache_creation_token_multiplier,
+			group_cache_read_token_multiplier,
+			group_hidden_input_rate_multiplier,
+			group_hidden_output_rate_multiplier,
+			group_hidden_cache_creation_rate_multiplier,
+			group_hidden_cache_read_rate_multiplier,
 			account_rate_multiplier,
 			billing_type,
 			request_type,
@@ -1167,6 +1252,10 @@ func buildUsageLogBestEffortInsertQuery(preparedList []usageLogInsertPrepared) (
 			output_tokens,
 			cache_creation_tokens,
 			cache_read_tokens,
+			raw_input_tokens,
+			raw_output_tokens,
+			raw_cache_creation_tokens,
+			raw_cache_read_tokens,
 			cache_creation_5m_tokens,
 			cache_creation_1h_tokens,
 			image_output_tokens,
@@ -1178,6 +1267,14 @@ func buildUsageLogBestEffortInsertQuery(preparedList []usageLogInsertPrepared) (
 			total_cost,
 			actual_cost,
 			rate_multiplier,
+			group_input_token_multiplier,
+			group_output_token_multiplier,
+			group_cache_creation_token_multiplier,
+			group_cache_read_token_multiplier,
+			group_hidden_input_rate_multiplier,
+			group_hidden_output_rate_multiplier,
+			group_hidden_cache_creation_rate_multiplier,
+			group_hidden_cache_read_rate_multiplier,
 			account_rate_multiplier,
 			billing_type,
 			request_type,
@@ -1227,6 +1324,10 @@ func execUsageLogInsertNoResult(ctx context.Context, sqlq sqlExecutor, prepared 
 			output_tokens,
 			cache_creation_tokens,
 			cache_read_tokens,
+			raw_input_tokens,
+			raw_output_tokens,
+			raw_cache_creation_tokens,
+			raw_cache_read_tokens,
 			cache_creation_5m_tokens,
 			cache_creation_1h_tokens,
 			image_output_tokens,
@@ -1238,6 +1339,14 @@ func execUsageLogInsertNoResult(ctx context.Context, sqlq sqlExecutor, prepared 
 			total_cost,
 			actual_cost,
 			rate_multiplier,
+			group_input_token_multiplier,
+			group_output_token_multiplier,
+			group_cache_creation_token_multiplier,
+			group_cache_read_token_multiplier,
+			group_hidden_input_rate_multiplier,
+			group_hidden_output_rate_multiplier,
+			group_hidden_cache_creation_rate_multiplier,
+			group_hidden_cache_read_rate_multiplier,
 			account_rate_multiplier,
 			billing_type,
 			request_type,
@@ -1269,8 +1378,9 @@ func execUsageLogInsertNoResult(ctx context.Context, sqlq sqlExecutor, prepared 
 			$8, $9,
 			$10, $11, $12, $13,
 			$14, $15, $16, $17,
-			$18, $19, $20, $21, $22, $23,
-			$24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50
+			$18, $19, $20, $21, $22, $23, $24, $25,
+			$26, $27, $28, $29, $30, $31, $32, $33, $34,
+			$35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49, $50, $51, $52, $53, $54, $55, $56, $57, $58, $59, $60, $61, $62
 		)
 		ON CONFLICT (request_id, api_key_id) DO NOTHING
 	`, prepared.args...)
@@ -1339,6 +1449,10 @@ func prepareUsageLogInsert(log *service.UsageLog) usageLogInsertPrepared {
 			log.OutputTokens,
 			log.CacheCreationTokens,
 			log.CacheReadTokens,
+			log.RawInputTokens,
+			log.RawOutputTokens,
+			log.RawCacheCreationTokens,
+			log.RawCacheReadTokens,
 			log.CacheCreation5mTokens,
 			log.CacheCreation1hTokens,
 			log.ImageOutputTokens,
@@ -1350,6 +1464,14 @@ func prepareUsageLogInsert(log *service.UsageLog) usageLogInsertPrepared {
 			log.TotalCost,
 			log.ActualCost,
 			rateMultiplier,
+			log.GroupInputTokenMultiplier,
+			log.GroupOutputTokenMultiplier,
+			log.GroupCacheCreationTokenMultiplier,
+			log.GroupCacheReadTokenMultiplier,
+			log.GroupHiddenInputRateMultiplier,
+			log.GroupHiddenOutputRateMultiplier,
+			log.GroupHiddenCacheCreationRateMultiplier,
+			log.GroupHiddenCacheReadRateMultiplier,
 			log.AccountRateMultiplier,
 			log.BillingType,
 			requestType,
@@ -4263,6 +4385,10 @@ func scanUsageLog(scanner interface{ Scan(...any) error }) (*service.UsageLog, e
 		outputTokens          int
 		cacheCreationTokens   int
 		cacheReadTokens       int
+		rawInputTokens        int
+		rawOutputTokens       int
+		rawCacheCreationTokens int
+		rawCacheReadTokens    int
 		cacheCreation5m       int
 		cacheCreation1h       int
 		imageOutputTokens     int
@@ -4274,6 +4400,14 @@ func scanUsageLog(scanner interface{ Scan(...any) error }) (*service.UsageLog, e
 		totalCost             float64
 		actualCost            float64
 		rateMultiplier        float64
+		groupInputTokenMultiplier         float64
+		groupOutputTokenMultiplier        float64
+		groupCacheCreationTokenMultiplier float64
+		groupCacheReadTokenMultiplier     float64
+		groupHiddenInputRateMultiplier    float64
+		groupHiddenOutputRateMultiplier   float64
+		groupHiddenCacheCreationRateMultiplier float64
+		groupHiddenCacheReadRateMultiplier float64
 		accountRateMultiplier sql.NullFloat64
 		billingType           int16
 		requestTypeRaw        int16
@@ -4317,6 +4451,10 @@ func scanUsageLog(scanner interface{ Scan(...any) error }) (*service.UsageLog, e
 		&outputTokens,
 		&cacheCreationTokens,
 		&cacheReadTokens,
+		&rawInputTokens,
+		&rawOutputTokens,
+		&rawCacheCreationTokens,
+		&rawCacheReadTokens,
 		&cacheCreation5m,
 		&cacheCreation1h,
 		&imageOutputTokens,
@@ -4328,6 +4466,14 @@ func scanUsageLog(scanner interface{ Scan(...any) error }) (*service.UsageLog, e
 		&totalCost,
 		&actualCost,
 		&rateMultiplier,
+		&groupInputTokenMultiplier,
+		&groupOutputTokenMultiplier,
+		&groupCacheCreationTokenMultiplier,
+		&groupCacheReadTokenMultiplier,
+		&groupHiddenInputRateMultiplier,
+		&groupHiddenOutputRateMultiplier,
+		&groupHiddenCacheCreationRateMultiplier,
+		&groupHiddenCacheReadRateMultiplier,
 		&accountRateMultiplier,
 		&billingType,
 		&requestTypeRaw,
@@ -4369,6 +4515,10 @@ func scanUsageLog(scanner interface{ Scan(...any) error }) (*service.UsageLog, e
 		OutputTokens:          outputTokens,
 		CacheCreationTokens:   cacheCreationTokens,
 		CacheReadTokens:       cacheReadTokens,
+		RawInputTokens:        rawInputTokens,
+		RawOutputTokens:       rawOutputTokens,
+		RawCacheCreationTokens: rawCacheCreationTokens,
+		RawCacheReadTokens:    rawCacheReadTokens,
 		CacheCreation5mTokens: cacheCreation5m,
 		CacheCreation1hTokens: cacheCreation1h,
 		ImageOutputTokens:     imageOutputTokens,
@@ -4380,6 +4530,14 @@ func scanUsageLog(scanner interface{ Scan(...any) error }) (*service.UsageLog, e
 		TotalCost:             totalCost,
 		ActualCost:            actualCost,
 		RateMultiplier:        rateMultiplier,
+		GroupInputTokenMultiplier:         groupInputTokenMultiplier,
+		GroupOutputTokenMultiplier:        groupOutputTokenMultiplier,
+		GroupCacheCreationTokenMultiplier: groupCacheCreationTokenMultiplier,
+		GroupCacheReadTokenMultiplier:     groupCacheReadTokenMultiplier,
+		GroupHiddenInputRateMultiplier:    groupHiddenInputRateMultiplier,
+		GroupHiddenOutputRateMultiplier:   groupHiddenOutputRateMultiplier,
+		GroupHiddenCacheCreationRateMultiplier: groupHiddenCacheCreationRateMultiplier,
+		GroupHiddenCacheReadRateMultiplier: groupHiddenCacheReadRateMultiplier,
 		AccountRateMultiplier: nullFloat64Ptr(accountRateMultiplier),
 		BillingType:           int8(billingType),
 		RequestType:           service.RequestTypeFromInt16(requestTypeRaw),

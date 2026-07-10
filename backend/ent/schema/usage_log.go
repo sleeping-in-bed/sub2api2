@@ -73,6 +73,18 @@ func (UsageLog) Fields() []ent.Field {
 			Default(0),
 		field.Int("cache_read_tokens").
 			Default(0),
+		field.Int("raw_input_tokens").
+			Default(0).
+			Comment("上游原始输入 token 数"),
+		field.Int("raw_output_tokens").
+			Default(0).
+			Comment("上游原始输出 token 数"),
+		field.Int("raw_cache_creation_tokens").
+			Default(0).
+			Comment("上游原始缓存写入 token 数"),
+		field.Int("raw_cache_read_tokens").
+			Default(0).
+			Comment("上游原始缓存命中 token 数"),
 		field.Int("cache_creation_5m_tokens").
 			Default(0),
 		field.Int("cache_creation_1h_tokens").
@@ -100,6 +112,38 @@ func (UsageLog) Fields() []ent.Field {
 		field.Float("rate_multiplier").
 			Default(1).
 			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("group_input_token_multiplier").
+			Default(1).
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Comment("分组输入 Token 记账倍率快照"),
+		field.Float("group_output_token_multiplier").
+			Default(1).
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Comment("分组输出 Token 记账倍率快照"),
+		field.Float("group_cache_creation_token_multiplier").
+			Default(1).
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Comment("分组缓存写入 Token 记账倍率快照"),
+		field.Float("group_cache_read_token_multiplier").
+			Default(1).
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Comment("分组缓存命中 Token 记账倍率快照"),
+		field.Float("group_hidden_input_rate_multiplier").
+			Default(1).
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Comment("分组隐藏输入费率倍率快照"),
+		field.Float("group_hidden_output_rate_multiplier").
+			Default(1).
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Comment("分组隐藏输出费率倍率快照"),
+		field.Float("group_hidden_cache_creation_rate_multiplier").
+			Default(1).
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Comment("分组隐藏缓存写入费率倍率快照"),
+		field.Float("group_hidden_cache_read_rate_multiplier").
+			Default(1).
+			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
+			Comment("分组隐藏缓存命中费率倍率快照"),
 
 		// account_rate_multiplier: 账号计费倍率快照（NULL 表示按 1.0 处理）
 		field.Float("account_rate_multiplier").

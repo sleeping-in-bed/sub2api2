@@ -5916,7 +5916,7 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 	}
 
 	// Calculate cost
-	tokens := UsageTokens{
+	rawTokens := UsageTokens{
 		InputTokens:         actualInputTokens,
 		ImageInputTokens:    result.Usage.ImageInputTokens,
 		OutputTokens:        result.Usage.OutputTokens,
@@ -5924,6 +5924,7 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 		CacheReadTokens:     result.Usage.CacheReadInputTokens,
 		ImageOutputTokens:   result.Usage.ImageOutputTokens,
 	}
+	tokens := applyGroupTokenMultiplierToUsageTokens(apiKey.Group, rawTokens)
 
 	// Get rate multiplier
 	multiplier := 1.0
@@ -5979,6 +5980,7 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 		).Warn("openai_usage.pricing_missing_record_zero_cost", zap.Error(err))
 		cost = &CostBreakdown{BillingMode: string(BillingModeToken)}
 	}
+	applyGroupHiddenRateMultipliersToCostBreakdown(apiKey.Group, cost)
 	applyAccountTokenMultiplierToCostBreakdown(account, cost)
 
 	// Determine billing type
@@ -6016,10 +6018,22 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 		ReasoningEffort:     result.ReasoningEffort,
 		InboundEndpoint:     optionalTrimmedStringPtr(input.InboundEndpoint),
 		UpstreamEndpoint:    optionalTrimmedStringPtr(input.UpstreamEndpoint),
-		InputTokens:         actualInputTokens,
-		OutputTokens:        result.Usage.OutputTokens,
-		CacheCreationTokens: result.Usage.CacheCreationInputTokens,
-		CacheReadTokens:     result.Usage.CacheReadInputTokens,
+		InputTokens:         tokens.InputTokens,
+		OutputTokens:        tokens.OutputTokens,
+		CacheCreationTokens: tokens.CacheCreationTokens,
+		CacheReadTokens:     tokens.CacheReadTokens,
+		RawInputTokens:      rawTokens.InputTokens,
+		RawOutputTokens:     rawTokens.OutputTokens,
+		RawCacheCreationTokens: rawTokens.CacheCreationTokens,
+		RawCacheReadTokens:  rawTokens.CacheReadTokens,
+		GroupInputTokenMultiplier:         apiKey.Group.InputTokenMultiplierOrDefault(),
+		GroupOutputTokenMultiplier:        apiKey.Group.OutputTokenMultiplierOrDefault(),
+		GroupCacheCreationTokenMultiplier: apiKey.Group.CacheCreationTokenMultiplierOrDefault(),
+		GroupCacheReadTokenMultiplier:     apiKey.Group.CacheReadTokenMultiplierOrDefault(),
+		GroupHiddenInputRateMultiplier:    apiKey.Group.HiddenInputRateMultiplierOrDefault(),
+		GroupHiddenOutputRateMultiplier:   apiKey.Group.HiddenOutputRateMultiplierOrDefault(),
+		GroupHiddenCacheCreationRateMultiplier: apiKey.Group.HiddenCacheCreationRateMultiplierOrDefault(),
+		GroupHiddenCacheReadRateMultiplier: apiKey.Group.HiddenCacheReadRateMultiplierOrDefault(),
 		ImageOutputTokens:   result.Usage.ImageOutputTokens,
 		ImageCount:          result.ImageCount,
 		ImageSize:           optionalTrimmedStringPtr(result.ImageSize),

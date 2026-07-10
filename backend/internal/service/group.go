@@ -16,6 +16,14 @@ type Group struct {
 	Description    string
 	Platform       string
 	RateMultiplier float64
+	InputTokenMultiplier              float64
+	OutputTokenMultiplier             float64
+	CacheCreationTokenMultiplier      float64
+	CacheReadTokenMultiplier          float64
+	HiddenInputRateMultiplier         float64
+	HiddenOutputRateMultiplier        float64
+	HiddenCacheCreationRateMultiplier float64
+	HiddenCacheReadRateMultiplier     float64
 	IsExclusive    bool
 	Status         string
 	Hydrated       bool // indicates the group was loaded from a trusted repository source
@@ -166,4 +174,60 @@ func matchModelPattern(pattern, model string) bool {
 	}
 
 	return false
+}
+
+func (g *Group) InputTokenMultiplierOrDefault() float64 {
+	if g == nil || g.InputTokenMultiplier <= 0 {
+		return 1.0
+	}
+	return g.InputTokenMultiplier
+}
+
+func (g *Group) OutputTokenMultiplierOrDefault() float64 {
+	if g == nil || g.OutputTokenMultiplier <= 0 {
+		return 1.0
+	}
+	return g.OutputTokenMultiplier
+}
+
+func (g *Group) CacheCreationTokenMultiplierOrDefault() float64 {
+	if g == nil || g.CacheCreationTokenMultiplier <= 0 {
+		return 1.0
+	}
+	return g.CacheCreationTokenMultiplier
+}
+
+func (g *Group) CacheReadTokenMultiplierOrDefault() float64 {
+	if g == nil || g.CacheReadTokenMultiplier <= 0 {
+		return 1.0
+	}
+	return g.CacheReadTokenMultiplier
+}
+
+func (g *Group) HiddenInputRateMultiplierOrDefault() float64 {
+	if g == nil || g.HiddenInputRateMultiplier <= 0 {
+		return 1.0
+	}
+	return g.HiddenInputRateMultiplier
+}
+
+func (g *Group) HiddenOutputRateMultiplierOrDefault() float64 {
+	if g == nil || g.HiddenOutputRateMultiplier <= 0 {
+		return 1.0
+	}
+	return g.HiddenOutputRateMultiplier
+}
+
+func (g *Group) HiddenCacheCreationRateMultiplierOrDefault() float64 {
+	if g == nil || g.HiddenCacheCreationRateMultiplier <= 0 {
+		return 1.0
+	}
+	return g.HiddenCacheCreationRateMultiplier
+}
+
+func (g *Group) HiddenCacheReadRateMultiplierOrDefault() float64 {
+	if g == nil || g.HiddenCacheReadRateMultiplier <= 0 {
+		return 1.0
+	}
+	return g.HiddenCacheReadRateMultiplier
 }
