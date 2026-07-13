@@ -361,6 +361,10 @@ export default {
       actions: 'Actions',
       requestRefund: 'Request Refund',
     },
+    invoice: {
+      availableAmount: 'Invoiceable Amount',
+      goManage: 'Open Invoices',
+    },
     invoices: {
       title: 'My Invoices',
       available: '{count} eligible orders, paid total {amount}',

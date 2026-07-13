@@ -385,6 +385,10 @@ export default {
       actions: '操作',
       requestRefund: '申请退款',
     },
+    invoice: {
+      availableAmount: '可开票金额',
+      goManage: '前往发票管理',
+    },
     invoices: {
       title: '我的发票',
       available: '{count} 笔订单可开票，实付合计 {amount}',
