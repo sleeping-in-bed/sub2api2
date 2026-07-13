@@ -15,12 +15,12 @@ export default {
     getStarted: '立即开始',
     goToDashboard: '进入控制台',
     // 新增：面向用户的价值主张
-    heroSubtitle: '一个密钥，畅用多个 AI 模型',
-    heroDescription: '无需管理多个订阅账号，一站式接入 Claude、GPT、Gemini 等主流 AI 服务',
+    heroSubtitle: '让团队更轻松地使用 AI 接口',
+    heroDescription: '统一密钥、统一计费、统一配额管理，业务接入和团队协作都更顺。',
     tags: {
-      subscriptionToApi: '订阅转 API',
-      stickySession: '会话保持',
-      realtimeBilling: '按量计费'
+      subscriptionToApi: '统一接入',
+      stickySession: '用量透明',
+      realtimeBilling: '额度可控'
     },
     // 用户痛点区块
     painPoints: {
@@ -50,16 +50,16 @@ export default {
       subtitle: '简单三步，开始省心使用 AI'
     },
     features: {
-      unifiedGateway: '一键接入',
-      unifiedGatewayDesc: '获取一个 API 密钥，即可调用所有已接入的 AI 模型，无需分别申请。',
-      multiAccount: '稳定可靠',
-      multiAccountDesc: '智能调度多个上游账号，自动切换和负载均衡，告别频繁报错。',
-      balanceQuota: '用多少付多少',
-      balanceQuotaDesc: '按实际使用量计费，支持设置配额上限，团队用量一目了然。'
+      unifiedGateway: '统一接入',
+      unifiedGatewayDesc: '一个 API 密钥接入已开通模型，减少多平台重复配置。',
+      multiAccount: '用量透明',
+      multiAccountDesc: '团队成员的调用记录、费用和消耗清晰可查。',
+      balanceQuota: '额度可控',
+      balanceQuotaDesc: '支持按团队或账号设置额度，避免超预算和失控使用。'
     },
     // 优势对比
     comparison: {
-      title: '为什么选择我们？',
+      title: '为什么更适合团队使用？',
       headers: {
         feature: '对比项',
         official: '官方订阅',
@@ -68,34 +68,34 @@ export default {
       items: {
         pricing: {
           feature: '付费方式',
-          official: '固定月费，用不完也付',
-          us: '按量付费，用多少付多少'
+          official: '固定订阅，费用难统一核算',
+          us: '统一计费，团队成本更清楚'
         },
         models: {
           feature: '模型选择',
-          official: '单一服务商',
-          us: '多模型随意切换'
+          official: '各自接入，重复配置',
+          us: '统一入口，减少接入成本'
         },
         management: {
           feature: '账号管理',
-          official: '每个服务单独管理',
-          us: '统一密钥，一站管理'
+          official: '账号分散，协作低效',
+          us: '统一密钥，集中管理'
         },
         stability: {
           feature: '服务稳定性',
-          official: '单账号易触发限制',
-          us: '多账号池，自动切换'
+          official: '缺少统一监控',
+          us: '调用记录清晰，可统一查看'
         },
         control: {
           feature: '用量控制',
-          official: '无法限制',
-          us: '可设配额、查明细'
+          official: '缺少配额约束',
+          us: '可设额度、可查明细'
         }
       }
     },
     providers: {
-      title: '已支持的 AI 模型',
-      description: '一个 API，多种选择',
+      title: '已支持的 AI 能力',
+      description: '统一接入，服务团队与业务场景',
       supported: '已支持',
       soon: '即将推出',
       claude: 'Claude',
@@ -105,9 +105,9 @@ export default {
     },
     // CTA 区块
     cta: {
-      title: '准备好开始了吗？',
-      description: '注册即可获得免费试用额度，体验一站式 AI 服务',
-      button: '免费注册'
+      title: '准备好让团队更顺畅地接入 AI 了吗？',
+      description: '从统一密钥、统一计费到统一配额，让接入和协作一步到位。',
+      button: '立即开始'
     },
     footer: {
       allRightsReserved: '保留所有权利。'

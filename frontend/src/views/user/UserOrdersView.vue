@@ -5,10 +5,14 @@
       <div class="card p-4">
         <div class="flex flex-wrap items-center gap-3">
           <Select v-model="currentFilter" :options="statusFilters" class="w-36" @change="fetchOrders" />
-          <div class="flex flex-1 items-center justify-end gap-2">
+          <div class="flex flex-1 flex-wrap items-center justify-end gap-2">
+            <div class="rounded-full bg-amber-50 px-3 py-1.5 text-sm font-medium text-amber-700 dark:bg-amber-900/20 dark:text-amber-300">
+              {{ t('payment.invoice.availableAmount') }}: ¥{{ invoiceSummary.available_pay_amount.toFixed(2) }}
+            </div>
             <button @click="fetchOrders" :disabled="loading" class="btn btn-secondary" :title="t('common.refresh')">
               <Icon name="refresh" size="md" :class="loading ? 'animate-spin' : ''" />
             </button>
+            <button class="btn btn-secondary" @click="router.push('/invoices')">{{ t('payment.invoice.goManage') }}</button>
             <button class="btn btn-primary" @click="router.push('/purchase')">{{ t('payment.result.backToRecharge') }}</button>
           </div>
         </div>
@@ -107,6 +111,11 @@ const currentFilter = ref('')
 const cancelTargetId = ref<number | null>(null)
 const refundTarget = ref<PaymentOrder | null>(null)
 const refundReason = ref('')
+const invoiceSummary = reactive({
+  available_pay_amount: 0,
+  available_order_count: 0,
+  minimum_pay_amount: 100,
+})
 const pagination = reactive({ page: 1, page_size: 20, total: 0 })
 
 const statusFilters = computed(() => [
@@ -178,6 +187,19 @@ function canRequestRefund(order: PaymentOrder): boolean {
   return refundEligibleProviders.value.has(order.provider_instance_id)
 }
 
+async function loadInvoiceSummary() {
+  try {
+    const res = await paymentAPI.getInvoiceSummary()
+    invoiceSummary.available_pay_amount = res.data.available_pay_amount || 0
+    invoiceSummary.available_order_count = res.data.available_order_count || 0
+    invoiceSummary.minimum_pay_amount = res.data.minimum_pay_amount || 100
+  } catch {
+    invoiceSummary.available_pay_amount = 0
+    invoiceSummary.available_order_count = 0
+    invoiceSummary.minimum_pay_amount = 100
+  }
+}
+
 async function loadRefundEligibility() {
   try {
     const res = await paymentAPI.getRefundEligibleProviders()
@@ -185,5 +207,5 @@ async function loadRefundEligibility() {
   } catch { /* ignore — default to hiding refund button */ }
 }
 
-onMounted(() => { fetchOrders(); loadRefundEligibility() })
+onMounted(() => { fetchOrders(); loadRefundEligibility(); loadInvoiceSummary() })
 </script>

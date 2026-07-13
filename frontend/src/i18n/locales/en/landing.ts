@@ -15,12 +15,12 @@ export default {
     getStarted: 'Get Started',
     goToDashboard: 'Go to Dashboard',
     // User-focused value proposition
-    heroSubtitle: 'One Key, All AI Models',
-    heroDescription: 'No need to manage multiple subscriptions. Access Claude, GPT, Gemini and more with a single API key',
+    heroSubtitle: 'Make AI access easier for your team',
+    heroDescription: 'Unified keys, unified billing, and unified quota management for smoother delivery and collaboration.',
     tags: {
-      subscriptionToApi: 'Subscription to API',
-      stickySession: 'Session Persistence',
-      realtimeBilling: 'Pay As You Go'
+      subscriptionToApi: 'Unified Access',
+      stickySession: 'Transparent Usage',
+      realtimeBilling: 'Controlled Quotas'
     },
     // Pain points section
     painPoints: {
@@ -50,16 +50,16 @@ export default {
       subtitle: 'Three simple steps to stress-free AI access'
     },
     features: {
-      unifiedGateway: 'One-Click Access',
-      unifiedGatewayDesc: 'Get a single API key to call all connected AI models. No separate applications needed.',
-      multiAccount: 'Always Reliable',
-      multiAccountDesc: 'Smart routing across multiple upstream accounts with automatic failover. Say goodbye to errors.',
-      balanceQuota: 'Pay What You Use',
-      balanceQuotaDesc: 'Usage-based billing with quota limits. Full visibility into team consumption.'
+      unifiedGateway: 'Unified Access',
+      unifiedGatewayDesc: 'Use one API key to reach enabled models and avoid repetitive multi-platform setup.',
+      multiAccount: 'Transparent Usage',
+      multiAccountDesc: 'Keep team requests, costs, and consumption visible in one place.',
+      balanceQuota: 'Controlled Quotas',
+      balanceQuotaDesc: 'Set quotas by team or account to prevent overspending and uncontrolled usage.'
     },
     // Comparison section
     comparison: {
-      title: 'Why Choose Us?',
+      title: 'Why It Works Better for Teams',
       headers: {
         feature: 'Comparison',
         official: 'Official Subscriptions',
@@ -68,34 +68,34 @@ export default {
       items: {
         pricing: {
           feature: 'Pricing',
-          official: 'Fixed monthly fee, pay even if unused',
-          us: 'Pay only for what you use'
+          official: 'Fixed subscriptions with fragmented accounting',
+          us: 'Unified billing with clearer team costs'
         },
         models: {
           feature: 'Model Selection',
-          official: 'Single provider only',
-          us: 'Switch between models freely'
+          official: 'Separate integrations and repeated setup',
+          us: 'One entry point with lower integration overhead'
         },
         management: {
           feature: 'Account Management',
-          official: 'Manage each service separately',
-          us: 'Unified key, one dashboard'
+          official: 'Scattered accounts and low collaboration efficiency',
+          us: 'Unified keys with centralized management'
         },
         stability: {
           feature: 'Stability',
-          official: 'Single account rate limits',
-          us: 'Multi-account pool, auto-failover'
+          official: 'Limited shared visibility',
+          us: 'Clear records and centralized oversight'
         },
         control: {
           feature: 'Usage Control',
-          official: 'Not available',
-          us: 'Quotas & detailed analytics'
+          official: 'Limited quota controls',
+          us: 'Quota controls with detailed visibility'
         }
       }
     },
     providers: {
-      title: 'Supported AI Models',
-      description: 'One API, Multiple Choices',
+      title: 'Supported AI Capabilities',
+      description: 'Unified access for teams and business workflows',
       supported: 'Supported',
       soon: 'Soon',
       claude: 'Claude',
@@ -105,9 +105,9 @@ export default {
     },
     // CTA section
     cta: {
-      title: 'Ready to Get Started?',
-      description: 'Sign up now and get free trial credits to experience seamless AI access',
-      button: 'Sign Up Free'
+      title: 'Ready to simplify AI access for your team?',
+      description: 'From unified keys to unified billing and quotas, streamline delivery and collaboration in one place.',
+      button: 'Get Started'
     },
     footer: {
       allRightsReserved: 'All rights reserved.'
