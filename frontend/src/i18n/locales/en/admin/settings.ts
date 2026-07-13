@@ -112,6 +112,8 @@ export default {
         emailSuffixWhitelistInputHint: 'Leave empty for no restriction. Use *.edu.cn to match edu.cn and its subdomains.',
         promoCode: 'Promo Code',
         promoCodeHint: 'Allow users to use promo codes during registration',
+        promoCodeRequiredOnSignup: 'Require Promo Code On Signup',
+        promoCodeRequiredOnSignupHint: 'Users must enter a valid promo code before a new account can be created',
         invitationCode: 'Invitation Code Registration',
         invitationCodeHint: 'When enabled, users must enter a valid invitation code to register',
         passwordReset: 'Password Reset',

@@ -30,6 +30,16 @@ func TestLoadForBootstrapAllowsMissingJWTSecret(t *testing.T) {
 	}
 }
 
+func TestLoadPromoCodeRequiredOnSignupFromEnv(t *testing.T) {
+	resetViperWithJWTSecret(t)
+	t.Setenv("SIGNUP_PROMO_CODE_REQUIRED_ON_SIGNUP", "true")
+
+	cfg, err := Load()
+	require.NoError(t, err)
+	require.True(t, cfg.Signup.PromoCodeRequiredOnSignup)
+	require.True(t, cfg.Signup.PromoCodeRequiredOnSignupExplicit)
+}
+
 func TestNormalizeRunMode(t *testing.T) {
 	tests := []struct {
 		input    string

@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/Wei-Shaw/sub2api/ent/paymentinvoice"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/predicate"
 	"github.com/Wei-Shaw/sub2api/ent/user"
@@ -417,6 +418,26 @@ func (_u *PaymentOrderUpdate) ClearProviderSnapshot() *PaymentOrderUpdate {
 	return _u
 }
 
+// SetInvoiceID sets the "invoice_id" field.
+func (_u *PaymentOrderUpdate) SetInvoiceID(v int64) *PaymentOrderUpdate {
+	_u.mutation.SetInvoiceID(v)
+	return _u
+}
+
+// SetNillableInvoiceID sets the "invoice_id" field if the given value is not nil.
+func (_u *PaymentOrderUpdate) SetNillableInvoiceID(v *int64) *PaymentOrderUpdate {
+	if v != nil {
+		_u.SetInvoiceID(*v)
+	}
+	return _u
+}
+
+// ClearInvoiceID clears the value of the "invoice_id" field.
+func (_u *PaymentOrderUpdate) ClearInvoiceID() *PaymentOrderUpdate {
+	_u.mutation.ClearInvoiceID()
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *PaymentOrderUpdate) SetStatus(v string) *PaymentOrderUpdate {
 	_u.mutation.SetStatus(v)
@@ -719,6 +740,11 @@ func (_u *PaymentOrderUpdate) SetUser(v *User) *PaymentOrderUpdate {
 	return _u.SetUserID(v.ID)
 }
 
+// SetInvoice sets the "invoice" edge to the PaymentInvoice entity.
+func (_u *PaymentOrderUpdate) SetInvoice(v *PaymentInvoice) *PaymentOrderUpdate {
+	return _u.SetInvoiceID(v.ID)
+}
+
 // Mutation returns the PaymentOrderMutation object of the builder.
 func (_u *PaymentOrderUpdate) Mutation() *PaymentOrderMutation {
 	return _u.mutation
@@ -727,6 +753,12 @@ func (_u *PaymentOrderUpdate) Mutation() *PaymentOrderMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *PaymentOrderUpdate) ClearUser() *PaymentOrderUpdate {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearInvoice clears the "invoice" edge to the PaymentInvoice entity.
+func (_u *PaymentOrderUpdate) ClearInvoice() *PaymentOrderUpdate {
+	_u.mutation.ClearInvoice()
 	return _u
 }
 
@@ -1065,6 +1097,35 @@ func (_u *PaymentOrderUpdate) sqlSave(ctx context.Context) (_node int, err error
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.InvoiceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   paymentorder.InvoiceTable,
+			Columns: []string{paymentorder.InvoiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentinvoice.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.InvoiceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   paymentorder.InvoiceTable,
+			Columns: []string{paymentorder.InvoiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentinvoice.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {
@@ -1480,6 +1541,26 @@ func (_u *PaymentOrderUpdateOne) ClearProviderSnapshot() *PaymentOrderUpdateOne 
 	return _u
 }
 
+// SetInvoiceID sets the "invoice_id" field.
+func (_u *PaymentOrderUpdateOne) SetInvoiceID(v int64) *PaymentOrderUpdateOne {
+	_u.mutation.SetInvoiceID(v)
+	return _u
+}
+
+// SetNillableInvoiceID sets the "invoice_id" field if the given value is not nil.
+func (_u *PaymentOrderUpdateOne) SetNillableInvoiceID(v *int64) *PaymentOrderUpdateOne {
+	if v != nil {
+		_u.SetInvoiceID(*v)
+	}
+	return _u
+}
+
+// ClearInvoiceID clears the value of the "invoice_id" field.
+func (_u *PaymentOrderUpdateOne) ClearInvoiceID() *PaymentOrderUpdateOne {
+	_u.mutation.ClearInvoiceID()
+	return _u
+}
+
 // SetStatus sets the "status" field.
 func (_u *PaymentOrderUpdateOne) SetStatus(v string) *PaymentOrderUpdateOne {
 	_u.mutation.SetStatus(v)
@@ -1782,6 +1863,11 @@ func (_u *PaymentOrderUpdateOne) SetUser(v *User) *PaymentOrderUpdateOne {
 	return _u.SetUserID(v.ID)
 }
 
+// SetInvoice sets the "invoice" edge to the PaymentInvoice entity.
+func (_u *PaymentOrderUpdateOne) SetInvoice(v *PaymentInvoice) *PaymentOrderUpdateOne {
+	return _u.SetInvoiceID(v.ID)
+}
+
 // Mutation returns the PaymentOrderMutation object of the builder.
 func (_u *PaymentOrderUpdateOne) Mutation() *PaymentOrderMutation {
 	return _u.mutation
@@ -1790,6 +1876,12 @@ func (_u *PaymentOrderUpdateOne) Mutation() *PaymentOrderMutation {
 // ClearUser clears the "user" edge to the User entity.
 func (_u *PaymentOrderUpdateOne) ClearUser() *PaymentOrderUpdateOne {
 	_u.mutation.ClearUser()
+	return _u
+}
+
+// ClearInvoice clears the "invoice" edge to the PaymentInvoice entity.
+func (_u *PaymentOrderUpdateOne) ClearInvoice() *PaymentOrderUpdateOne {
+	_u.mutation.ClearInvoice()
 	return _u
 }
 
@@ -2158,6 +2250,35 @@ func (_u *PaymentOrderUpdateOne) sqlSave(ctx context.Context) (_node *PaymentOrd
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt64),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.InvoiceCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   paymentorder.InvoiceTable,
+			Columns: []string{paymentorder.InvoiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentinvoice.FieldID, field.TypeInt64),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.InvoiceIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   paymentorder.InvoiceTable,
+			Columns: []string{paymentorder.InvoiceColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(paymentinvoice.FieldID, field.TypeInt64),
 			},
 		}
 		for _, k := range nodes {

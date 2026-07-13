@@ -94,6 +94,12 @@ type Config struct {
 	Update                  UpdateConfig                  `mapstructure:"update"`
 	Idempotency             IdempotencyConfig             `mapstructure:"idempotency"`
 	BatchImage              BatchImageConfig              `mapstructure:"batch_image"`
+	Signup                  SignupConfig                  `mapstructure:"signup"`
+}
+
+type SignupConfig struct {
+	PromoCodeRequiredOnSignup         bool `mapstructure:"promo_code_required_on_signup"`
+	PromoCodeRequiredOnSignupExplicit bool `mapstructure:"-"`
 }
 
 type LogConfig struct {
@@ -1489,6 +1495,10 @@ func load(allowMissingJWTSecret bool) (*Config, error) {
 	if cfg.Server.Mode == "" {
 		cfg.Server.Mode = "debug"
 	}
+	cfg.Signup.PromoCodeRequiredOnSignupExplicit = hasExplicitConfigOrEnv(
+		"signup.promo_code_required_on_signup",
+		"SIGNUP_PROMO_CODE_REQUIRED_ON_SIGNUP",
+	)
 	cfg.Server.FrontendURL = strings.TrimSpace(cfg.Server.FrontendURL)
 	cfg.JWT.Secret = strings.TrimSpace(cfg.JWT.Secret)
 	cfg.LinuxDo.ClientID = strings.TrimSpace(cfg.LinuxDo.ClientID)
@@ -1748,6 +1758,7 @@ func setDefaults() {
 	viper.SetDefault("oidc_connect.userinfo_email_path", "")
 	viper.SetDefault("oidc_connect.userinfo_id_path", "")
 	viper.SetDefault("oidc_connect.userinfo_username_path", "")
+	viper.SetDefault("signup.promo_code_required_on_signup", false)
 
 	// DingTalk Connect OAuth 登录
 	viper.SetDefault("dingtalk_connect.enabled", false)
@@ -1865,7 +1876,7 @@ func setDefaults() {
 	// Do not ship fixed defaults here to avoid insecure "known credentials" in production.
 	viper.SetDefault("default.admin_email", "")
 	viper.SetDefault("default.admin_password", "")
-	viper.SetDefault("default.user_concurrency", 5)
+	viper.SetDefault("default.user_concurrency", 20)
 	viper.SetDefault("default.user_balance", 0)
 	viper.SetDefault("default.api_key_prefix", "sk-")
 	viper.SetDefault("default.rate_multiplier", 1.0)

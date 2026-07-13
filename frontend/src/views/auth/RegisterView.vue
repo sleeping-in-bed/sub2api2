@@ -138,7 +138,10 @@
         <div v-if="promoCodeEnabled">
           <label for="promo_code" class="input-label">
             {{ t('auth.promoCodeLabel') }}
-            <span class="ml-1 text-xs font-normal text-gray-400 dark:text-dark-500">({{ t('common.optional') }})</span>
+            <span
+              v-if="!promoCodeRequiredOnSignup"
+              class="ml-1 text-xs font-normal text-gray-400 dark:text-dark-500"
+            >({{ t('common.optional') }})</span>
           </label>
           <div class="relative">
             <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
@@ -152,9 +155,9 @@
               class="input pl-11 pr-10"
               :class="{
                 'border-green-500 focus:border-green-500 focus:ring-green-500': promoValidation.valid,
-                'border-red-500 focus:border-red-500 focus:ring-red-500': promoValidation.invalid
+                'border-red-500 focus:border-red-500 focus:ring-red-500': promoValidation.invalid || errors.promo_code
               }"
-              :placeholder="t('auth.promoCodePlaceholder')"
+              :placeholder="promoCodeRequiredOnSignup ? t('auth.promoCodePlaceholderRequired') : t('auth.promoCodePlaceholder')"
               @input="handlePromoCodeInput"
             />
             <!-- Validation indicator -->
@@ -171,6 +174,9 @@
               <Icon name="exclamationCircle" size="md" class="text-red-500" />
             </div>
           </div>
+          <p v-if="errors.promo_code" class="input-error-text">
+            {{ errors.promo_code }}
+          </p>
           <!-- Promo code validation result -->
           <transition name="fade">
             <div v-if="promoValidation.valid" class="mt-2 flex items-center gap-2 rounded-lg bg-green-50 px-3 py-2 dark:bg-green-900/20">
@@ -350,6 +356,7 @@ const showPassword = ref<boolean>(false)
 const registrationEnabled = ref<boolean>(true)
 const emailVerifyEnabled = ref<boolean>(false)
 const promoCodeEnabled = ref<boolean>(true)
+const promoCodeRequiredOnSignup = ref<boolean>(false)
 const invitationCodeEnabled = ref<boolean>(false)
 const turnstileEnabled = ref<boolean>(false)
 const turnstileSiteKey = ref<string>('')
@@ -403,6 +410,7 @@ const formData = reactive({
 const errors = reactive({
   email: '',
   password: '',
+  promo_code: '',
   turnstile: '',
   invitation_code: ''
 })
@@ -410,6 +418,7 @@ const errors = reactive({
 const validationToastMessage = computed(() =>
   errors.email ||
   errors.password ||
+  errors.promo_code ||
   (invitationValidation.invalid ? invitationValidation.message : '') ||
   errors.invitation_code ||
   (promoValidation.invalid ? promoValidation.message : '') ||
@@ -458,6 +467,7 @@ onMounted(async () => {
     registrationEnabled.value = settings.registration_enabled
     emailVerifyEnabled.value = settings.email_verify_enabled
     promoCodeEnabled.value = settings.promo_code_enabled
+    promoCodeRequiredOnSignup.value = settings.promo_code_required_on_signup === true
     invitationCodeEnabled.value = settings.invitation_code_enabled
     turnstileEnabled.value = settings.turnstile_enabled
     turnstileSiteKey.value = settings.turnstile_site_key || ''
@@ -576,6 +586,8 @@ function handlePromoCodeInput(): void {
   const code = formData.promo_code.trim()
 
   // Clear previous validation
+  errorMessage.value = ''
+  errors.promo_code = ''
   promoValidation.valid = false
   promoValidation.invalid = false
   promoValidation.bonusAmount = null
@@ -749,8 +761,10 @@ function buildEmailSuffixNotAllowedMessage(): string {
 
 function validateForm(): boolean {
   // Reset errors
+  errorMessage.value = ''
   errors.email = ''
   errors.password = ''
+  errors.promo_code = ''
   errors.turnstile = ''
   errors.invitation_code = ''
 
@@ -787,6 +801,11 @@ function validateForm(): boolean {
     isValid = false
   }
 
+  if (promoCodeRequiredOnSignup.value && !formData.promo_code.trim()) {
+    errors.promo_code = t('auth.promoCodeRequired')
+    isValid = false
+  }
+
   // Invitation code validation (required when enabled)
   if (invitationCodeEnabled.value) {
     if (!formData.invitation_code.trim()) {
@@ -816,16 +835,28 @@ async function handleRegister(): Promise<void> {
   }
 
   // Check promo code validation status
-  if (formData.promo_code.trim()) {
+  if (promoCodeRequiredOnSignup.value || formData.promo_code.trim()) {
     // If promo code is being validated, wait
     if (promoValidating.value) {
-      errorMessage.value = t('auth.promoCodeValidating')
+      errors.promo_code = t('auth.promoCodeValidating')
+      return
+    }
+    if (!formData.promo_code.trim()) {
+      errors.promo_code = t('auth.promoCodeRequired')
       return
     }
     // If promo code is invalid, block submission
     if (promoValidation.invalid) {
-      errorMessage.value = t('auth.promoCodeInvalidCannotRegister')
+      errors.promo_code = t('auth.promoCodeInvalidCannotRegister')
       return
+    }
+    if (!promoValidation.valid) {
+      errors.promo_code = t('auth.promoCodeValidating')
+      await validatePromoCodeDebounced(formData.promo_code.trim())
+      if (!promoValidation.valid) {
+        errors.promo_code = t('auth.promoCodeInvalidCannotRegister')
+        return
+      }
     }
   }
 

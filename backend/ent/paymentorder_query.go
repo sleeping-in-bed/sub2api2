@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/Wei-Shaw/sub2api/ent/paymentinvoice"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/predicate"
 	"github.com/Wei-Shaw/sub2api/ent/user"
@@ -20,12 +21,13 @@ import (
 // PaymentOrderQuery is the builder for querying PaymentOrder entities.
 type PaymentOrderQuery struct {
 	config
-	ctx        *QueryContext
-	order      []paymentorder.OrderOption
-	inters     []Interceptor
-	predicates []predicate.PaymentOrder
-	withUser   *UserQuery
-	modifiers  []func(*sql.Selector)
+	ctx         *QueryContext
+	order       []paymentorder.OrderOption
+	inters      []Interceptor
+	predicates  []predicate.PaymentOrder
+	withUser    *UserQuery
+	withInvoice *PaymentInvoiceQuery
+	modifiers   []func(*sql.Selector)
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -77,6 +79,28 @@ func (_q *PaymentOrderQuery) QueryUser() *UserQuery {
 			sqlgraph.From(paymentorder.Table, paymentorder.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, paymentorder.UserTable, paymentorder.UserColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryInvoice chains the current query on the "invoice" edge.
+func (_q *PaymentOrderQuery) QueryInvoice() *PaymentInvoiceQuery {
+	query := (&PaymentInvoiceClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(paymentorder.Table, paymentorder.FieldID, selector),
+			sqlgraph.To(paymentinvoice.Table, paymentinvoice.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, paymentorder.InvoiceTable, paymentorder.InvoiceColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -271,12 +295,13 @@ func (_q *PaymentOrderQuery) Clone() *PaymentOrderQuery {
 		return nil
 	}
 	return &PaymentOrderQuery{
-		config:     _q.config,
-		ctx:        _q.ctx.Clone(),
-		order:      append([]paymentorder.OrderOption{}, _q.order...),
-		inters:     append([]Interceptor{}, _q.inters...),
-		predicates: append([]predicate.PaymentOrder{}, _q.predicates...),
-		withUser:   _q.withUser.Clone(),
+		config:      _q.config,
+		ctx:         _q.ctx.Clone(),
+		order:       append([]paymentorder.OrderOption{}, _q.order...),
+		inters:      append([]Interceptor{}, _q.inters...),
+		predicates:  append([]predicate.PaymentOrder{}, _q.predicates...),
+		withUser:    _q.withUser.Clone(),
+		withInvoice: _q.withInvoice.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
@@ -291,6 +316,17 @@ func (_q *PaymentOrderQuery) WithUser(opts ...func(*UserQuery)) *PaymentOrderQue
 		opt(query)
 	}
 	_q.withUser = query
+	return _q
+}
+
+// WithInvoice tells the query-builder to eager-load the nodes that are connected to
+// the "invoice" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *PaymentOrderQuery) WithInvoice(opts ...func(*PaymentInvoiceQuery)) *PaymentOrderQuery {
+	query := (&PaymentInvoiceClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withInvoice = query
 	return _q
 }
 
@@ -372,8 +408,9 @@ func (_q *PaymentOrderQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 	var (
 		nodes       = []*PaymentOrder{}
 		_spec       = _q.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			_q.withUser != nil,
+			_q.withInvoice != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -403,6 +440,12 @@ func (_q *PaymentOrderQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]
 			return nil, err
 		}
 	}
+	if query := _q.withInvoice; query != nil {
+		if err := _q.loadInvoice(ctx, query, nodes, nil,
+			func(n *PaymentOrder, e *PaymentInvoice) { n.Edges.Invoice = e }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
 }
 
@@ -428,6 +471,38 @@ func (_q *PaymentOrderQuery) loadUser(ctx context.Context, query *UserQuery, nod
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "user_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (_q *PaymentOrderQuery) loadInvoice(ctx context.Context, query *PaymentInvoiceQuery, nodes []*PaymentOrder, init func(*PaymentOrder), assign func(*PaymentOrder, *PaymentInvoice)) error {
+	ids := make([]int64, 0, len(nodes))
+	nodeids := make(map[int64][]*PaymentOrder)
+	for i := range nodes {
+		if nodes[i].InvoiceID == nil {
+			continue
+		}
+		fk := *nodes[i].InvoiceID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(paymentinvoice.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "invoice_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -466,6 +541,9 @@ func (_q *PaymentOrderQuery) querySpec() *sqlgraph.QuerySpec {
 		}
 		if _q.withUser != nil {
 			_spec.Node.AddColumnOnce(paymentorder.FieldUserID)
+		}
+		if _q.withInvoice != nil {
+			_spec.Node.AddColumnOnce(paymentorder.FieldInvoiceID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {

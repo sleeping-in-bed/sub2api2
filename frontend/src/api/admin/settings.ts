@@ -361,6 +361,7 @@ export interface SystemSettings {
   email_verify_enabled: boolean;
   registration_email_suffix_whitelist: string[];
   promo_code_enabled: boolean;
+  promo_code_required_on_signup: boolean;
   password_reset_enabled: boolean;
   frontend_url: string;
   invitation_code_enabled: boolean;
@@ -660,6 +661,7 @@ export interface UpdateSettingsRequest {
   email_verify_enabled?: boolean;
   registration_email_suffix_whitelist?: string[];
   promo_code_enabled?: boolean;
+  promo_code_required_on_signup?: boolean;
   password_reset_enabled?: boolean;
   frontend_url?: string;
   invitation_code_enabled?: boolean;

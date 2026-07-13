@@ -22,6 +22,8 @@ const (
 	FieldStatus = "status"
 	// FieldNotifyMode holds the string denoting the notify_mode field in the database.
 	FieldNotifyMode = "notify_mode"
+	// FieldSeedKey holds the string denoting the seed_key field in the database.
+	FieldSeedKey = "seed_key"
 	// FieldTargeting holds the string denoting the targeting field in the database.
 	FieldTargeting = "targeting"
 	// FieldStartsAt holds the string denoting the starts_at field in the database.
@@ -56,6 +58,7 @@ var Columns = []string{
 	FieldContent,
 	FieldStatus,
 	FieldNotifyMode,
+	FieldSeedKey,
 	FieldTargeting,
 	FieldStartsAt,
 	FieldEndsAt,
@@ -88,6 +91,8 @@ var (
 	DefaultNotifyMode string
 	// NotifyModeValidator is a validator for the "notify_mode" field. It is called by the builders before save.
 	NotifyModeValidator func(string) error
+	// SeedKeyValidator is a validator for the "seed_key" field. It is called by the builders before save.
+	SeedKeyValidator func(string) error
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
 	// DefaultUpdatedAt holds the default value on creation for the "updated_at" field.
@@ -122,6 +127,11 @@ func ByStatus(opts ...sql.OrderTermOption) OrderOption {
 // ByNotifyMode orders the results by the notify_mode field.
 func ByNotifyMode(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldNotifyMode, opts...).ToFunc()
+}
+
+// BySeedKey orders the results by the seed_key field.
+func BySeedKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldSeedKey, opts...).ToFunc()
 }
 
 // ByStartsAt orders the results by the starts_at field.

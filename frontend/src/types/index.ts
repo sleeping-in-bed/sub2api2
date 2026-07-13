@@ -193,6 +193,7 @@ export interface PublicSettings {
   force_email_on_third_party_signup: boolean
   registration_email_suffix_whitelist: string[]
   promo_code_enabled: boolean
+  promo_code_required_on_signup: boolean
   password_reset_enabled: boolean
   invitation_code_enabled: boolean
   login_agreement_enabled?: boolean
@@ -509,6 +510,10 @@ export interface Group {
   description: string | null
   platform: GroupPlatform
   rate_multiplier: number
+  input_token_multiplier: number
+  output_token_multiplier: number
+  cache_creation_token_multiplier: number
+  cache_read_token_multiplier: number
   rpm_limit?: number // Group-level RPM cap (0 = unlimited); overrides user-level rpm_limit when set
   is_exclusive: boolean
   status: 'active' | 'inactive'
@@ -553,6 +558,11 @@ export interface Group {
 }
 
 export interface AdminGroup extends Group {
+  hidden_input_rate_multiplier: number
+  hidden_output_rate_multiplier: number
+  hidden_cache_creation_rate_multiplier: number
+  hidden_cache_read_rate_multiplier: number
+
   // 模型路由配置（仅管理员可见，内部信息）
   model_routing: Record<string, number[]> | null
   model_routing_enabled: boolean
@@ -647,6 +657,14 @@ export interface CreateGroupRequest {
   description?: string | null
   platform?: GroupPlatform
   rate_multiplier?: number
+  input_token_multiplier?: number
+  output_token_multiplier?: number
+  cache_creation_token_multiplier?: number
+  cache_read_token_multiplier?: number
+  hidden_input_rate_multiplier?: number
+  hidden_output_rate_multiplier?: number
+  hidden_cache_creation_rate_multiplier?: number
+  hidden_cache_read_rate_multiplier?: number
   is_exclusive?: boolean
   subscription_type?: SubscriptionType
   daily_limit_usd?: number | null
@@ -694,6 +712,14 @@ export interface UpdateGroupRequest {
   description?: string | null
   platform?: GroupPlatform
   rate_multiplier?: number
+  input_token_multiplier?: number
+  output_token_multiplier?: number
+  cache_creation_token_multiplier?: number
+  cache_read_token_multiplier?: number
+  hidden_input_rate_multiplier?: number
+  hidden_output_rate_multiplier?: number
+  hidden_cache_creation_rate_multiplier?: number
+  hidden_cache_read_rate_multiplier?: number
   is_exclusive?: boolean
   status?: 'active' | 'inactive'
   subscription_type?: SubscriptionType
@@ -897,6 +923,10 @@ export interface Account {
   scheduler_scores?: AccountSchedulerGroupScore[] | null
   priority: number
   rate_multiplier?: number // Account billing multiplier (>=0, 0 means free)
+  input_token_multiplier: number
+  output_token_multiplier: number
+  cache_creation_token_multiplier: number
+  cache_read_token_multiplier: number
   status: 'active' | 'inactive' | 'error'
   error_message: string | null
   last_used_at: string | null
@@ -1125,6 +1155,10 @@ export interface CreateAccountRequest {
   load_factor?: number | null
   priority?: number
   rate_multiplier?: number // Account billing multiplier (>=0, 0 means free)
+  input_token_multiplier?: number
+  output_token_multiplier?: number
+  cache_creation_token_multiplier?: number
+  cache_read_token_multiplier?: number
   group_ids?: number[]
   expires_at?: number | null
   auto_pause_on_expired?: boolean
@@ -1142,6 +1176,10 @@ export interface UpdateAccountRequest {
   load_factor?: number | null
   priority?: number
   rate_multiplier?: number // Account billing multiplier (>=0, 0 means free)
+  input_token_multiplier?: number
+  output_token_multiplier?: number
+  cache_creation_token_multiplier?: number
+  cache_read_token_multiplier?: number
   schedulable?: boolean
   status?: 'active' | 'inactive' | 'error'
   group_ids?: number[]

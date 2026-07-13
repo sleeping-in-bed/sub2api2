@@ -959,6 +959,15 @@ oidc_connect:
   userinfo_username_path: ""
 
 # =============================================================================
+# Signup Configuration
+# 注册配置
+# =============================================================================
+signup:
+  # Require a valid promo code for every new email or OAuth registration
+  # 所有邮箱或 OAuth 新用户注册都必须提供有效优惠码
+  promo_code_required_on_signup: false
+
+# =============================================================================
 # Default Settings
 # 默认设置
 # =============================================================================
@@ -972,7 +981,7 @@ default:
   # 新用户默认设置
   # Max concurrent requests per user
   # 每用户最大并发请求数
-  user_concurrency: 5
+  user_concurrency: 20
   # Initial balance for new users
   # 新用户初始余额
   user_balance: 0

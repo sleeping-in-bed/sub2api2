@@ -70,6 +70,7 @@ type createPendingOAuthAccountRequest struct {
 	VerifyCode       string `json:"verify_code,omitempty"`
 	Password         string `json:"password" binding:"required,min=6"`
 	InvitationCode   string `json:"invitation_code,omitempty"`
+	PromoCode        string `json:"promo_code,omitempty"`
 	AffCode          string `json:"aff_code,omitempty"`
 	AdoptDisplayName *bool  `json:"adopt_display_name,omitempty"`
 	AdoptAvatar      *bool  `json:"adopt_avatar,omitempty"`
@@ -208,6 +209,13 @@ func pendingOAuthPromoCode(session *dbent.PendingAuthSession) string {
 		return ""
 	}
 	return pendingSessionStringValue(session.LocalFlowState, oauthPromoCodeStateKey)
+}
+
+func resolvePendingOAuthPromoCode(session *dbent.PendingAuthSession, override string) string {
+	if promoCode := strings.TrimSpace(override); promoCode != "" {
+		return promoCode
+	}
+	return pendingOAuthPromoCode(session)
 }
 
 func redirectToFrontendCallback(c *gin.Context, frontendCallback string) {
@@ -1761,6 +1769,7 @@ func (h *AuthHandler) createPendingOAuthAccount(c *gin.Context, provider string)
 		req.Password,
 		strings.TrimSpace(req.VerifyCode),
 		strings.TrimSpace(req.InvitationCode),
+		resolvePendingOAuthPromoCode(session, req.PromoCode),
 		strings.TrimSpace(session.ProviderType),
 	)
 	if err != nil {
@@ -1834,6 +1843,7 @@ func (h *AuthHandler) createPendingOAuthAccount(c *gin.Context, provider string)
 		txCtx,
 		user,
 		strings.TrimSpace(req.InvitationCode),
+		resolvePendingOAuthPromoCode(session, req.PromoCode),
 		strings.TrimSpace(session.ProviderType),
 		strings.TrimSpace(req.AffCode),
 	); err != nil {
@@ -1874,7 +1884,6 @@ func (h *AuthHandler) createPendingOAuthAccount(c *gin.Context, provider string)
 		return
 	}
 
-	h.authService.ApplyOAuthSignupPromoCode(c.Request.Context(), user.ID, pendingOAuthPromoCode(session))
 	h.authService.RecordSuccessfulLogin(c.Request.Context(), user.ID)
 	// createPendingOAuthAccount = 注册新账户，需要把钉钉昵称同步到 users.username 作为初始值
 	h.maybeSyncDingTalkAfterRegistration(c.Request.Context(), session, user.ID)

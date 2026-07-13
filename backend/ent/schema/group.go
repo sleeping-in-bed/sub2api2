@@ -45,6 +45,14 @@ func (Group) Fields() []ent.Field {
 		field.Float("rate_multiplier").
 			SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).
 			Default(1.0),
+		field.Float("input_token_multiplier").SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).Default(1.0),
+		field.Float("output_token_multiplier").SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).Default(1.0),
+		field.Float("cache_creation_token_multiplier").SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).Default(1.0),
+		field.Float("cache_read_token_multiplier").SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).Default(1.0),
+		field.Float("hidden_input_rate_multiplier").SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).Default(1.0),
+		field.Float("hidden_output_rate_multiplier").SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).Default(1.0),
+		field.Float("hidden_cache_creation_rate_multiplier").SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).Default(1.0),
+		field.Float("hidden_cache_read_rate_multiplier").SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}).Default(1.0),
 		// 高峰时段倍率（added by migration 158）
 		field.Bool("peak_rate_enabled").
 			Default(false).

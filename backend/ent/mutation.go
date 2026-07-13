@@ -31,6 +31,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/idempotencyrecord"
 	"github.com/Wei-Shaw/sub2api/ent/identityadoptiondecision"
 	"github.com/Wei-Shaw/sub2api/ent/paymentauditlog"
+	"github.com/Wei-Shaw/sub2api/ent/paymentinvoice"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/paymentproviderinstance"
 	"github.com/Wei-Shaw/sub2api/ent/pendingauthsession"
@@ -82,6 +83,7 @@ const (
 	TypeIdempotencyRecord             = "IdempotencyRecord"
 	TypeIdentityAdoptionDecision      = "IdentityAdoptionDecision"
 	TypePaymentAuditLog               = "PaymentAuditLog"
+	TypePaymentInvoice                = "PaymentInvoice"
 	TypePaymentOrder                  = "PaymentOrder"
 	TypePaymentProviderInstance       = "PaymentProviderInstance"
 	TypePendingAuthSession            = "PendingAuthSession"
@@ -5578,6 +5580,7 @@ type AnnouncementMutation struct {
 	content       *string
 	status        *string
 	notify_mode   *string
+	seed_key      *string
 	targeting     *domain.AnnouncementTargeting
 	starts_at     *time.Time
 	ends_at       *time.Time
@@ -5836,6 +5839,55 @@ func (m *AnnouncementMutation) OldNotifyMode(ctx context.Context) (v string, err
 // ResetNotifyMode resets all changes to the "notify_mode" field.
 func (m *AnnouncementMutation) ResetNotifyMode() {
 	m.notify_mode = nil
+}
+
+// SetSeedKey sets the "seed_key" field.
+func (m *AnnouncementMutation) SetSeedKey(s string) {
+	m.seed_key = &s
+}
+
+// SeedKey returns the value of the "seed_key" field in the mutation.
+func (m *AnnouncementMutation) SeedKey() (r string, exists bool) {
+	v := m.seed_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSeedKey returns the old "seed_key" field's value of the Announcement entity.
+// If the Announcement object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *AnnouncementMutation) OldSeedKey(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSeedKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSeedKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSeedKey: %w", err)
+	}
+	return oldValue.SeedKey, nil
+}
+
+// ClearSeedKey clears the value of the "seed_key" field.
+func (m *AnnouncementMutation) ClearSeedKey() {
+	m.seed_key = nil
+	m.clearedFields[announcement.FieldSeedKey] = struct{}{}
+}
+
+// SeedKeyCleared returns if the "seed_key" field was cleared in this mutation.
+func (m *AnnouncementMutation) SeedKeyCleared() bool {
+	_, ok := m.clearedFields[announcement.FieldSeedKey]
+	return ok
+}
+
+// ResetSeedKey resets all changes to the "seed_key" field.
+func (m *AnnouncementMutation) ResetSeedKey() {
+	m.seed_key = nil
+	delete(m.clearedFields, announcement.FieldSeedKey)
 }
 
 // SetTargeting sets the "targeting" field.
@@ -6285,7 +6337,7 @@ func (m *AnnouncementMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *AnnouncementMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.title != nil {
 		fields = append(fields, announcement.FieldTitle)
 	}
@@ -6297,6 +6349,9 @@ func (m *AnnouncementMutation) Fields() []string {
 	}
 	if m.notify_mode != nil {
 		fields = append(fields, announcement.FieldNotifyMode)
+	}
+	if m.seed_key != nil {
+		fields = append(fields, announcement.FieldSeedKey)
 	}
 	if m.targeting != nil {
 		fields = append(fields, announcement.FieldTargeting)
@@ -6335,6 +6390,8 @@ func (m *AnnouncementMutation) Field(name string) (ent.Value, bool) {
 		return m.Status()
 	case announcement.FieldNotifyMode:
 		return m.NotifyMode()
+	case announcement.FieldSeedKey:
+		return m.SeedKey()
 	case announcement.FieldTargeting:
 		return m.Targeting()
 	case announcement.FieldStartsAt:
@@ -6366,6 +6423,8 @@ func (m *AnnouncementMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldStatus(ctx)
 	case announcement.FieldNotifyMode:
 		return m.OldNotifyMode(ctx)
+	case announcement.FieldSeedKey:
+		return m.OldSeedKey(ctx)
 	case announcement.FieldTargeting:
 		return m.OldTargeting(ctx)
 	case announcement.FieldStartsAt:
@@ -6416,6 +6475,13 @@ func (m *AnnouncementMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetNotifyMode(v)
+		return nil
+	case announcement.FieldSeedKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSeedKey(v)
 		return nil
 	case announcement.FieldTargeting:
 		v, ok := value.(domain.AnnouncementTargeting)
@@ -6523,6 +6589,9 @@ func (m *AnnouncementMutation) AddField(name string, value ent.Value) error {
 // mutation.
 func (m *AnnouncementMutation) ClearedFields() []string {
 	var fields []string
+	if m.FieldCleared(announcement.FieldSeedKey) {
+		fields = append(fields, announcement.FieldSeedKey)
+	}
 	if m.FieldCleared(announcement.FieldTargeting) {
 		fields = append(fields, announcement.FieldTargeting)
 	}
@@ -6552,6 +6621,9 @@ func (m *AnnouncementMutation) FieldCleared(name string) bool {
 // error if the field is not defined in the schema.
 func (m *AnnouncementMutation) ClearField(name string) error {
 	switch name {
+	case announcement.FieldSeedKey:
+		m.ClearSeedKey()
+		return nil
 	case announcement.FieldTargeting:
 		m.ClearTargeting()
 		return nil
@@ -6586,6 +6658,9 @@ func (m *AnnouncementMutation) ResetField(name string) error {
 		return nil
 	case announcement.FieldNotifyMode:
 		m.ResetNotifyMode()
+		return nil
+	case announcement.FieldSeedKey:
+		m.ResetSeedKey()
 		return nil
 	case announcement.FieldTargeting:
 		m.ResetTargeting()
@@ -20791,101 +20866,117 @@ func (m *ErrorPassthroughRuleMutation) ResetEdge(name string) error {
 // GroupMutation represents an operation that mutates the Group nodes in the graph.
 type GroupMutation struct {
 	config
-	op                                      Op
-	typ                                     string
-	id                                      *int64
-	created_at                              *time.Time
-	updated_at                              *time.Time
-	deleted_at                              *time.Time
-	name                                    *string
-	description                             *string
-	rate_multiplier                         *float64
-	addrate_multiplier                      *float64
-	peak_rate_enabled                       *bool
-	peak_start                              *string
-	peak_end                                *string
-	peak_rate_multiplier                    *float64
-	addpeak_rate_multiplier                 *float64
-	is_exclusive                            *bool
-	status                                  *string
-	platform                                *string
-	subscription_type                       *string
-	daily_limit_usd                         *float64
-	adddaily_limit_usd                      *float64
-	weekly_limit_usd                        *float64
-	addweekly_limit_usd                     *float64
-	monthly_limit_usd                       *float64
-	addmonthly_limit_usd                    *float64
-	default_validity_days                   *int
-	adddefault_validity_days                *int
-	allow_image_generation                  *bool
-	allow_batch_image_generation            *bool
-	image_rate_independent                  *bool
-	image_rate_multiplier                   *float64
-	addimage_rate_multiplier                *float64
-	image_price_1k                          *float64
-	addimage_price_1k                       *float64
-	image_price_2k                          *float64
-	addimage_price_2k                       *float64
-	image_price_4k                          *float64
-	addimage_price_4k                       *float64
-	batch_image_discount_multiplier         *float64
-	addbatch_image_discount_multiplier      *float64
-	batch_image_hold_multiplier             *float64
-	addbatch_image_hold_multiplier          *float64
-	video_rate_independent                  *bool
-	video_rate_multiplier                   *float64
-	addvideo_rate_multiplier                *float64
-	video_price_480p                        *float64
-	addvideo_price_480p                     *float64
-	video_price_720p                        *float64
-	addvideo_price_720p                     *float64
-	video_price_1080p                       *float64
-	addvideo_price_1080p                    *float64
-	web_search_price_per_call               *float64
-	addweb_search_price_per_call            *float64
-	claude_code_only                        *bool
-	fallback_group_id                       *int64
-	addfallback_group_id                    *int64
-	fallback_group_id_on_invalid_request    *int64
-	addfallback_group_id_on_invalid_request *int64
-	model_routing                           *map[string][]int64
-	model_routing_enabled                   *bool
-	mcp_xml_inject                          *bool
-	supported_model_scopes                  *[]string
-	appendsupported_model_scopes            []string
-	sort_order                              *int
-	addsort_order                           *int
-	allow_messages_dispatch                 *bool
-	require_oauth_only                      *bool
-	require_privacy_set                     *bool
-	default_mapped_model                    *string
-	messages_dispatch_model_config          *domain.OpenAIMessagesDispatchModelConfig
-	models_list_config                      *domain.GroupModelsListConfig
-	rpm_limit                               *int
-	addrpm_limit                            *int
-	clearedFields                           map[string]struct{}
-	api_keys                                map[int64]struct{}
-	removedapi_keys                         map[int64]struct{}
-	clearedapi_keys                         bool
-	redeem_codes                            map[int64]struct{}
-	removedredeem_codes                     map[int64]struct{}
-	clearedredeem_codes                     bool
-	subscriptions                           map[int64]struct{}
-	removedsubscriptions                    map[int64]struct{}
-	clearedsubscriptions                    bool
-	usage_logs                              map[int64]struct{}
-	removedusage_logs                       map[int64]struct{}
-	clearedusage_logs                       bool
-	accounts                                map[int64]struct{}
-	removedaccounts                         map[int64]struct{}
-	clearedaccounts                         bool
-	allowed_users                           map[int64]struct{}
-	removedallowed_users                    map[int64]struct{}
-	clearedallowed_users                    bool
-	done                                    bool
-	oldValue                                func(context.Context) (*Group, error)
-	predicates                              []predicate.Group
+	op                                       Op
+	typ                                      string
+	id                                       *int64
+	created_at                               *time.Time
+	updated_at                               *time.Time
+	deleted_at                               *time.Time
+	name                                     *string
+	description                              *string
+	rate_multiplier                          *float64
+	addrate_multiplier                       *float64
+	input_token_multiplier                   *float64
+	addinput_token_multiplier                *float64
+	output_token_multiplier                  *float64
+	addoutput_token_multiplier               *float64
+	cache_creation_token_multiplier          *float64
+	addcache_creation_token_multiplier       *float64
+	cache_read_token_multiplier              *float64
+	addcache_read_token_multiplier           *float64
+	hidden_input_rate_multiplier             *float64
+	addhidden_input_rate_multiplier          *float64
+	hidden_output_rate_multiplier            *float64
+	addhidden_output_rate_multiplier         *float64
+	hidden_cache_creation_rate_multiplier    *float64
+	addhidden_cache_creation_rate_multiplier *float64
+	hidden_cache_read_rate_multiplier        *float64
+	addhidden_cache_read_rate_multiplier     *float64
+	peak_rate_enabled                        *bool
+	peak_start                               *string
+	peak_end                                 *string
+	peak_rate_multiplier                     *float64
+	addpeak_rate_multiplier                  *float64
+	is_exclusive                             *bool
+	status                                   *string
+	platform                                 *string
+	subscription_type                        *string
+	daily_limit_usd                          *float64
+	adddaily_limit_usd                       *float64
+	weekly_limit_usd                         *float64
+	addweekly_limit_usd                      *float64
+	monthly_limit_usd                        *float64
+	addmonthly_limit_usd                     *float64
+	default_validity_days                    *int
+	adddefault_validity_days                 *int
+	allow_image_generation                   *bool
+	allow_batch_image_generation             *bool
+	image_rate_independent                   *bool
+	image_rate_multiplier                    *float64
+	addimage_rate_multiplier                 *float64
+	image_price_1k                           *float64
+	addimage_price_1k                        *float64
+	image_price_2k                           *float64
+	addimage_price_2k                        *float64
+	image_price_4k                           *float64
+	addimage_price_4k                        *float64
+	batch_image_discount_multiplier          *float64
+	addbatch_image_discount_multiplier       *float64
+	batch_image_hold_multiplier              *float64
+	addbatch_image_hold_multiplier           *float64
+	video_rate_independent                   *bool
+	video_rate_multiplier                    *float64
+	addvideo_rate_multiplier                 *float64
+	video_price_480p                         *float64
+	addvideo_price_480p                      *float64
+	video_price_720p                         *float64
+	addvideo_price_720p                      *float64
+	video_price_1080p                        *float64
+	addvideo_price_1080p                     *float64
+	web_search_price_per_call                *float64
+	addweb_search_price_per_call             *float64
+	claude_code_only                         *bool
+	fallback_group_id                        *int64
+	addfallback_group_id                     *int64
+	fallback_group_id_on_invalid_request     *int64
+	addfallback_group_id_on_invalid_request  *int64
+	model_routing                            *map[string][]int64
+	model_routing_enabled                    *bool
+	mcp_xml_inject                           *bool
+	supported_model_scopes                   *[]string
+	appendsupported_model_scopes             []string
+	sort_order                               *int
+	addsort_order                            *int
+	allow_messages_dispatch                  *bool
+	require_oauth_only                       *bool
+	require_privacy_set                      *bool
+	default_mapped_model                     *string
+	messages_dispatch_model_config           *domain.OpenAIMessagesDispatchModelConfig
+	models_list_config                       *domain.GroupModelsListConfig
+	rpm_limit                                *int
+	addrpm_limit                             *int
+	clearedFields                            map[string]struct{}
+	api_keys                                 map[int64]struct{}
+	removedapi_keys                          map[int64]struct{}
+	clearedapi_keys                          bool
+	redeem_codes                             map[int64]struct{}
+	removedredeem_codes                      map[int64]struct{}
+	clearedredeem_codes                      bool
+	subscriptions                            map[int64]struct{}
+	removedsubscriptions                     map[int64]struct{}
+	clearedsubscriptions                     bool
+	usage_logs                               map[int64]struct{}
+	removedusage_logs                        map[int64]struct{}
+	clearedusage_logs                        bool
+	accounts                                 map[int64]struct{}
+	removedaccounts                          map[int64]struct{}
+	clearedaccounts                          bool
+	allowed_users                            map[int64]struct{}
+	removedallowed_users                     map[int64]struct{}
+	clearedallowed_users                     bool
+	done                                     bool
+	oldValue                                 func(context.Context) (*Group, error)
+	predicates                               []predicate.Group
 }
 
 var _ ent.Mutation = (*GroupMutation)(nil)
@@ -21246,6 +21337,454 @@ func (m *GroupMutation) AddedRateMultiplier() (r float64, exists bool) {
 func (m *GroupMutation) ResetRateMultiplier() {
 	m.rate_multiplier = nil
 	m.addrate_multiplier = nil
+}
+
+// SetInputTokenMultiplier sets the "input_token_multiplier" field.
+func (m *GroupMutation) SetInputTokenMultiplier(f float64) {
+	m.input_token_multiplier = &f
+	m.addinput_token_multiplier = nil
+}
+
+// InputTokenMultiplier returns the value of the "input_token_multiplier" field in the mutation.
+func (m *GroupMutation) InputTokenMultiplier() (r float64, exists bool) {
+	v := m.input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInputTokenMultiplier returns the old "input_token_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldInputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInputTokenMultiplier: %w", err)
+	}
+	return oldValue.InputTokenMultiplier, nil
+}
+
+// AddInputTokenMultiplier adds f to the "input_token_multiplier" field.
+func (m *GroupMutation) AddInputTokenMultiplier(f float64) {
+	if m.addinput_token_multiplier != nil {
+		*m.addinput_token_multiplier += f
+	} else {
+		m.addinput_token_multiplier = &f
+	}
+}
+
+// AddedInputTokenMultiplier returns the value that was added to the "input_token_multiplier" field in this mutation.
+func (m *GroupMutation) AddedInputTokenMultiplier() (r float64, exists bool) {
+	v := m.addinput_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetInputTokenMultiplier resets all changes to the "input_token_multiplier" field.
+func (m *GroupMutation) ResetInputTokenMultiplier() {
+	m.input_token_multiplier = nil
+	m.addinput_token_multiplier = nil
+}
+
+// SetOutputTokenMultiplier sets the "output_token_multiplier" field.
+func (m *GroupMutation) SetOutputTokenMultiplier(f float64) {
+	m.output_token_multiplier = &f
+	m.addoutput_token_multiplier = nil
+}
+
+// OutputTokenMultiplier returns the value of the "output_token_multiplier" field in the mutation.
+func (m *GroupMutation) OutputTokenMultiplier() (r float64, exists bool) {
+	v := m.output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOutputTokenMultiplier returns the old "output_token_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldOutputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOutputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOutputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOutputTokenMultiplier: %w", err)
+	}
+	return oldValue.OutputTokenMultiplier, nil
+}
+
+// AddOutputTokenMultiplier adds f to the "output_token_multiplier" field.
+func (m *GroupMutation) AddOutputTokenMultiplier(f float64) {
+	if m.addoutput_token_multiplier != nil {
+		*m.addoutput_token_multiplier += f
+	} else {
+		m.addoutput_token_multiplier = &f
+	}
+}
+
+// AddedOutputTokenMultiplier returns the value that was added to the "output_token_multiplier" field in this mutation.
+func (m *GroupMutation) AddedOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.addoutput_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOutputTokenMultiplier resets all changes to the "output_token_multiplier" field.
+func (m *GroupMutation) ResetOutputTokenMultiplier() {
+	m.output_token_multiplier = nil
+	m.addoutput_token_multiplier = nil
+}
+
+// SetCacheCreationTokenMultiplier sets the "cache_creation_token_multiplier" field.
+func (m *GroupMutation) SetCacheCreationTokenMultiplier(f float64) {
+	m.cache_creation_token_multiplier = &f
+	m.addcache_creation_token_multiplier = nil
+}
+
+// CacheCreationTokenMultiplier returns the value of the "cache_creation_token_multiplier" field in the mutation.
+func (m *GroupMutation) CacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCacheCreationTokenMultiplier returns the old "cache_creation_token_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldCacheCreationTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCacheCreationTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCacheCreationTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCacheCreationTokenMultiplier: %w", err)
+	}
+	return oldValue.CacheCreationTokenMultiplier, nil
+}
+
+// AddCacheCreationTokenMultiplier adds f to the "cache_creation_token_multiplier" field.
+func (m *GroupMutation) AddCacheCreationTokenMultiplier(f float64) {
+	if m.addcache_creation_token_multiplier != nil {
+		*m.addcache_creation_token_multiplier += f
+	} else {
+		m.addcache_creation_token_multiplier = &f
+	}
+}
+
+// AddedCacheCreationTokenMultiplier returns the value that was added to the "cache_creation_token_multiplier" field in this mutation.
+func (m *GroupMutation) AddedCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.addcache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCacheCreationTokenMultiplier resets all changes to the "cache_creation_token_multiplier" field.
+func (m *GroupMutation) ResetCacheCreationTokenMultiplier() {
+	m.cache_creation_token_multiplier = nil
+	m.addcache_creation_token_multiplier = nil
+}
+
+// SetCacheReadTokenMultiplier sets the "cache_read_token_multiplier" field.
+func (m *GroupMutation) SetCacheReadTokenMultiplier(f float64) {
+	m.cache_read_token_multiplier = &f
+	m.addcache_read_token_multiplier = nil
+}
+
+// CacheReadTokenMultiplier returns the value of the "cache_read_token_multiplier" field in the mutation.
+func (m *GroupMutation) CacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCacheReadTokenMultiplier returns the old "cache_read_token_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldCacheReadTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCacheReadTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCacheReadTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCacheReadTokenMultiplier: %w", err)
+	}
+	return oldValue.CacheReadTokenMultiplier, nil
+}
+
+// AddCacheReadTokenMultiplier adds f to the "cache_read_token_multiplier" field.
+func (m *GroupMutation) AddCacheReadTokenMultiplier(f float64) {
+	if m.addcache_read_token_multiplier != nil {
+		*m.addcache_read_token_multiplier += f
+	} else {
+		m.addcache_read_token_multiplier = &f
+	}
+}
+
+// AddedCacheReadTokenMultiplier returns the value that was added to the "cache_read_token_multiplier" field in this mutation.
+func (m *GroupMutation) AddedCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.addcache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCacheReadTokenMultiplier resets all changes to the "cache_read_token_multiplier" field.
+func (m *GroupMutation) ResetCacheReadTokenMultiplier() {
+	m.cache_read_token_multiplier = nil
+	m.addcache_read_token_multiplier = nil
+}
+
+// SetHiddenInputRateMultiplier sets the "hidden_input_rate_multiplier" field.
+func (m *GroupMutation) SetHiddenInputRateMultiplier(f float64) {
+	m.hidden_input_rate_multiplier = &f
+	m.addhidden_input_rate_multiplier = nil
+}
+
+// HiddenInputRateMultiplier returns the value of the "hidden_input_rate_multiplier" field in the mutation.
+func (m *GroupMutation) HiddenInputRateMultiplier() (r float64, exists bool) {
+	v := m.hidden_input_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHiddenInputRateMultiplier returns the old "hidden_input_rate_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldHiddenInputRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHiddenInputRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHiddenInputRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHiddenInputRateMultiplier: %w", err)
+	}
+	return oldValue.HiddenInputRateMultiplier, nil
+}
+
+// AddHiddenInputRateMultiplier adds f to the "hidden_input_rate_multiplier" field.
+func (m *GroupMutation) AddHiddenInputRateMultiplier(f float64) {
+	if m.addhidden_input_rate_multiplier != nil {
+		*m.addhidden_input_rate_multiplier += f
+	} else {
+		m.addhidden_input_rate_multiplier = &f
+	}
+}
+
+// AddedHiddenInputRateMultiplier returns the value that was added to the "hidden_input_rate_multiplier" field in this mutation.
+func (m *GroupMutation) AddedHiddenInputRateMultiplier() (r float64, exists bool) {
+	v := m.addhidden_input_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHiddenInputRateMultiplier resets all changes to the "hidden_input_rate_multiplier" field.
+func (m *GroupMutation) ResetHiddenInputRateMultiplier() {
+	m.hidden_input_rate_multiplier = nil
+	m.addhidden_input_rate_multiplier = nil
+}
+
+// SetHiddenOutputRateMultiplier sets the "hidden_output_rate_multiplier" field.
+func (m *GroupMutation) SetHiddenOutputRateMultiplier(f float64) {
+	m.hidden_output_rate_multiplier = &f
+	m.addhidden_output_rate_multiplier = nil
+}
+
+// HiddenOutputRateMultiplier returns the value of the "hidden_output_rate_multiplier" field in the mutation.
+func (m *GroupMutation) HiddenOutputRateMultiplier() (r float64, exists bool) {
+	v := m.hidden_output_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHiddenOutputRateMultiplier returns the old "hidden_output_rate_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldHiddenOutputRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHiddenOutputRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHiddenOutputRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHiddenOutputRateMultiplier: %w", err)
+	}
+	return oldValue.HiddenOutputRateMultiplier, nil
+}
+
+// AddHiddenOutputRateMultiplier adds f to the "hidden_output_rate_multiplier" field.
+func (m *GroupMutation) AddHiddenOutputRateMultiplier(f float64) {
+	if m.addhidden_output_rate_multiplier != nil {
+		*m.addhidden_output_rate_multiplier += f
+	} else {
+		m.addhidden_output_rate_multiplier = &f
+	}
+}
+
+// AddedHiddenOutputRateMultiplier returns the value that was added to the "hidden_output_rate_multiplier" field in this mutation.
+func (m *GroupMutation) AddedHiddenOutputRateMultiplier() (r float64, exists bool) {
+	v := m.addhidden_output_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHiddenOutputRateMultiplier resets all changes to the "hidden_output_rate_multiplier" field.
+func (m *GroupMutation) ResetHiddenOutputRateMultiplier() {
+	m.hidden_output_rate_multiplier = nil
+	m.addhidden_output_rate_multiplier = nil
+}
+
+// SetHiddenCacheCreationRateMultiplier sets the "hidden_cache_creation_rate_multiplier" field.
+func (m *GroupMutation) SetHiddenCacheCreationRateMultiplier(f float64) {
+	m.hidden_cache_creation_rate_multiplier = &f
+	m.addhidden_cache_creation_rate_multiplier = nil
+}
+
+// HiddenCacheCreationRateMultiplier returns the value of the "hidden_cache_creation_rate_multiplier" field in the mutation.
+func (m *GroupMutation) HiddenCacheCreationRateMultiplier() (r float64, exists bool) {
+	v := m.hidden_cache_creation_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHiddenCacheCreationRateMultiplier returns the old "hidden_cache_creation_rate_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldHiddenCacheCreationRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHiddenCacheCreationRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHiddenCacheCreationRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHiddenCacheCreationRateMultiplier: %w", err)
+	}
+	return oldValue.HiddenCacheCreationRateMultiplier, nil
+}
+
+// AddHiddenCacheCreationRateMultiplier adds f to the "hidden_cache_creation_rate_multiplier" field.
+func (m *GroupMutation) AddHiddenCacheCreationRateMultiplier(f float64) {
+	if m.addhidden_cache_creation_rate_multiplier != nil {
+		*m.addhidden_cache_creation_rate_multiplier += f
+	} else {
+		m.addhidden_cache_creation_rate_multiplier = &f
+	}
+}
+
+// AddedHiddenCacheCreationRateMultiplier returns the value that was added to the "hidden_cache_creation_rate_multiplier" field in this mutation.
+func (m *GroupMutation) AddedHiddenCacheCreationRateMultiplier() (r float64, exists bool) {
+	v := m.addhidden_cache_creation_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHiddenCacheCreationRateMultiplier resets all changes to the "hidden_cache_creation_rate_multiplier" field.
+func (m *GroupMutation) ResetHiddenCacheCreationRateMultiplier() {
+	m.hidden_cache_creation_rate_multiplier = nil
+	m.addhidden_cache_creation_rate_multiplier = nil
+}
+
+// SetHiddenCacheReadRateMultiplier sets the "hidden_cache_read_rate_multiplier" field.
+func (m *GroupMutation) SetHiddenCacheReadRateMultiplier(f float64) {
+	m.hidden_cache_read_rate_multiplier = &f
+	m.addhidden_cache_read_rate_multiplier = nil
+}
+
+// HiddenCacheReadRateMultiplier returns the value of the "hidden_cache_read_rate_multiplier" field in the mutation.
+func (m *GroupMutation) HiddenCacheReadRateMultiplier() (r float64, exists bool) {
+	v := m.hidden_cache_read_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHiddenCacheReadRateMultiplier returns the old "hidden_cache_read_rate_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldHiddenCacheReadRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHiddenCacheReadRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHiddenCacheReadRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHiddenCacheReadRateMultiplier: %w", err)
+	}
+	return oldValue.HiddenCacheReadRateMultiplier, nil
+}
+
+// AddHiddenCacheReadRateMultiplier adds f to the "hidden_cache_read_rate_multiplier" field.
+func (m *GroupMutation) AddHiddenCacheReadRateMultiplier(f float64) {
+	if m.addhidden_cache_read_rate_multiplier != nil {
+		*m.addhidden_cache_read_rate_multiplier += f
+	} else {
+		m.addhidden_cache_read_rate_multiplier = &f
+	}
+}
+
+// AddedHiddenCacheReadRateMultiplier returns the value that was added to the "hidden_cache_read_rate_multiplier" field in this mutation.
+func (m *GroupMutation) AddedHiddenCacheReadRateMultiplier() (r float64, exists bool) {
+	v := m.addhidden_cache_read_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHiddenCacheReadRateMultiplier resets all changes to the "hidden_cache_read_rate_multiplier" field.
+func (m *GroupMutation) ResetHiddenCacheReadRateMultiplier() {
+	m.hidden_cache_read_rate_multiplier = nil
+	m.addhidden_cache_read_rate_multiplier = nil
 }
 
 // SetPeakRateEnabled sets the "peak_rate_enabled" field.
@@ -23714,7 +24253,7 @@ func (m *GroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 48)
+	fields := make([]string, 0, 56)
 	if m.created_at != nil {
 		fields = append(fields, group.FieldCreatedAt)
 	}
@@ -23732,6 +24271,30 @@ func (m *GroupMutation) Fields() []string {
 	}
 	if m.rate_multiplier != nil {
 		fields = append(fields, group.FieldRateMultiplier)
+	}
+	if m.input_token_multiplier != nil {
+		fields = append(fields, group.FieldInputTokenMultiplier)
+	}
+	if m.output_token_multiplier != nil {
+		fields = append(fields, group.FieldOutputTokenMultiplier)
+	}
+	if m.cache_creation_token_multiplier != nil {
+		fields = append(fields, group.FieldCacheCreationTokenMultiplier)
+	}
+	if m.cache_read_token_multiplier != nil {
+		fields = append(fields, group.FieldCacheReadTokenMultiplier)
+	}
+	if m.hidden_input_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenInputRateMultiplier)
+	}
+	if m.hidden_output_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenOutputRateMultiplier)
+	}
+	if m.hidden_cache_creation_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenCacheCreationRateMultiplier)
+	}
+	if m.hidden_cache_read_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenCacheReadRateMultiplier)
 	}
 	if m.peak_rate_enabled != nil {
 		fields = append(fields, group.FieldPeakRateEnabled)
@@ -23879,6 +24442,22 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case group.FieldRateMultiplier:
 		return m.RateMultiplier()
+	case group.FieldInputTokenMultiplier:
+		return m.InputTokenMultiplier()
+	case group.FieldOutputTokenMultiplier:
+		return m.OutputTokenMultiplier()
+	case group.FieldCacheCreationTokenMultiplier:
+		return m.CacheCreationTokenMultiplier()
+	case group.FieldCacheReadTokenMultiplier:
+		return m.CacheReadTokenMultiplier()
+	case group.FieldHiddenInputRateMultiplier:
+		return m.HiddenInputRateMultiplier()
+	case group.FieldHiddenOutputRateMultiplier:
+		return m.HiddenOutputRateMultiplier()
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		return m.HiddenCacheCreationRateMultiplier()
+	case group.FieldHiddenCacheReadRateMultiplier:
+		return m.HiddenCacheReadRateMultiplier()
 	case group.FieldPeakRateEnabled:
 		return m.PeakRateEnabled()
 	case group.FieldPeakStart:
@@ -23984,6 +24563,22 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDescription(ctx)
 	case group.FieldRateMultiplier:
 		return m.OldRateMultiplier(ctx)
+	case group.FieldInputTokenMultiplier:
+		return m.OldInputTokenMultiplier(ctx)
+	case group.FieldOutputTokenMultiplier:
+		return m.OldOutputTokenMultiplier(ctx)
+	case group.FieldCacheCreationTokenMultiplier:
+		return m.OldCacheCreationTokenMultiplier(ctx)
+	case group.FieldCacheReadTokenMultiplier:
+		return m.OldCacheReadTokenMultiplier(ctx)
+	case group.FieldHiddenInputRateMultiplier:
+		return m.OldHiddenInputRateMultiplier(ctx)
+	case group.FieldHiddenOutputRateMultiplier:
+		return m.OldHiddenOutputRateMultiplier(ctx)
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		return m.OldHiddenCacheCreationRateMultiplier(ctx)
+	case group.FieldHiddenCacheReadRateMultiplier:
+		return m.OldHiddenCacheReadRateMultiplier(ctx)
 	case group.FieldPeakRateEnabled:
 		return m.OldPeakRateEnabled(ctx)
 	case group.FieldPeakStart:
@@ -24118,6 +24713,62 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRateMultiplier(v)
+		return nil
+	case group.FieldInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInputTokenMultiplier(v)
+		return nil
+	case group.FieldOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOutputTokenMultiplier(v)
+		return nil
+	case group.FieldCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCacheCreationTokenMultiplier(v)
+		return nil
+	case group.FieldCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCacheReadTokenMultiplier(v)
+		return nil
+	case group.FieldHiddenInputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHiddenInputRateMultiplier(v)
+		return nil
+	case group.FieldHiddenOutputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHiddenOutputRateMultiplier(v)
+		return nil
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHiddenCacheCreationRateMultiplier(v)
+		return nil
+	case group.FieldHiddenCacheReadRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHiddenCacheReadRateMultiplier(v)
 		return nil
 	case group.FieldPeakRateEnabled:
 		v, ok := value.(bool)
@@ -24424,6 +25075,30 @@ func (m *GroupMutation) AddedFields() []string {
 	if m.addrate_multiplier != nil {
 		fields = append(fields, group.FieldRateMultiplier)
 	}
+	if m.addinput_token_multiplier != nil {
+		fields = append(fields, group.FieldInputTokenMultiplier)
+	}
+	if m.addoutput_token_multiplier != nil {
+		fields = append(fields, group.FieldOutputTokenMultiplier)
+	}
+	if m.addcache_creation_token_multiplier != nil {
+		fields = append(fields, group.FieldCacheCreationTokenMultiplier)
+	}
+	if m.addcache_read_token_multiplier != nil {
+		fields = append(fields, group.FieldCacheReadTokenMultiplier)
+	}
+	if m.addhidden_input_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenInputRateMultiplier)
+	}
+	if m.addhidden_output_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenOutputRateMultiplier)
+	}
+	if m.addhidden_cache_creation_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenCacheCreationRateMultiplier)
+	}
+	if m.addhidden_cache_read_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenCacheReadRateMultiplier)
+	}
 	if m.addpeak_rate_multiplier != nil {
 		fields = append(fields, group.FieldPeakRateMultiplier)
 	}
@@ -24494,6 +25169,22 @@ func (m *GroupMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case group.FieldRateMultiplier:
 		return m.AddedRateMultiplier()
+	case group.FieldInputTokenMultiplier:
+		return m.AddedInputTokenMultiplier()
+	case group.FieldOutputTokenMultiplier:
+		return m.AddedOutputTokenMultiplier()
+	case group.FieldCacheCreationTokenMultiplier:
+		return m.AddedCacheCreationTokenMultiplier()
+	case group.FieldCacheReadTokenMultiplier:
+		return m.AddedCacheReadTokenMultiplier()
+	case group.FieldHiddenInputRateMultiplier:
+		return m.AddedHiddenInputRateMultiplier()
+	case group.FieldHiddenOutputRateMultiplier:
+		return m.AddedHiddenOutputRateMultiplier()
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		return m.AddedHiddenCacheCreationRateMultiplier()
+	case group.FieldHiddenCacheReadRateMultiplier:
+		return m.AddedHiddenCacheReadRateMultiplier()
 	case group.FieldPeakRateMultiplier:
 		return m.AddedPeakRateMultiplier()
 	case group.FieldDailyLimitUsd:
@@ -24549,6 +25240,62 @@ func (m *GroupMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddRateMultiplier(v)
+		return nil
+	case group.FieldInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddInputTokenMultiplier(v)
+		return nil
+	case group.FieldOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOutputTokenMultiplier(v)
+		return nil
+	case group.FieldCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCacheCreationTokenMultiplier(v)
+		return nil
+	case group.FieldCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCacheReadTokenMultiplier(v)
+		return nil
+	case group.FieldHiddenInputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHiddenInputRateMultiplier(v)
+		return nil
+	case group.FieldHiddenOutputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHiddenOutputRateMultiplier(v)
+		return nil
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHiddenCacheCreationRateMultiplier(v)
+		return nil
+	case group.FieldHiddenCacheReadRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHiddenCacheReadRateMultiplier(v)
 		return nil
 	case group.FieldPeakRateMultiplier:
 		v, ok := value.(float64)
@@ -24827,6 +25574,30 @@ func (m *GroupMutation) ResetField(name string) error {
 		return nil
 	case group.FieldRateMultiplier:
 		m.ResetRateMultiplier()
+		return nil
+	case group.FieldInputTokenMultiplier:
+		m.ResetInputTokenMultiplier()
+		return nil
+	case group.FieldOutputTokenMultiplier:
+		m.ResetOutputTokenMultiplier()
+		return nil
+	case group.FieldCacheCreationTokenMultiplier:
+		m.ResetCacheCreationTokenMultiplier()
+		return nil
+	case group.FieldCacheReadTokenMultiplier:
+		m.ResetCacheReadTokenMultiplier()
+		return nil
+	case group.FieldHiddenInputRateMultiplier:
+		m.ResetHiddenInputRateMultiplier()
+		return nil
+	case group.FieldHiddenOutputRateMultiplier:
+		m.ResetHiddenOutputRateMultiplier()
+		return nil
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		m.ResetHiddenCacheCreationRateMultiplier()
+		return nil
+	case group.FieldHiddenCacheReadRateMultiplier:
+		m.ResetHiddenCacheReadRateMultiplier()
 		return nil
 	case group.FieldPeakRateEnabled:
 		m.ResetPeakRateEnabled()
@@ -27471,6 +28242,1453 @@ func (m *PaymentAuditLogMutation) ResetEdge(name string) error {
 	return fmt.Errorf("unknown PaymentAuditLog edge %s", name)
 }
 
+// PaymentInvoiceMutation represents an operation that mutates the PaymentInvoice nodes in the graph.
+type PaymentInvoiceMutation struct {
+	config
+	op               Op
+	typ              string
+	id               *int64
+	title_name       *string
+	tax_id           *string
+	status           *string
+	requested_at     *time.Time
+	issued_at        *time.Time
+	failed_at        *time.Time
+	failed_reason    *string
+	storage_provider *string
+	storage_key      *string
+	file_name        *string
+	content_type     *string
+	byte_size        *int64
+	addbyte_size     *int64
+	sha256           *string
+	created_at       *time.Time
+	updated_at       *time.Time
+	clearedFields    map[string]struct{}
+	orders           map[int64]struct{}
+	removedorders    map[int64]struct{}
+	clearedorders    bool
+	user             *int64
+	cleareduser      bool
+	done             bool
+	oldValue         func(context.Context) (*PaymentInvoice, error)
+	predicates       []predicate.PaymentInvoice
+}
+
+var _ ent.Mutation = (*PaymentInvoiceMutation)(nil)
+
+// paymentinvoiceOption allows management of the mutation configuration using functional options.
+type paymentinvoiceOption func(*PaymentInvoiceMutation)
+
+// newPaymentInvoiceMutation creates new mutation for the PaymentInvoice entity.
+func newPaymentInvoiceMutation(c config, op Op, opts ...paymentinvoiceOption) *PaymentInvoiceMutation {
+	m := &PaymentInvoiceMutation{
+		config:        c,
+		op:            op,
+		typ:           TypePaymentInvoice,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withPaymentInvoiceID sets the ID field of the mutation.
+func withPaymentInvoiceID(id int64) paymentinvoiceOption {
+	return func(m *PaymentInvoiceMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *PaymentInvoice
+		)
+		m.oldValue = func(ctx context.Context) (*PaymentInvoice, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().PaymentInvoice.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withPaymentInvoice sets the old PaymentInvoice of the mutation.
+func withPaymentInvoice(node *PaymentInvoice) paymentinvoiceOption {
+	return func(m *PaymentInvoiceMutation) {
+		m.oldValue = func(context.Context) (*PaymentInvoice, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m PaymentInvoiceMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m PaymentInvoiceMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("ent: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *PaymentInvoiceMutation) ID() (id int64, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *PaymentInvoiceMutation) IDs(ctx context.Context) ([]int64, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int64{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().PaymentInvoice.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetUserID sets the "user_id" field.
+func (m *PaymentInvoiceMutation) SetUserID(i int64) {
+	m.user = &i
+}
+
+// UserID returns the value of the "user_id" field in the mutation.
+func (m *PaymentInvoiceMutation) UserID() (r int64, exists bool) {
+	v := m.user
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUserID returns the old "user_id" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldUserID(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUserID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUserID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUserID: %w", err)
+	}
+	return oldValue.UserID, nil
+}
+
+// ResetUserID resets all changes to the "user_id" field.
+func (m *PaymentInvoiceMutation) ResetUserID() {
+	m.user = nil
+}
+
+// SetTitleName sets the "title_name" field.
+func (m *PaymentInvoiceMutation) SetTitleName(s string) {
+	m.title_name = &s
+}
+
+// TitleName returns the value of the "title_name" field in the mutation.
+func (m *PaymentInvoiceMutation) TitleName() (r string, exists bool) {
+	v := m.title_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTitleName returns the old "title_name" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldTitleName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTitleName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTitleName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTitleName: %w", err)
+	}
+	return oldValue.TitleName, nil
+}
+
+// ResetTitleName resets all changes to the "title_name" field.
+func (m *PaymentInvoiceMutation) ResetTitleName() {
+	m.title_name = nil
+}
+
+// SetTaxID sets the "tax_id" field.
+func (m *PaymentInvoiceMutation) SetTaxID(s string) {
+	m.tax_id = &s
+}
+
+// TaxID returns the value of the "tax_id" field in the mutation.
+func (m *PaymentInvoiceMutation) TaxID() (r string, exists bool) {
+	v := m.tax_id
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldTaxID returns the old "tax_id" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldTaxID(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldTaxID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldTaxID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldTaxID: %w", err)
+	}
+	return oldValue.TaxID, nil
+}
+
+// ResetTaxID resets all changes to the "tax_id" field.
+func (m *PaymentInvoiceMutation) ResetTaxID() {
+	m.tax_id = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *PaymentInvoiceMutation) SetStatus(s string) {
+	m.status = &s
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *PaymentInvoiceMutation) Status() (r string, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldStatus(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *PaymentInvoiceMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetRequestedAt sets the "requested_at" field.
+func (m *PaymentInvoiceMutation) SetRequestedAt(t time.Time) {
+	m.requested_at = &t
+}
+
+// RequestedAt returns the value of the "requested_at" field in the mutation.
+func (m *PaymentInvoiceMutation) RequestedAt() (r time.Time, exists bool) {
+	v := m.requested_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRequestedAt returns the old "requested_at" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldRequestedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRequestedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRequestedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRequestedAt: %w", err)
+	}
+	return oldValue.RequestedAt, nil
+}
+
+// ResetRequestedAt resets all changes to the "requested_at" field.
+func (m *PaymentInvoiceMutation) ResetRequestedAt() {
+	m.requested_at = nil
+}
+
+// SetIssuedAt sets the "issued_at" field.
+func (m *PaymentInvoiceMutation) SetIssuedAt(t time.Time) {
+	m.issued_at = &t
+}
+
+// IssuedAt returns the value of the "issued_at" field in the mutation.
+func (m *PaymentInvoiceMutation) IssuedAt() (r time.Time, exists bool) {
+	v := m.issued_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIssuedAt returns the old "issued_at" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldIssuedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIssuedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIssuedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIssuedAt: %w", err)
+	}
+	return oldValue.IssuedAt, nil
+}
+
+// ClearIssuedAt clears the value of the "issued_at" field.
+func (m *PaymentInvoiceMutation) ClearIssuedAt() {
+	m.issued_at = nil
+	m.clearedFields[paymentinvoice.FieldIssuedAt] = struct{}{}
+}
+
+// IssuedAtCleared returns if the "issued_at" field was cleared in this mutation.
+func (m *PaymentInvoiceMutation) IssuedAtCleared() bool {
+	_, ok := m.clearedFields[paymentinvoice.FieldIssuedAt]
+	return ok
+}
+
+// ResetIssuedAt resets all changes to the "issued_at" field.
+func (m *PaymentInvoiceMutation) ResetIssuedAt() {
+	m.issued_at = nil
+	delete(m.clearedFields, paymentinvoice.FieldIssuedAt)
+}
+
+// SetFailedAt sets the "failed_at" field.
+func (m *PaymentInvoiceMutation) SetFailedAt(t time.Time) {
+	m.failed_at = &t
+}
+
+// FailedAt returns the value of the "failed_at" field in the mutation.
+func (m *PaymentInvoiceMutation) FailedAt() (r time.Time, exists bool) {
+	v := m.failed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFailedAt returns the old "failed_at" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldFailedAt(ctx context.Context) (v *time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFailedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFailedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFailedAt: %w", err)
+	}
+	return oldValue.FailedAt, nil
+}
+
+// ClearFailedAt clears the value of the "failed_at" field.
+func (m *PaymentInvoiceMutation) ClearFailedAt() {
+	m.failed_at = nil
+	m.clearedFields[paymentinvoice.FieldFailedAt] = struct{}{}
+}
+
+// FailedAtCleared returns if the "failed_at" field was cleared in this mutation.
+func (m *PaymentInvoiceMutation) FailedAtCleared() bool {
+	_, ok := m.clearedFields[paymentinvoice.FieldFailedAt]
+	return ok
+}
+
+// ResetFailedAt resets all changes to the "failed_at" field.
+func (m *PaymentInvoiceMutation) ResetFailedAt() {
+	m.failed_at = nil
+	delete(m.clearedFields, paymentinvoice.FieldFailedAt)
+}
+
+// SetFailedReason sets the "failed_reason" field.
+func (m *PaymentInvoiceMutation) SetFailedReason(s string) {
+	m.failed_reason = &s
+}
+
+// FailedReason returns the value of the "failed_reason" field in the mutation.
+func (m *PaymentInvoiceMutation) FailedReason() (r string, exists bool) {
+	v := m.failed_reason
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFailedReason returns the old "failed_reason" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldFailedReason(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFailedReason is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFailedReason requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFailedReason: %w", err)
+	}
+	return oldValue.FailedReason, nil
+}
+
+// ClearFailedReason clears the value of the "failed_reason" field.
+func (m *PaymentInvoiceMutation) ClearFailedReason() {
+	m.failed_reason = nil
+	m.clearedFields[paymentinvoice.FieldFailedReason] = struct{}{}
+}
+
+// FailedReasonCleared returns if the "failed_reason" field was cleared in this mutation.
+func (m *PaymentInvoiceMutation) FailedReasonCleared() bool {
+	_, ok := m.clearedFields[paymentinvoice.FieldFailedReason]
+	return ok
+}
+
+// ResetFailedReason resets all changes to the "failed_reason" field.
+func (m *PaymentInvoiceMutation) ResetFailedReason() {
+	m.failed_reason = nil
+	delete(m.clearedFields, paymentinvoice.FieldFailedReason)
+}
+
+// SetStorageProvider sets the "storage_provider" field.
+func (m *PaymentInvoiceMutation) SetStorageProvider(s string) {
+	m.storage_provider = &s
+}
+
+// StorageProvider returns the value of the "storage_provider" field in the mutation.
+func (m *PaymentInvoiceMutation) StorageProvider() (r string, exists bool) {
+	v := m.storage_provider
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStorageProvider returns the old "storage_provider" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldStorageProvider(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStorageProvider is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStorageProvider requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStorageProvider: %w", err)
+	}
+	return oldValue.StorageProvider, nil
+}
+
+// ResetStorageProvider resets all changes to the "storage_provider" field.
+func (m *PaymentInvoiceMutation) ResetStorageProvider() {
+	m.storage_provider = nil
+}
+
+// SetStorageKey sets the "storage_key" field.
+func (m *PaymentInvoiceMutation) SetStorageKey(s string) {
+	m.storage_key = &s
+}
+
+// StorageKey returns the value of the "storage_key" field in the mutation.
+func (m *PaymentInvoiceMutation) StorageKey() (r string, exists bool) {
+	v := m.storage_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStorageKey returns the old "storage_key" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldStorageKey(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStorageKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStorageKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStorageKey: %w", err)
+	}
+	return oldValue.StorageKey, nil
+}
+
+// ClearStorageKey clears the value of the "storage_key" field.
+func (m *PaymentInvoiceMutation) ClearStorageKey() {
+	m.storage_key = nil
+	m.clearedFields[paymentinvoice.FieldStorageKey] = struct{}{}
+}
+
+// StorageKeyCleared returns if the "storage_key" field was cleared in this mutation.
+func (m *PaymentInvoiceMutation) StorageKeyCleared() bool {
+	_, ok := m.clearedFields[paymentinvoice.FieldStorageKey]
+	return ok
+}
+
+// ResetStorageKey resets all changes to the "storage_key" field.
+func (m *PaymentInvoiceMutation) ResetStorageKey() {
+	m.storage_key = nil
+	delete(m.clearedFields, paymentinvoice.FieldStorageKey)
+}
+
+// SetFileName sets the "file_name" field.
+func (m *PaymentInvoiceMutation) SetFileName(s string) {
+	m.file_name = &s
+}
+
+// FileName returns the value of the "file_name" field in the mutation.
+func (m *PaymentInvoiceMutation) FileName() (r string, exists bool) {
+	v := m.file_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFileName returns the old "file_name" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldFileName(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFileName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFileName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFileName: %w", err)
+	}
+	return oldValue.FileName, nil
+}
+
+// ClearFileName clears the value of the "file_name" field.
+func (m *PaymentInvoiceMutation) ClearFileName() {
+	m.file_name = nil
+	m.clearedFields[paymentinvoice.FieldFileName] = struct{}{}
+}
+
+// FileNameCleared returns if the "file_name" field was cleared in this mutation.
+func (m *PaymentInvoiceMutation) FileNameCleared() bool {
+	_, ok := m.clearedFields[paymentinvoice.FieldFileName]
+	return ok
+}
+
+// ResetFileName resets all changes to the "file_name" field.
+func (m *PaymentInvoiceMutation) ResetFileName() {
+	m.file_name = nil
+	delete(m.clearedFields, paymentinvoice.FieldFileName)
+}
+
+// SetContentType sets the "content_type" field.
+func (m *PaymentInvoiceMutation) SetContentType(s string) {
+	m.content_type = &s
+}
+
+// ContentType returns the value of the "content_type" field in the mutation.
+func (m *PaymentInvoiceMutation) ContentType() (r string, exists bool) {
+	v := m.content_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldContentType returns the old "content_type" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldContentType(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldContentType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldContentType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldContentType: %w", err)
+	}
+	return oldValue.ContentType, nil
+}
+
+// ClearContentType clears the value of the "content_type" field.
+func (m *PaymentInvoiceMutation) ClearContentType() {
+	m.content_type = nil
+	m.clearedFields[paymentinvoice.FieldContentType] = struct{}{}
+}
+
+// ContentTypeCleared returns if the "content_type" field was cleared in this mutation.
+func (m *PaymentInvoiceMutation) ContentTypeCleared() bool {
+	_, ok := m.clearedFields[paymentinvoice.FieldContentType]
+	return ok
+}
+
+// ResetContentType resets all changes to the "content_type" field.
+func (m *PaymentInvoiceMutation) ResetContentType() {
+	m.content_type = nil
+	delete(m.clearedFields, paymentinvoice.FieldContentType)
+}
+
+// SetByteSize sets the "byte_size" field.
+func (m *PaymentInvoiceMutation) SetByteSize(i int64) {
+	m.byte_size = &i
+	m.addbyte_size = nil
+}
+
+// ByteSize returns the value of the "byte_size" field in the mutation.
+func (m *PaymentInvoiceMutation) ByteSize() (r int64, exists bool) {
+	v := m.byte_size
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldByteSize returns the old "byte_size" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldByteSize(ctx context.Context) (v int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldByteSize is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldByteSize requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldByteSize: %w", err)
+	}
+	return oldValue.ByteSize, nil
+}
+
+// AddByteSize adds i to the "byte_size" field.
+func (m *PaymentInvoiceMutation) AddByteSize(i int64) {
+	if m.addbyte_size != nil {
+		*m.addbyte_size += i
+	} else {
+		m.addbyte_size = &i
+	}
+}
+
+// AddedByteSize returns the value that was added to the "byte_size" field in this mutation.
+func (m *PaymentInvoiceMutation) AddedByteSize() (r int64, exists bool) {
+	v := m.addbyte_size
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetByteSize resets all changes to the "byte_size" field.
+func (m *PaymentInvoiceMutation) ResetByteSize() {
+	m.byte_size = nil
+	m.addbyte_size = nil
+}
+
+// SetSha256 sets the "sha256" field.
+func (m *PaymentInvoiceMutation) SetSha256(s string) {
+	m.sha256 = &s
+}
+
+// Sha256 returns the value of the "sha256" field in the mutation.
+func (m *PaymentInvoiceMutation) Sha256() (r string, exists bool) {
+	v := m.sha256
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSha256 returns the old "sha256" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldSha256(ctx context.Context) (v *string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSha256 is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSha256 requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSha256: %w", err)
+	}
+	return oldValue.Sha256, nil
+}
+
+// ClearSha256 clears the value of the "sha256" field.
+func (m *PaymentInvoiceMutation) ClearSha256() {
+	m.sha256 = nil
+	m.clearedFields[paymentinvoice.FieldSha256] = struct{}{}
+}
+
+// Sha256Cleared returns if the "sha256" field was cleared in this mutation.
+func (m *PaymentInvoiceMutation) Sha256Cleared() bool {
+	_, ok := m.clearedFields[paymentinvoice.FieldSha256]
+	return ok
+}
+
+// ResetSha256 resets all changes to the "sha256" field.
+func (m *PaymentInvoiceMutation) ResetSha256() {
+	m.sha256 = nil
+	delete(m.clearedFields, paymentinvoice.FieldSha256)
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *PaymentInvoiceMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *PaymentInvoiceMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *PaymentInvoiceMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetUpdatedAt sets the "updated_at" field.
+func (m *PaymentInvoiceMutation) SetUpdatedAt(t time.Time) {
+	m.updated_at = &t
+}
+
+// UpdatedAt returns the value of the "updated_at" field in the mutation.
+func (m *PaymentInvoiceMutation) UpdatedAt() (r time.Time, exists bool) {
+	v := m.updated_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUpdatedAt returns the old "updated_at" field's value of the PaymentInvoice entity.
+// If the PaymentInvoice object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentInvoiceMutation) OldUpdatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUpdatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUpdatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUpdatedAt: %w", err)
+	}
+	return oldValue.UpdatedAt, nil
+}
+
+// ResetUpdatedAt resets all changes to the "updated_at" field.
+func (m *PaymentInvoiceMutation) ResetUpdatedAt() {
+	m.updated_at = nil
+}
+
+// AddOrderIDs adds the "orders" edge to the PaymentOrder entity by ids.
+func (m *PaymentInvoiceMutation) AddOrderIDs(ids ...int64) {
+	if m.orders == nil {
+		m.orders = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.orders[ids[i]] = struct{}{}
+	}
+}
+
+// ClearOrders clears the "orders" edge to the PaymentOrder entity.
+func (m *PaymentInvoiceMutation) ClearOrders() {
+	m.clearedorders = true
+}
+
+// OrdersCleared reports if the "orders" edge to the PaymentOrder entity was cleared.
+func (m *PaymentInvoiceMutation) OrdersCleared() bool {
+	return m.clearedorders
+}
+
+// RemoveOrderIDs removes the "orders" edge to the PaymentOrder entity by IDs.
+func (m *PaymentInvoiceMutation) RemoveOrderIDs(ids ...int64) {
+	if m.removedorders == nil {
+		m.removedorders = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.orders, ids[i])
+		m.removedorders[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedOrders returns the removed IDs of the "orders" edge to the PaymentOrder entity.
+func (m *PaymentInvoiceMutation) RemovedOrdersIDs() (ids []int64) {
+	for id := range m.removedorders {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// OrdersIDs returns the "orders" edge IDs in the mutation.
+func (m *PaymentInvoiceMutation) OrdersIDs() (ids []int64) {
+	for id := range m.orders {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetOrders resets all changes to the "orders" edge.
+func (m *PaymentInvoiceMutation) ResetOrders() {
+	m.orders = nil
+	m.clearedorders = false
+	m.removedorders = nil
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (m *PaymentInvoiceMutation) ClearUser() {
+	m.cleareduser = true
+	m.clearedFields[paymentinvoice.FieldUserID] = struct{}{}
+}
+
+// UserCleared reports if the "user" edge to the User entity was cleared.
+func (m *PaymentInvoiceMutation) UserCleared() bool {
+	return m.cleareduser
+}
+
+// UserIDs returns the "user" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UserID instead. It exists only for internal usage by the builders.
+func (m *PaymentInvoiceMutation) UserIDs() (ids []int64) {
+	if id := m.user; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUser resets all changes to the "user" edge.
+func (m *PaymentInvoiceMutation) ResetUser() {
+	m.user = nil
+	m.cleareduser = false
+}
+
+// Where appends a list predicates to the PaymentInvoiceMutation builder.
+func (m *PaymentInvoiceMutation) Where(ps ...predicate.PaymentInvoice) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the PaymentInvoiceMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *PaymentInvoiceMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.PaymentInvoice, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *PaymentInvoiceMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *PaymentInvoiceMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (PaymentInvoice).
+func (m *PaymentInvoiceMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *PaymentInvoiceMutation) Fields() []string {
+	fields := make([]string, 0, 16)
+	if m.user != nil {
+		fields = append(fields, paymentinvoice.FieldUserID)
+	}
+	if m.title_name != nil {
+		fields = append(fields, paymentinvoice.FieldTitleName)
+	}
+	if m.tax_id != nil {
+		fields = append(fields, paymentinvoice.FieldTaxID)
+	}
+	if m.status != nil {
+		fields = append(fields, paymentinvoice.FieldStatus)
+	}
+	if m.requested_at != nil {
+		fields = append(fields, paymentinvoice.FieldRequestedAt)
+	}
+	if m.issued_at != nil {
+		fields = append(fields, paymentinvoice.FieldIssuedAt)
+	}
+	if m.failed_at != nil {
+		fields = append(fields, paymentinvoice.FieldFailedAt)
+	}
+	if m.failed_reason != nil {
+		fields = append(fields, paymentinvoice.FieldFailedReason)
+	}
+	if m.storage_provider != nil {
+		fields = append(fields, paymentinvoice.FieldStorageProvider)
+	}
+	if m.storage_key != nil {
+		fields = append(fields, paymentinvoice.FieldStorageKey)
+	}
+	if m.file_name != nil {
+		fields = append(fields, paymentinvoice.FieldFileName)
+	}
+	if m.content_type != nil {
+		fields = append(fields, paymentinvoice.FieldContentType)
+	}
+	if m.byte_size != nil {
+		fields = append(fields, paymentinvoice.FieldByteSize)
+	}
+	if m.sha256 != nil {
+		fields = append(fields, paymentinvoice.FieldSha256)
+	}
+	if m.created_at != nil {
+		fields = append(fields, paymentinvoice.FieldCreatedAt)
+	}
+	if m.updated_at != nil {
+		fields = append(fields, paymentinvoice.FieldUpdatedAt)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *PaymentInvoiceMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case paymentinvoice.FieldUserID:
+		return m.UserID()
+	case paymentinvoice.FieldTitleName:
+		return m.TitleName()
+	case paymentinvoice.FieldTaxID:
+		return m.TaxID()
+	case paymentinvoice.FieldStatus:
+		return m.Status()
+	case paymentinvoice.FieldRequestedAt:
+		return m.RequestedAt()
+	case paymentinvoice.FieldIssuedAt:
+		return m.IssuedAt()
+	case paymentinvoice.FieldFailedAt:
+		return m.FailedAt()
+	case paymentinvoice.FieldFailedReason:
+		return m.FailedReason()
+	case paymentinvoice.FieldStorageProvider:
+		return m.StorageProvider()
+	case paymentinvoice.FieldStorageKey:
+		return m.StorageKey()
+	case paymentinvoice.FieldFileName:
+		return m.FileName()
+	case paymentinvoice.FieldContentType:
+		return m.ContentType()
+	case paymentinvoice.FieldByteSize:
+		return m.ByteSize()
+	case paymentinvoice.FieldSha256:
+		return m.Sha256()
+	case paymentinvoice.FieldCreatedAt:
+		return m.CreatedAt()
+	case paymentinvoice.FieldUpdatedAt:
+		return m.UpdatedAt()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *PaymentInvoiceMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case paymentinvoice.FieldUserID:
+		return m.OldUserID(ctx)
+	case paymentinvoice.FieldTitleName:
+		return m.OldTitleName(ctx)
+	case paymentinvoice.FieldTaxID:
+		return m.OldTaxID(ctx)
+	case paymentinvoice.FieldStatus:
+		return m.OldStatus(ctx)
+	case paymentinvoice.FieldRequestedAt:
+		return m.OldRequestedAt(ctx)
+	case paymentinvoice.FieldIssuedAt:
+		return m.OldIssuedAt(ctx)
+	case paymentinvoice.FieldFailedAt:
+		return m.OldFailedAt(ctx)
+	case paymentinvoice.FieldFailedReason:
+		return m.OldFailedReason(ctx)
+	case paymentinvoice.FieldStorageProvider:
+		return m.OldStorageProvider(ctx)
+	case paymentinvoice.FieldStorageKey:
+		return m.OldStorageKey(ctx)
+	case paymentinvoice.FieldFileName:
+		return m.OldFileName(ctx)
+	case paymentinvoice.FieldContentType:
+		return m.OldContentType(ctx)
+	case paymentinvoice.FieldByteSize:
+		return m.OldByteSize(ctx)
+	case paymentinvoice.FieldSha256:
+		return m.OldSha256(ctx)
+	case paymentinvoice.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case paymentinvoice.FieldUpdatedAt:
+		return m.OldUpdatedAt(ctx)
+	}
+	return nil, fmt.Errorf("unknown PaymentInvoice field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PaymentInvoiceMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case paymentinvoice.FieldUserID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUserID(v)
+		return nil
+	case paymentinvoice.FieldTitleName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTitleName(v)
+		return nil
+	case paymentinvoice.FieldTaxID:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetTaxID(v)
+		return nil
+	case paymentinvoice.FieldStatus:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case paymentinvoice.FieldRequestedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRequestedAt(v)
+		return nil
+	case paymentinvoice.FieldIssuedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIssuedAt(v)
+		return nil
+	case paymentinvoice.FieldFailedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFailedAt(v)
+		return nil
+	case paymentinvoice.FieldFailedReason:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFailedReason(v)
+		return nil
+	case paymentinvoice.FieldStorageProvider:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStorageProvider(v)
+		return nil
+	case paymentinvoice.FieldStorageKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStorageKey(v)
+		return nil
+	case paymentinvoice.FieldFileName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFileName(v)
+		return nil
+	case paymentinvoice.FieldContentType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetContentType(v)
+		return nil
+	case paymentinvoice.FieldByteSize:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetByteSize(v)
+		return nil
+	case paymentinvoice.FieldSha256:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSha256(v)
+		return nil
+	case paymentinvoice.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case paymentinvoice.FieldUpdatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUpdatedAt(v)
+		return nil
+	}
+	return fmt.Errorf("unknown PaymentInvoice field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *PaymentInvoiceMutation) AddedFields() []string {
+	var fields []string
+	if m.addbyte_size != nil {
+		fields = append(fields, paymentinvoice.FieldByteSize)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *PaymentInvoiceMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case paymentinvoice.FieldByteSize:
+		return m.AddedByteSize()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *PaymentInvoiceMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case paymentinvoice.FieldByteSize:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddByteSize(v)
+		return nil
+	}
+	return fmt.Errorf("unknown PaymentInvoice numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *PaymentInvoiceMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(paymentinvoice.FieldIssuedAt) {
+		fields = append(fields, paymentinvoice.FieldIssuedAt)
+	}
+	if m.FieldCleared(paymentinvoice.FieldFailedAt) {
+		fields = append(fields, paymentinvoice.FieldFailedAt)
+	}
+	if m.FieldCleared(paymentinvoice.FieldFailedReason) {
+		fields = append(fields, paymentinvoice.FieldFailedReason)
+	}
+	if m.FieldCleared(paymentinvoice.FieldStorageKey) {
+		fields = append(fields, paymentinvoice.FieldStorageKey)
+	}
+	if m.FieldCleared(paymentinvoice.FieldFileName) {
+		fields = append(fields, paymentinvoice.FieldFileName)
+	}
+	if m.FieldCleared(paymentinvoice.FieldContentType) {
+		fields = append(fields, paymentinvoice.FieldContentType)
+	}
+	if m.FieldCleared(paymentinvoice.FieldSha256) {
+		fields = append(fields, paymentinvoice.FieldSha256)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *PaymentInvoiceMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *PaymentInvoiceMutation) ClearField(name string) error {
+	switch name {
+	case paymentinvoice.FieldIssuedAt:
+		m.ClearIssuedAt()
+		return nil
+	case paymentinvoice.FieldFailedAt:
+		m.ClearFailedAt()
+		return nil
+	case paymentinvoice.FieldFailedReason:
+		m.ClearFailedReason()
+		return nil
+	case paymentinvoice.FieldStorageKey:
+		m.ClearStorageKey()
+		return nil
+	case paymentinvoice.FieldFileName:
+		m.ClearFileName()
+		return nil
+	case paymentinvoice.FieldContentType:
+		m.ClearContentType()
+		return nil
+	case paymentinvoice.FieldSha256:
+		m.ClearSha256()
+		return nil
+	}
+	return fmt.Errorf("unknown PaymentInvoice nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *PaymentInvoiceMutation) ResetField(name string) error {
+	switch name {
+	case paymentinvoice.FieldUserID:
+		m.ResetUserID()
+		return nil
+	case paymentinvoice.FieldTitleName:
+		m.ResetTitleName()
+		return nil
+	case paymentinvoice.FieldTaxID:
+		m.ResetTaxID()
+		return nil
+	case paymentinvoice.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case paymentinvoice.FieldRequestedAt:
+		m.ResetRequestedAt()
+		return nil
+	case paymentinvoice.FieldIssuedAt:
+		m.ResetIssuedAt()
+		return nil
+	case paymentinvoice.FieldFailedAt:
+		m.ResetFailedAt()
+		return nil
+	case paymentinvoice.FieldFailedReason:
+		m.ResetFailedReason()
+		return nil
+	case paymentinvoice.FieldStorageProvider:
+		m.ResetStorageProvider()
+		return nil
+	case paymentinvoice.FieldStorageKey:
+		m.ResetStorageKey()
+		return nil
+	case paymentinvoice.FieldFileName:
+		m.ResetFileName()
+		return nil
+	case paymentinvoice.FieldContentType:
+		m.ResetContentType()
+		return nil
+	case paymentinvoice.FieldByteSize:
+		m.ResetByteSize()
+		return nil
+	case paymentinvoice.FieldSha256:
+		m.ResetSha256()
+		return nil
+	case paymentinvoice.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case paymentinvoice.FieldUpdatedAt:
+		m.ResetUpdatedAt()
+		return nil
+	}
+	return fmt.Errorf("unknown PaymentInvoice field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *PaymentInvoiceMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.orders != nil {
+		edges = append(edges, paymentinvoice.EdgeOrders)
+	}
+	if m.user != nil {
+		edges = append(edges, paymentinvoice.EdgeUser)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *PaymentInvoiceMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case paymentinvoice.EdgeOrders:
+		ids := make([]ent.Value, 0, len(m.orders))
+		for id := range m.orders {
+			ids = append(ids, id)
+		}
+		return ids
+	case paymentinvoice.EdgeUser:
+		if id := m.user; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *PaymentInvoiceMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedorders != nil {
+		edges = append(edges, paymentinvoice.EdgeOrders)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *PaymentInvoiceMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case paymentinvoice.EdgeOrders:
+		ids := make([]ent.Value, 0, len(m.removedorders))
+		for id := range m.removedorders {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *PaymentInvoiceMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedorders {
+		edges = append(edges, paymentinvoice.EdgeOrders)
+	}
+	if m.cleareduser {
+		edges = append(edges, paymentinvoice.EdgeUser)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *PaymentInvoiceMutation) EdgeCleared(name string) bool {
+	switch name {
+	case paymentinvoice.EdgeOrders:
+		return m.clearedorders
+	case paymentinvoice.EdgeUser:
+		return m.cleareduser
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *PaymentInvoiceMutation) ClearEdge(name string) error {
+	switch name {
+	case paymentinvoice.EdgeUser:
+		m.ClearUser()
+		return nil
+	}
+	return fmt.Errorf("unknown PaymentInvoice unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *PaymentInvoiceMutation) ResetEdge(name string) error {
+	switch name {
+	case paymentinvoice.EdgeOrders:
+		m.ResetOrders()
+		return nil
+	case paymentinvoice.EdgeUser:
+		m.ResetUser()
+		return nil
+	}
+	return fmt.Errorf("unknown PaymentInvoice edge %s", name)
+}
+
 // PaymentOrderMutation represents an operation that mutates the PaymentOrder nodes in the graph.
 type PaymentOrderMutation struct {
 	config
@@ -27525,6 +29743,8 @@ type PaymentOrderMutation struct {
 	clearedFields            map[string]struct{}
 	user                     *int64
 	cleareduser              bool
+	invoice                  *int64
+	clearedinvoice           bool
 	done                     bool
 	oldValue                 func(context.Context) (*PaymentOrder, error)
 	predicates               []predicate.PaymentOrder
@@ -28637,6 +30857,55 @@ func (m *PaymentOrderMutation) ResetProviderSnapshot() {
 	delete(m.clearedFields, paymentorder.FieldProviderSnapshot)
 }
 
+// SetInvoiceID sets the "invoice_id" field.
+func (m *PaymentOrderMutation) SetInvoiceID(i int64) {
+	m.invoice = &i
+}
+
+// InvoiceID returns the value of the "invoice_id" field in the mutation.
+func (m *PaymentOrderMutation) InvoiceID() (r int64, exists bool) {
+	v := m.invoice
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInvoiceID returns the old "invoice_id" field's value of the PaymentOrder entity.
+// If the PaymentOrder object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *PaymentOrderMutation) OldInvoiceID(ctx context.Context) (v *int64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInvoiceID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInvoiceID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInvoiceID: %w", err)
+	}
+	return oldValue.InvoiceID, nil
+}
+
+// ClearInvoiceID clears the value of the "invoice_id" field.
+func (m *PaymentOrderMutation) ClearInvoiceID() {
+	m.invoice = nil
+	m.clearedFields[paymentorder.FieldInvoiceID] = struct{}{}
+}
+
+// InvoiceIDCleared returns if the "invoice_id" field was cleared in this mutation.
+func (m *PaymentOrderMutation) InvoiceIDCleared() bool {
+	_, ok := m.clearedFields[paymentorder.FieldInvoiceID]
+	return ok
+}
+
+// ResetInvoiceID resets all changes to the "invoice_id" field.
+func (m *PaymentOrderMutation) ResetInvoiceID() {
+	m.invoice = nil
+	delete(m.clearedFields, paymentorder.FieldInvoiceID)
+}
+
 // SetStatus sets the "status" field.
 func (m *PaymentOrderMutation) SetStatus(s string) {
 	m.status = &s
@@ -29462,6 +31731,33 @@ func (m *PaymentOrderMutation) ResetUser() {
 	m.cleareduser = false
 }
 
+// ClearInvoice clears the "invoice" edge to the PaymentInvoice entity.
+func (m *PaymentOrderMutation) ClearInvoice() {
+	m.clearedinvoice = true
+	m.clearedFields[paymentorder.FieldInvoiceID] = struct{}{}
+}
+
+// InvoiceCleared reports if the "invoice" edge to the PaymentInvoice entity was cleared.
+func (m *PaymentOrderMutation) InvoiceCleared() bool {
+	return m.InvoiceIDCleared() || m.clearedinvoice
+}
+
+// InvoiceIDs returns the "invoice" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// InvoiceID instead. It exists only for internal usage by the builders.
+func (m *PaymentOrderMutation) InvoiceIDs() (ids []int64) {
+	if id := m.invoice; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetInvoice resets all changes to the "invoice" edge.
+func (m *PaymentOrderMutation) ResetInvoice() {
+	m.invoice = nil
+	m.clearedinvoice = false
+}
+
 // Where appends a list predicates to the PaymentOrderMutation builder.
 func (m *PaymentOrderMutation) Where(ps ...predicate.PaymentOrder) {
 	m.predicates = append(m.predicates, ps...)
@@ -29496,7 +31792,7 @@ func (m *PaymentOrderMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *PaymentOrderMutation) Fields() []string {
-	fields := make([]string, 0, 39)
+	fields := make([]string, 0, 40)
 	if m.user != nil {
 		fields = append(fields, paymentorder.FieldUserID)
 	}
@@ -29559,6 +31855,9 @@ func (m *PaymentOrderMutation) Fields() []string {
 	}
 	if m.provider_snapshot != nil {
 		fields = append(fields, paymentorder.FieldProviderSnapshot)
+	}
+	if m.invoice != nil {
+		fields = append(fields, paymentorder.FieldInvoiceID)
 	}
 	if m.status != nil {
 		fields = append(fields, paymentorder.FieldStatus)
@@ -29664,6 +31963,8 @@ func (m *PaymentOrderMutation) Field(name string) (ent.Value, bool) {
 		return m.ProviderKey()
 	case paymentorder.FieldProviderSnapshot:
 		return m.ProviderSnapshot()
+	case paymentorder.FieldInvoiceID:
+		return m.InvoiceID()
 	case paymentorder.FieldStatus:
 		return m.Status()
 	case paymentorder.FieldRefundAmount:
@@ -29751,6 +32052,8 @@ func (m *PaymentOrderMutation) OldField(ctx context.Context, name string) (ent.V
 		return m.OldProviderKey(ctx)
 	case paymentorder.FieldProviderSnapshot:
 		return m.OldProviderSnapshot(ctx)
+	case paymentorder.FieldInvoiceID:
+		return m.OldInvoiceID(ctx)
 	case paymentorder.FieldStatus:
 		return m.OldStatus(ctx)
 	case paymentorder.FieldRefundAmount:
@@ -29942,6 +32245,13 @@ func (m *PaymentOrderMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetProviderSnapshot(v)
+		return nil
+	case paymentorder.FieldInvoiceID:
+		v, ok := value.(int64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInvoiceID(v)
 		return nil
 	case paymentorder.FieldStatus:
 		v, ok := value.(string)
@@ -30216,6 +32526,9 @@ func (m *PaymentOrderMutation) ClearedFields() []string {
 	if m.FieldCleared(paymentorder.FieldProviderSnapshot) {
 		fields = append(fields, paymentorder.FieldProviderSnapshot)
 	}
+	if m.FieldCleared(paymentorder.FieldInvoiceID) {
+		fields = append(fields, paymentorder.FieldInvoiceID)
+	}
 	if m.FieldCleared(paymentorder.FieldRefundReason) {
 		fields = append(fields, paymentorder.FieldRefundReason)
 	}
@@ -30289,6 +32602,9 @@ func (m *PaymentOrderMutation) ClearField(name string) error {
 		return nil
 	case paymentorder.FieldProviderSnapshot:
 		m.ClearProviderSnapshot()
+		return nil
+	case paymentorder.FieldInvoiceID:
+		m.ClearInvoiceID()
 		return nil
 	case paymentorder.FieldRefundReason:
 		m.ClearRefundReason()
@@ -30391,6 +32707,9 @@ func (m *PaymentOrderMutation) ResetField(name string) error {
 	case paymentorder.FieldProviderSnapshot:
 		m.ResetProviderSnapshot()
 		return nil
+	case paymentorder.FieldInvoiceID:
+		m.ResetInvoiceID()
+		return nil
 	case paymentorder.FieldStatus:
 		m.ResetStatus()
 		return nil
@@ -30451,9 +32770,12 @@ func (m *PaymentOrderMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *PaymentOrderMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.user != nil {
 		edges = append(edges, paymentorder.EdgeUser)
+	}
+	if m.invoice != nil {
+		edges = append(edges, paymentorder.EdgeInvoice)
 	}
 	return edges
 }
@@ -30466,13 +32788,17 @@ func (m *PaymentOrderMutation) AddedIDs(name string) []ent.Value {
 		if id := m.user; id != nil {
 			return []ent.Value{*id}
 		}
+	case paymentorder.EdgeInvoice:
+		if id := m.invoice; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *PaymentOrderMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	return edges
 }
 
@@ -30484,9 +32810,12 @@ func (m *PaymentOrderMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *PaymentOrderMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.cleareduser {
 		edges = append(edges, paymentorder.EdgeUser)
+	}
+	if m.clearedinvoice {
+		edges = append(edges, paymentorder.EdgeInvoice)
 	}
 	return edges
 }
@@ -30497,6 +32826,8 @@ func (m *PaymentOrderMutation) EdgeCleared(name string) bool {
 	switch name {
 	case paymentorder.EdgeUser:
 		return m.cleareduser
+	case paymentorder.EdgeInvoice:
+		return m.clearedinvoice
 	}
 	return false
 }
@@ -30508,6 +32839,9 @@ func (m *PaymentOrderMutation) ClearEdge(name string) error {
 	case paymentorder.EdgeUser:
 		m.ClearUser()
 		return nil
+	case paymentorder.EdgeInvoice:
+		m.ClearInvoice()
+		return nil
 	}
 	return fmt.Errorf("unknown PaymentOrder unique edge %s", name)
 }
@@ -30518,6 +32852,9 @@ func (m *PaymentOrderMutation) ResetEdge(name string) error {
 	switch name {
 	case paymentorder.EdgeUser:
 		m.ResetUser()
+		return nil
+	case paymentorder.EdgeInvoice:
+		m.ResetInvoice()
 		return nil
 	}
 	return fmt.Errorf("unknown PaymentOrder edge %s", name)
@@ -41763,83 +44100,116 @@ func (m *UsageCleanupTaskMutation) ResetEdge(name string) error {
 // UsageLogMutation represents an operation that mutates the UsageLog nodes in the graph.
 type UsageLogMutation struct {
 	config
-	op                          Op
-	typ                         string
-	id                          *int64
-	request_id                  *string
-	model                       *string
-	requested_model             *string
-	upstream_model              *string
-	channel_id                  *int64
-	addchannel_id               *int64
-	model_mapping_chain         *string
-	billing_tier                *string
-	billing_mode                *string
-	input_tokens                *int
-	addinput_tokens             *int
-	output_tokens               *int
-	addoutput_tokens            *int
-	cache_creation_tokens       *int
-	addcache_creation_tokens    *int
-	cache_read_tokens           *int
-	addcache_read_tokens        *int
-	cache_creation_5m_tokens    *int
-	addcache_creation_5m_tokens *int
-	cache_creation_1h_tokens    *int
-	addcache_creation_1h_tokens *int
-	input_cost                  *float64
-	addinput_cost               *float64
-	output_cost                 *float64
-	addoutput_cost              *float64
-	cache_creation_cost         *float64
-	addcache_creation_cost      *float64
-	cache_read_cost             *float64
-	addcache_read_cost          *float64
-	total_cost                  *float64
-	addtotal_cost               *float64
-	actual_cost                 *float64
-	addactual_cost              *float64
-	rate_multiplier             *float64
-	addrate_multiplier          *float64
-	account_rate_multiplier     *float64
-	addaccount_rate_multiplier  *float64
-	billing_type                *int8
-	addbilling_type             *int8
-	stream                      *bool
-	duration_ms                 *int
-	addduration_ms              *int
-	first_token_ms              *int
-	addfirst_token_ms           *int
-	user_agent                  *string
-	ip_address                  *string
-	image_count                 *int
-	addimage_count              *int
-	image_size                  *string
-	image_input_size            *string
-	image_output_size           *string
-	image_size_source           *string
-	image_size_breakdown        *map[string]int
-	video_count                 *int
-	addvideo_count              *int
-	video_resolution            *string
-	video_duration_seconds      *int
-	addvideo_duration_seconds   *int
-	cache_ttl_overridden        *bool
-	created_at                  *time.Time
-	clearedFields               map[string]struct{}
-	user                        *int64
-	cleareduser                 bool
-	api_key                     *int64
-	clearedapi_key              bool
-	account                     *int64
-	clearedaccount              bool
-	group                       *int64
-	clearedgroup                bool
-	subscription                *int64
-	clearedsubscription         bool
-	done                        bool
-	oldValue                    func(context.Context) (*UsageLog, error)
-	predicates                  []predicate.UsageLog
+	op                                             Op
+	typ                                            string
+	id                                             *int64
+	request_id                                     *string
+	model                                          *string
+	requested_model                                *string
+	upstream_model                                 *string
+	channel_id                                     *int64
+	addchannel_id                                  *int64
+	model_mapping_chain                            *string
+	billing_tier                                   *string
+	billing_mode                                   *string
+	input_tokens                                   *int
+	addinput_tokens                                *int
+	output_tokens                                  *int
+	addoutput_tokens                               *int
+	cache_creation_tokens                          *int
+	addcache_creation_tokens                       *int
+	cache_read_tokens                              *int
+	addcache_read_tokens                           *int
+	cache_creation_5m_tokens                       *int
+	addcache_creation_5m_tokens                    *int
+	cache_creation_1h_tokens                       *int
+	addcache_creation_1h_tokens                    *int
+	raw_input_tokens                               *int
+	addraw_input_tokens                            *int
+	raw_output_tokens                              *int
+	addraw_output_tokens                           *int
+	raw_cache_creation_tokens                      *int
+	addraw_cache_creation_tokens                   *int
+	raw_cache_read_tokens                          *int
+	addraw_cache_read_tokens                       *int
+	group_input_token_multiplier                   *float64
+	addgroup_input_token_multiplier                *float64
+	group_output_token_multiplier                  *float64
+	addgroup_output_token_multiplier               *float64
+	group_cache_creation_token_multiplier          *float64
+	addgroup_cache_creation_token_multiplier       *float64
+	group_cache_read_token_multiplier              *float64
+	addgroup_cache_read_token_multiplier           *float64
+	group_hidden_input_rate_multiplier             *float64
+	addgroup_hidden_input_rate_multiplier          *float64
+	group_hidden_output_rate_multiplier            *float64
+	addgroup_hidden_output_rate_multiplier         *float64
+	group_hidden_cache_creation_rate_multiplier    *float64
+	addgroup_hidden_cache_creation_rate_multiplier *float64
+	group_hidden_cache_read_rate_multiplier        *float64
+	addgroup_hidden_cache_read_rate_multiplier     *float64
+	account_input_token_multiplier                 *float64
+	addaccount_input_token_multiplier              *float64
+	account_output_token_multiplier                *float64
+	addaccount_output_token_multiplier             *float64
+	account_cache_creation_token_multiplier        *float64
+	addaccount_cache_creation_token_multiplier     *float64
+	account_cache_read_token_multiplier            *float64
+	addaccount_cache_read_token_multiplier         *float64
+	multiplier_snapshot                            *map[string]interface{}
+	input_cost                                     *float64
+	addinput_cost                                  *float64
+	output_cost                                    *float64
+	addoutput_cost                                 *float64
+	cache_creation_cost                            *float64
+	addcache_creation_cost                         *float64
+	cache_read_cost                                *float64
+	addcache_read_cost                             *float64
+	total_cost                                     *float64
+	addtotal_cost                                  *float64
+	actual_cost                                    *float64
+	addactual_cost                                 *float64
+	rate_multiplier                                *float64
+	addrate_multiplier                             *float64
+	account_rate_multiplier                        *float64
+	addaccount_rate_multiplier                     *float64
+	billing_type                                   *int8
+	addbilling_type                                *int8
+	stream                                         *bool
+	duration_ms                                    *int
+	addduration_ms                                 *int
+	first_token_ms                                 *int
+	addfirst_token_ms                              *int
+	user_agent                                     *string
+	ip_address                                     *string
+	image_count                                    *int
+	addimage_count                                 *int
+	image_size                                     *string
+	image_input_size                               *string
+	image_output_size                              *string
+	image_size_source                              *string
+	image_size_breakdown                           *map[string]int
+	video_count                                    *int
+	addvideo_count                                 *int
+	video_resolution                               *string
+	video_duration_seconds                         *int
+	addvideo_duration_seconds                      *int
+	cache_ttl_overridden                           *bool
+	created_at                                     *time.Time
+	clearedFields                                  map[string]struct{}
+	user                                           *int64
+	cleareduser                                    bool
+	api_key                                        *int64
+	clearedapi_key                                 bool
+	account                                        *int64
+	clearedaccount                                 bool
+	group                                          *int64
+	clearedgroup                                   bool
+	subscription                                   *int64
+	clearedsubscription                            bool
+	done                                           bool
+	oldValue                                       func(context.Context) (*UsageLog, error)
+	predicates                                     []predicate.UsageLog
 }
 
 var _ ent.Mutation = (*UsageLogMutation)(nil)
@@ -42867,6 +45237,938 @@ func (m *UsageLogMutation) AddedCacheCreation1hTokens() (r int, exists bool) {
 func (m *UsageLogMutation) ResetCacheCreation1hTokens() {
 	m.cache_creation_1h_tokens = nil
 	m.addcache_creation_1h_tokens = nil
+}
+
+// SetRawInputTokens sets the "raw_input_tokens" field.
+func (m *UsageLogMutation) SetRawInputTokens(i int) {
+	m.raw_input_tokens = &i
+	m.addraw_input_tokens = nil
+}
+
+// RawInputTokens returns the value of the "raw_input_tokens" field in the mutation.
+func (m *UsageLogMutation) RawInputTokens() (r int, exists bool) {
+	v := m.raw_input_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawInputTokens returns the old "raw_input_tokens" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldRawInputTokens(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawInputTokens is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawInputTokens requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawInputTokens: %w", err)
+	}
+	return oldValue.RawInputTokens, nil
+}
+
+// AddRawInputTokens adds i to the "raw_input_tokens" field.
+func (m *UsageLogMutation) AddRawInputTokens(i int) {
+	if m.addraw_input_tokens != nil {
+		*m.addraw_input_tokens += i
+	} else {
+		m.addraw_input_tokens = &i
+	}
+}
+
+// AddedRawInputTokens returns the value that was added to the "raw_input_tokens" field in this mutation.
+func (m *UsageLogMutation) AddedRawInputTokens() (r int, exists bool) {
+	v := m.addraw_input_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRawInputTokens resets all changes to the "raw_input_tokens" field.
+func (m *UsageLogMutation) ResetRawInputTokens() {
+	m.raw_input_tokens = nil
+	m.addraw_input_tokens = nil
+}
+
+// SetRawOutputTokens sets the "raw_output_tokens" field.
+func (m *UsageLogMutation) SetRawOutputTokens(i int) {
+	m.raw_output_tokens = &i
+	m.addraw_output_tokens = nil
+}
+
+// RawOutputTokens returns the value of the "raw_output_tokens" field in the mutation.
+func (m *UsageLogMutation) RawOutputTokens() (r int, exists bool) {
+	v := m.raw_output_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawOutputTokens returns the old "raw_output_tokens" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldRawOutputTokens(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawOutputTokens is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawOutputTokens requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawOutputTokens: %w", err)
+	}
+	return oldValue.RawOutputTokens, nil
+}
+
+// AddRawOutputTokens adds i to the "raw_output_tokens" field.
+func (m *UsageLogMutation) AddRawOutputTokens(i int) {
+	if m.addraw_output_tokens != nil {
+		*m.addraw_output_tokens += i
+	} else {
+		m.addraw_output_tokens = &i
+	}
+}
+
+// AddedRawOutputTokens returns the value that was added to the "raw_output_tokens" field in this mutation.
+func (m *UsageLogMutation) AddedRawOutputTokens() (r int, exists bool) {
+	v := m.addraw_output_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRawOutputTokens resets all changes to the "raw_output_tokens" field.
+func (m *UsageLogMutation) ResetRawOutputTokens() {
+	m.raw_output_tokens = nil
+	m.addraw_output_tokens = nil
+}
+
+// SetRawCacheCreationTokens sets the "raw_cache_creation_tokens" field.
+func (m *UsageLogMutation) SetRawCacheCreationTokens(i int) {
+	m.raw_cache_creation_tokens = &i
+	m.addraw_cache_creation_tokens = nil
+}
+
+// RawCacheCreationTokens returns the value of the "raw_cache_creation_tokens" field in the mutation.
+func (m *UsageLogMutation) RawCacheCreationTokens() (r int, exists bool) {
+	v := m.raw_cache_creation_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawCacheCreationTokens returns the old "raw_cache_creation_tokens" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldRawCacheCreationTokens(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawCacheCreationTokens is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawCacheCreationTokens requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawCacheCreationTokens: %w", err)
+	}
+	return oldValue.RawCacheCreationTokens, nil
+}
+
+// AddRawCacheCreationTokens adds i to the "raw_cache_creation_tokens" field.
+func (m *UsageLogMutation) AddRawCacheCreationTokens(i int) {
+	if m.addraw_cache_creation_tokens != nil {
+		*m.addraw_cache_creation_tokens += i
+	} else {
+		m.addraw_cache_creation_tokens = &i
+	}
+}
+
+// AddedRawCacheCreationTokens returns the value that was added to the "raw_cache_creation_tokens" field in this mutation.
+func (m *UsageLogMutation) AddedRawCacheCreationTokens() (r int, exists bool) {
+	v := m.addraw_cache_creation_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRawCacheCreationTokens resets all changes to the "raw_cache_creation_tokens" field.
+func (m *UsageLogMutation) ResetRawCacheCreationTokens() {
+	m.raw_cache_creation_tokens = nil
+	m.addraw_cache_creation_tokens = nil
+}
+
+// SetRawCacheReadTokens sets the "raw_cache_read_tokens" field.
+func (m *UsageLogMutation) SetRawCacheReadTokens(i int) {
+	m.raw_cache_read_tokens = &i
+	m.addraw_cache_read_tokens = nil
+}
+
+// RawCacheReadTokens returns the value of the "raw_cache_read_tokens" field in the mutation.
+func (m *UsageLogMutation) RawCacheReadTokens() (r int, exists bool) {
+	v := m.raw_cache_read_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawCacheReadTokens returns the old "raw_cache_read_tokens" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldRawCacheReadTokens(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawCacheReadTokens is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawCacheReadTokens requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawCacheReadTokens: %w", err)
+	}
+	return oldValue.RawCacheReadTokens, nil
+}
+
+// AddRawCacheReadTokens adds i to the "raw_cache_read_tokens" field.
+func (m *UsageLogMutation) AddRawCacheReadTokens(i int) {
+	if m.addraw_cache_read_tokens != nil {
+		*m.addraw_cache_read_tokens += i
+	} else {
+		m.addraw_cache_read_tokens = &i
+	}
+}
+
+// AddedRawCacheReadTokens returns the value that was added to the "raw_cache_read_tokens" field in this mutation.
+func (m *UsageLogMutation) AddedRawCacheReadTokens() (r int, exists bool) {
+	v := m.addraw_cache_read_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRawCacheReadTokens resets all changes to the "raw_cache_read_tokens" field.
+func (m *UsageLogMutation) ResetRawCacheReadTokens() {
+	m.raw_cache_read_tokens = nil
+	m.addraw_cache_read_tokens = nil
+}
+
+// SetGroupInputTokenMultiplier sets the "group_input_token_multiplier" field.
+func (m *UsageLogMutation) SetGroupInputTokenMultiplier(f float64) {
+	m.group_input_token_multiplier = &f
+	m.addgroup_input_token_multiplier = nil
+}
+
+// GroupInputTokenMultiplier returns the value of the "group_input_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupInputTokenMultiplier() (r float64, exists bool) {
+	v := m.group_input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupInputTokenMultiplier returns the old "group_input_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupInputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupInputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupInputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupInputTokenMultiplier: %w", err)
+	}
+	return oldValue.GroupInputTokenMultiplier, nil
+}
+
+// AddGroupInputTokenMultiplier adds f to the "group_input_token_multiplier" field.
+func (m *UsageLogMutation) AddGroupInputTokenMultiplier(f float64) {
+	if m.addgroup_input_token_multiplier != nil {
+		*m.addgroup_input_token_multiplier += f
+	} else {
+		m.addgroup_input_token_multiplier = &f
+	}
+}
+
+// AddedGroupInputTokenMultiplier returns the value that was added to the "group_input_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupInputTokenMultiplier() (r float64, exists bool) {
+	v := m.addgroup_input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupInputTokenMultiplier resets all changes to the "group_input_token_multiplier" field.
+func (m *UsageLogMutation) ResetGroupInputTokenMultiplier() {
+	m.group_input_token_multiplier = nil
+	m.addgroup_input_token_multiplier = nil
+}
+
+// SetGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field.
+func (m *UsageLogMutation) SetGroupOutputTokenMultiplier(f float64) {
+	m.group_output_token_multiplier = &f
+	m.addgroup_output_token_multiplier = nil
+}
+
+// GroupOutputTokenMultiplier returns the value of the "group_output_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.group_output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupOutputTokenMultiplier returns the old "group_output_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupOutputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupOutputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupOutputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupOutputTokenMultiplier: %w", err)
+	}
+	return oldValue.GroupOutputTokenMultiplier, nil
+}
+
+// AddGroupOutputTokenMultiplier adds f to the "group_output_token_multiplier" field.
+func (m *UsageLogMutation) AddGroupOutputTokenMultiplier(f float64) {
+	if m.addgroup_output_token_multiplier != nil {
+		*m.addgroup_output_token_multiplier += f
+	} else {
+		m.addgroup_output_token_multiplier = &f
+	}
+}
+
+// AddedGroupOutputTokenMultiplier returns the value that was added to the "group_output_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.addgroup_output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupOutputTokenMultiplier resets all changes to the "group_output_token_multiplier" field.
+func (m *UsageLogMutation) ResetGroupOutputTokenMultiplier() {
+	m.group_output_token_multiplier = nil
+	m.addgroup_output_token_multiplier = nil
+}
+
+// SetGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) SetGroupCacheCreationTokenMultiplier(f float64) {
+	m.group_cache_creation_token_multiplier = &f
+	m.addgroup_cache_creation_token_multiplier = nil
+}
+
+// GroupCacheCreationTokenMultiplier returns the value of the "group_cache_creation_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.group_cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupCacheCreationTokenMultiplier returns the old "group_cache_creation_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupCacheCreationTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupCacheCreationTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupCacheCreationTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupCacheCreationTokenMultiplier: %w", err)
+	}
+	return oldValue.GroupCacheCreationTokenMultiplier, nil
+}
+
+// AddGroupCacheCreationTokenMultiplier adds f to the "group_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) AddGroupCacheCreationTokenMultiplier(f float64) {
+	if m.addgroup_cache_creation_token_multiplier != nil {
+		*m.addgroup_cache_creation_token_multiplier += f
+	} else {
+		m.addgroup_cache_creation_token_multiplier = &f
+	}
+}
+
+// AddedGroupCacheCreationTokenMultiplier returns the value that was added to the "group_cache_creation_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.addgroup_cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupCacheCreationTokenMultiplier resets all changes to the "group_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) ResetGroupCacheCreationTokenMultiplier() {
+	m.group_cache_creation_token_multiplier = nil
+	m.addgroup_cache_creation_token_multiplier = nil
+}
+
+// SetGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) SetGroupCacheReadTokenMultiplier(f float64) {
+	m.group_cache_read_token_multiplier = &f
+	m.addgroup_cache_read_token_multiplier = nil
+}
+
+// GroupCacheReadTokenMultiplier returns the value of the "group_cache_read_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.group_cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupCacheReadTokenMultiplier returns the old "group_cache_read_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupCacheReadTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupCacheReadTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupCacheReadTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupCacheReadTokenMultiplier: %w", err)
+	}
+	return oldValue.GroupCacheReadTokenMultiplier, nil
+}
+
+// AddGroupCacheReadTokenMultiplier adds f to the "group_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) AddGroupCacheReadTokenMultiplier(f float64) {
+	if m.addgroup_cache_read_token_multiplier != nil {
+		*m.addgroup_cache_read_token_multiplier += f
+	} else {
+		m.addgroup_cache_read_token_multiplier = &f
+	}
+}
+
+// AddedGroupCacheReadTokenMultiplier returns the value that was added to the "group_cache_read_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.addgroup_cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupCacheReadTokenMultiplier resets all changes to the "group_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) ResetGroupCacheReadTokenMultiplier() {
+	m.group_cache_read_token_multiplier = nil
+	m.addgroup_cache_read_token_multiplier = nil
+}
+
+// SetGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field.
+func (m *UsageLogMutation) SetGroupHiddenInputRateMultiplier(f float64) {
+	m.group_hidden_input_rate_multiplier = &f
+	m.addgroup_hidden_input_rate_multiplier = nil
+}
+
+// GroupHiddenInputRateMultiplier returns the value of the "group_hidden_input_rate_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupHiddenInputRateMultiplier() (r float64, exists bool) {
+	v := m.group_hidden_input_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupHiddenInputRateMultiplier returns the old "group_hidden_input_rate_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupHiddenInputRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupHiddenInputRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupHiddenInputRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupHiddenInputRateMultiplier: %w", err)
+	}
+	return oldValue.GroupHiddenInputRateMultiplier, nil
+}
+
+// AddGroupHiddenInputRateMultiplier adds f to the "group_hidden_input_rate_multiplier" field.
+func (m *UsageLogMutation) AddGroupHiddenInputRateMultiplier(f float64) {
+	if m.addgroup_hidden_input_rate_multiplier != nil {
+		*m.addgroup_hidden_input_rate_multiplier += f
+	} else {
+		m.addgroup_hidden_input_rate_multiplier = &f
+	}
+}
+
+// AddedGroupHiddenInputRateMultiplier returns the value that was added to the "group_hidden_input_rate_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupHiddenInputRateMultiplier() (r float64, exists bool) {
+	v := m.addgroup_hidden_input_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupHiddenInputRateMultiplier resets all changes to the "group_hidden_input_rate_multiplier" field.
+func (m *UsageLogMutation) ResetGroupHiddenInputRateMultiplier() {
+	m.group_hidden_input_rate_multiplier = nil
+	m.addgroup_hidden_input_rate_multiplier = nil
+}
+
+// SetGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field.
+func (m *UsageLogMutation) SetGroupHiddenOutputRateMultiplier(f float64) {
+	m.group_hidden_output_rate_multiplier = &f
+	m.addgroup_hidden_output_rate_multiplier = nil
+}
+
+// GroupHiddenOutputRateMultiplier returns the value of the "group_hidden_output_rate_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupHiddenOutputRateMultiplier() (r float64, exists bool) {
+	v := m.group_hidden_output_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupHiddenOutputRateMultiplier returns the old "group_hidden_output_rate_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupHiddenOutputRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupHiddenOutputRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupHiddenOutputRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupHiddenOutputRateMultiplier: %w", err)
+	}
+	return oldValue.GroupHiddenOutputRateMultiplier, nil
+}
+
+// AddGroupHiddenOutputRateMultiplier adds f to the "group_hidden_output_rate_multiplier" field.
+func (m *UsageLogMutation) AddGroupHiddenOutputRateMultiplier(f float64) {
+	if m.addgroup_hidden_output_rate_multiplier != nil {
+		*m.addgroup_hidden_output_rate_multiplier += f
+	} else {
+		m.addgroup_hidden_output_rate_multiplier = &f
+	}
+}
+
+// AddedGroupHiddenOutputRateMultiplier returns the value that was added to the "group_hidden_output_rate_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupHiddenOutputRateMultiplier() (r float64, exists bool) {
+	v := m.addgroup_hidden_output_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupHiddenOutputRateMultiplier resets all changes to the "group_hidden_output_rate_multiplier" field.
+func (m *UsageLogMutation) ResetGroupHiddenOutputRateMultiplier() {
+	m.group_hidden_output_rate_multiplier = nil
+	m.addgroup_hidden_output_rate_multiplier = nil
+}
+
+// SetGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field.
+func (m *UsageLogMutation) SetGroupHiddenCacheCreationRateMultiplier(f float64) {
+	m.group_hidden_cache_creation_rate_multiplier = &f
+	m.addgroup_hidden_cache_creation_rate_multiplier = nil
+}
+
+// GroupHiddenCacheCreationRateMultiplier returns the value of the "group_hidden_cache_creation_rate_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupHiddenCacheCreationRateMultiplier() (r float64, exists bool) {
+	v := m.group_hidden_cache_creation_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupHiddenCacheCreationRateMultiplier returns the old "group_hidden_cache_creation_rate_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupHiddenCacheCreationRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupHiddenCacheCreationRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupHiddenCacheCreationRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupHiddenCacheCreationRateMultiplier: %w", err)
+	}
+	return oldValue.GroupHiddenCacheCreationRateMultiplier, nil
+}
+
+// AddGroupHiddenCacheCreationRateMultiplier adds f to the "group_hidden_cache_creation_rate_multiplier" field.
+func (m *UsageLogMutation) AddGroupHiddenCacheCreationRateMultiplier(f float64) {
+	if m.addgroup_hidden_cache_creation_rate_multiplier != nil {
+		*m.addgroup_hidden_cache_creation_rate_multiplier += f
+	} else {
+		m.addgroup_hidden_cache_creation_rate_multiplier = &f
+	}
+}
+
+// AddedGroupHiddenCacheCreationRateMultiplier returns the value that was added to the "group_hidden_cache_creation_rate_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupHiddenCacheCreationRateMultiplier() (r float64, exists bool) {
+	v := m.addgroup_hidden_cache_creation_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupHiddenCacheCreationRateMultiplier resets all changes to the "group_hidden_cache_creation_rate_multiplier" field.
+func (m *UsageLogMutation) ResetGroupHiddenCacheCreationRateMultiplier() {
+	m.group_hidden_cache_creation_rate_multiplier = nil
+	m.addgroup_hidden_cache_creation_rate_multiplier = nil
+}
+
+// SetGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field.
+func (m *UsageLogMutation) SetGroupHiddenCacheReadRateMultiplier(f float64) {
+	m.group_hidden_cache_read_rate_multiplier = &f
+	m.addgroup_hidden_cache_read_rate_multiplier = nil
+}
+
+// GroupHiddenCacheReadRateMultiplier returns the value of the "group_hidden_cache_read_rate_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupHiddenCacheReadRateMultiplier() (r float64, exists bool) {
+	v := m.group_hidden_cache_read_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupHiddenCacheReadRateMultiplier returns the old "group_hidden_cache_read_rate_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupHiddenCacheReadRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupHiddenCacheReadRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupHiddenCacheReadRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupHiddenCacheReadRateMultiplier: %w", err)
+	}
+	return oldValue.GroupHiddenCacheReadRateMultiplier, nil
+}
+
+// AddGroupHiddenCacheReadRateMultiplier adds f to the "group_hidden_cache_read_rate_multiplier" field.
+func (m *UsageLogMutation) AddGroupHiddenCacheReadRateMultiplier(f float64) {
+	if m.addgroup_hidden_cache_read_rate_multiplier != nil {
+		*m.addgroup_hidden_cache_read_rate_multiplier += f
+	} else {
+		m.addgroup_hidden_cache_read_rate_multiplier = &f
+	}
+}
+
+// AddedGroupHiddenCacheReadRateMultiplier returns the value that was added to the "group_hidden_cache_read_rate_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupHiddenCacheReadRateMultiplier() (r float64, exists bool) {
+	v := m.addgroup_hidden_cache_read_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupHiddenCacheReadRateMultiplier resets all changes to the "group_hidden_cache_read_rate_multiplier" field.
+func (m *UsageLogMutation) ResetGroupHiddenCacheReadRateMultiplier() {
+	m.group_hidden_cache_read_rate_multiplier = nil
+	m.addgroup_hidden_cache_read_rate_multiplier = nil
+}
+
+// SetAccountInputTokenMultiplier sets the "account_input_token_multiplier" field.
+func (m *UsageLogMutation) SetAccountInputTokenMultiplier(f float64) {
+	m.account_input_token_multiplier = &f
+	m.addaccount_input_token_multiplier = nil
+}
+
+// AccountInputTokenMultiplier returns the value of the "account_input_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) AccountInputTokenMultiplier() (r float64, exists bool) {
+	v := m.account_input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountInputTokenMultiplier returns the old "account_input_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldAccountInputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountInputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountInputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountInputTokenMultiplier: %w", err)
+	}
+	return oldValue.AccountInputTokenMultiplier, nil
+}
+
+// AddAccountInputTokenMultiplier adds f to the "account_input_token_multiplier" field.
+func (m *UsageLogMutation) AddAccountInputTokenMultiplier(f float64) {
+	if m.addaccount_input_token_multiplier != nil {
+		*m.addaccount_input_token_multiplier += f
+	} else {
+		m.addaccount_input_token_multiplier = &f
+	}
+}
+
+// AddedAccountInputTokenMultiplier returns the value that was added to the "account_input_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedAccountInputTokenMultiplier() (r float64, exists bool) {
+	v := m.addaccount_input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccountInputTokenMultiplier resets all changes to the "account_input_token_multiplier" field.
+func (m *UsageLogMutation) ResetAccountInputTokenMultiplier() {
+	m.account_input_token_multiplier = nil
+	m.addaccount_input_token_multiplier = nil
+}
+
+// SetAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field.
+func (m *UsageLogMutation) SetAccountOutputTokenMultiplier(f float64) {
+	m.account_output_token_multiplier = &f
+	m.addaccount_output_token_multiplier = nil
+}
+
+// AccountOutputTokenMultiplier returns the value of the "account_output_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) AccountOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.account_output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountOutputTokenMultiplier returns the old "account_output_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldAccountOutputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountOutputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountOutputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountOutputTokenMultiplier: %w", err)
+	}
+	return oldValue.AccountOutputTokenMultiplier, nil
+}
+
+// AddAccountOutputTokenMultiplier adds f to the "account_output_token_multiplier" field.
+func (m *UsageLogMutation) AddAccountOutputTokenMultiplier(f float64) {
+	if m.addaccount_output_token_multiplier != nil {
+		*m.addaccount_output_token_multiplier += f
+	} else {
+		m.addaccount_output_token_multiplier = &f
+	}
+}
+
+// AddedAccountOutputTokenMultiplier returns the value that was added to the "account_output_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedAccountOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.addaccount_output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccountOutputTokenMultiplier resets all changes to the "account_output_token_multiplier" field.
+func (m *UsageLogMutation) ResetAccountOutputTokenMultiplier() {
+	m.account_output_token_multiplier = nil
+	m.addaccount_output_token_multiplier = nil
+}
+
+// SetAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) SetAccountCacheCreationTokenMultiplier(f float64) {
+	m.account_cache_creation_token_multiplier = &f
+	m.addaccount_cache_creation_token_multiplier = nil
+}
+
+// AccountCacheCreationTokenMultiplier returns the value of the "account_cache_creation_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) AccountCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.account_cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountCacheCreationTokenMultiplier returns the old "account_cache_creation_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldAccountCacheCreationTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountCacheCreationTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountCacheCreationTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountCacheCreationTokenMultiplier: %w", err)
+	}
+	return oldValue.AccountCacheCreationTokenMultiplier, nil
+}
+
+// AddAccountCacheCreationTokenMultiplier adds f to the "account_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) AddAccountCacheCreationTokenMultiplier(f float64) {
+	if m.addaccount_cache_creation_token_multiplier != nil {
+		*m.addaccount_cache_creation_token_multiplier += f
+	} else {
+		m.addaccount_cache_creation_token_multiplier = &f
+	}
+}
+
+// AddedAccountCacheCreationTokenMultiplier returns the value that was added to the "account_cache_creation_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedAccountCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.addaccount_cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccountCacheCreationTokenMultiplier resets all changes to the "account_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) ResetAccountCacheCreationTokenMultiplier() {
+	m.account_cache_creation_token_multiplier = nil
+	m.addaccount_cache_creation_token_multiplier = nil
+}
+
+// SetAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) SetAccountCacheReadTokenMultiplier(f float64) {
+	m.account_cache_read_token_multiplier = &f
+	m.addaccount_cache_read_token_multiplier = nil
+}
+
+// AccountCacheReadTokenMultiplier returns the value of the "account_cache_read_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) AccountCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.account_cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountCacheReadTokenMultiplier returns the old "account_cache_read_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldAccountCacheReadTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountCacheReadTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountCacheReadTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountCacheReadTokenMultiplier: %w", err)
+	}
+	return oldValue.AccountCacheReadTokenMultiplier, nil
+}
+
+// AddAccountCacheReadTokenMultiplier adds f to the "account_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) AddAccountCacheReadTokenMultiplier(f float64) {
+	if m.addaccount_cache_read_token_multiplier != nil {
+		*m.addaccount_cache_read_token_multiplier += f
+	} else {
+		m.addaccount_cache_read_token_multiplier = &f
+	}
+}
+
+// AddedAccountCacheReadTokenMultiplier returns the value that was added to the "account_cache_read_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedAccountCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.addaccount_cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccountCacheReadTokenMultiplier resets all changes to the "account_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) ResetAccountCacheReadTokenMultiplier() {
+	m.account_cache_read_token_multiplier = nil
+	m.addaccount_cache_read_token_multiplier = nil
+}
+
+// SetMultiplierSnapshot sets the "multiplier_snapshot" field.
+func (m *UsageLogMutation) SetMultiplierSnapshot(value map[string]interface{}) {
+	m.multiplier_snapshot = &value
+}
+
+// MultiplierSnapshot returns the value of the "multiplier_snapshot" field in the mutation.
+func (m *UsageLogMutation) MultiplierSnapshot() (r map[string]interface{}, exists bool) {
+	v := m.multiplier_snapshot
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMultiplierSnapshot returns the old "multiplier_snapshot" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldMultiplierSnapshot(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMultiplierSnapshot is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMultiplierSnapshot requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMultiplierSnapshot: %w", err)
+	}
+	return oldValue.MultiplierSnapshot, nil
+}
+
+// ResetMultiplierSnapshot resets all changes to the "multiplier_snapshot" field.
+func (m *UsageLogMutation) ResetMultiplierSnapshot() {
+	m.multiplier_snapshot = nil
 }
 
 // SetInputCost sets the "input_cost" field.
@@ -44378,7 +47680,7 @@ func (m *UsageLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UsageLogMutation) Fields() []string {
-	fields := make([]string, 0, 44)
+	fields := make([]string, 0, 61)
 	if m.user != nil {
 		fields = append(fields, usagelog.FieldUserID)
 	}
@@ -44435,6 +47737,57 @@ func (m *UsageLogMutation) Fields() []string {
 	}
 	if m.cache_creation_1h_tokens != nil {
 		fields = append(fields, usagelog.FieldCacheCreation1hTokens)
+	}
+	if m.raw_input_tokens != nil {
+		fields = append(fields, usagelog.FieldRawInputTokens)
+	}
+	if m.raw_output_tokens != nil {
+		fields = append(fields, usagelog.FieldRawOutputTokens)
+	}
+	if m.raw_cache_creation_tokens != nil {
+		fields = append(fields, usagelog.FieldRawCacheCreationTokens)
+	}
+	if m.raw_cache_read_tokens != nil {
+		fields = append(fields, usagelog.FieldRawCacheReadTokens)
+	}
+	if m.group_input_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupInputTokenMultiplier)
+	}
+	if m.group_output_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupOutputTokenMultiplier)
+	}
+	if m.group_cache_creation_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupCacheCreationTokenMultiplier)
+	}
+	if m.group_cache_read_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupCacheReadTokenMultiplier)
+	}
+	if m.group_hidden_input_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenInputRateMultiplier)
+	}
+	if m.group_hidden_output_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenOutputRateMultiplier)
+	}
+	if m.group_hidden_cache_creation_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenCacheCreationRateMultiplier)
+	}
+	if m.group_hidden_cache_read_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenCacheReadRateMultiplier)
+	}
+	if m.account_input_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountInputTokenMultiplier)
+	}
+	if m.account_output_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountOutputTokenMultiplier)
+	}
+	if m.account_cache_creation_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountCacheCreationTokenMultiplier)
+	}
+	if m.account_cache_read_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountCacheReadTokenMultiplier)
+	}
+	if m.multiplier_snapshot != nil {
+		fields = append(fields, usagelog.FieldMultiplierSnapshot)
 	}
 	if m.input_cost != nil {
 		fields = append(fields, usagelog.FieldInputCost)
@@ -44557,6 +47910,40 @@ func (m *UsageLogMutation) Field(name string) (ent.Value, bool) {
 		return m.CacheCreation5mTokens()
 	case usagelog.FieldCacheCreation1hTokens:
 		return m.CacheCreation1hTokens()
+	case usagelog.FieldRawInputTokens:
+		return m.RawInputTokens()
+	case usagelog.FieldRawOutputTokens:
+		return m.RawOutputTokens()
+	case usagelog.FieldRawCacheCreationTokens:
+		return m.RawCacheCreationTokens()
+	case usagelog.FieldRawCacheReadTokens:
+		return m.RawCacheReadTokens()
+	case usagelog.FieldGroupInputTokenMultiplier:
+		return m.GroupInputTokenMultiplier()
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		return m.GroupOutputTokenMultiplier()
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		return m.GroupCacheCreationTokenMultiplier()
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		return m.GroupCacheReadTokenMultiplier()
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		return m.GroupHiddenInputRateMultiplier()
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		return m.GroupHiddenOutputRateMultiplier()
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		return m.GroupHiddenCacheCreationRateMultiplier()
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		return m.GroupHiddenCacheReadRateMultiplier()
+	case usagelog.FieldAccountInputTokenMultiplier:
+		return m.AccountInputTokenMultiplier()
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		return m.AccountOutputTokenMultiplier()
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		return m.AccountCacheCreationTokenMultiplier()
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		return m.AccountCacheReadTokenMultiplier()
+	case usagelog.FieldMultiplierSnapshot:
+		return m.MultiplierSnapshot()
 	case usagelog.FieldInputCost:
 		return m.InputCost()
 	case usagelog.FieldOutputCost:
@@ -44654,6 +48041,40 @@ func (m *UsageLogMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldCacheCreation5mTokens(ctx)
 	case usagelog.FieldCacheCreation1hTokens:
 		return m.OldCacheCreation1hTokens(ctx)
+	case usagelog.FieldRawInputTokens:
+		return m.OldRawInputTokens(ctx)
+	case usagelog.FieldRawOutputTokens:
+		return m.OldRawOutputTokens(ctx)
+	case usagelog.FieldRawCacheCreationTokens:
+		return m.OldRawCacheCreationTokens(ctx)
+	case usagelog.FieldRawCacheReadTokens:
+		return m.OldRawCacheReadTokens(ctx)
+	case usagelog.FieldGroupInputTokenMultiplier:
+		return m.OldGroupInputTokenMultiplier(ctx)
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		return m.OldGroupOutputTokenMultiplier(ctx)
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		return m.OldGroupCacheCreationTokenMultiplier(ctx)
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		return m.OldGroupCacheReadTokenMultiplier(ctx)
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		return m.OldGroupHiddenInputRateMultiplier(ctx)
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		return m.OldGroupHiddenOutputRateMultiplier(ctx)
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		return m.OldGroupHiddenCacheCreationRateMultiplier(ctx)
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		return m.OldGroupHiddenCacheReadRateMultiplier(ctx)
+	case usagelog.FieldAccountInputTokenMultiplier:
+		return m.OldAccountInputTokenMultiplier(ctx)
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		return m.OldAccountOutputTokenMultiplier(ctx)
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		return m.OldAccountCacheCreationTokenMultiplier(ctx)
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		return m.OldAccountCacheReadTokenMultiplier(ctx)
+	case usagelog.FieldMultiplierSnapshot:
+		return m.OldMultiplierSnapshot(ctx)
 	case usagelog.FieldInputCost:
 		return m.OldInputCost(ctx)
 	case usagelog.FieldOutputCost:
@@ -44845,6 +48266,125 @@ func (m *UsageLogMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCacheCreation1hTokens(v)
+		return nil
+	case usagelog.FieldRawInputTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawInputTokens(v)
+		return nil
+	case usagelog.FieldRawOutputTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawOutputTokens(v)
+		return nil
+	case usagelog.FieldRawCacheCreationTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawCacheCreationTokens(v)
+		return nil
+	case usagelog.FieldRawCacheReadTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawCacheReadTokens(v)
+		return nil
+	case usagelog.FieldGroupInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupInputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupOutputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupCacheCreationTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupCacheReadTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupHiddenInputRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupHiddenOutputRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupHiddenCacheCreationRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupHiddenCacheReadRateMultiplier(v)
+		return nil
+	case usagelog.FieldAccountInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountInputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountOutputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountCacheCreationTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountCacheReadTokenMultiplier(v)
+		return nil
+	case usagelog.FieldMultiplierSnapshot:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMultiplierSnapshot(v)
 		return nil
 	case usagelog.FieldInputCost:
 		v, ok := value.(float64)
@@ -45050,6 +48590,54 @@ func (m *UsageLogMutation) AddedFields() []string {
 	if m.addcache_creation_1h_tokens != nil {
 		fields = append(fields, usagelog.FieldCacheCreation1hTokens)
 	}
+	if m.addraw_input_tokens != nil {
+		fields = append(fields, usagelog.FieldRawInputTokens)
+	}
+	if m.addraw_output_tokens != nil {
+		fields = append(fields, usagelog.FieldRawOutputTokens)
+	}
+	if m.addraw_cache_creation_tokens != nil {
+		fields = append(fields, usagelog.FieldRawCacheCreationTokens)
+	}
+	if m.addraw_cache_read_tokens != nil {
+		fields = append(fields, usagelog.FieldRawCacheReadTokens)
+	}
+	if m.addgroup_input_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupInputTokenMultiplier)
+	}
+	if m.addgroup_output_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupOutputTokenMultiplier)
+	}
+	if m.addgroup_cache_creation_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupCacheCreationTokenMultiplier)
+	}
+	if m.addgroup_cache_read_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupCacheReadTokenMultiplier)
+	}
+	if m.addgroup_hidden_input_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenInputRateMultiplier)
+	}
+	if m.addgroup_hidden_output_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenOutputRateMultiplier)
+	}
+	if m.addgroup_hidden_cache_creation_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenCacheCreationRateMultiplier)
+	}
+	if m.addgroup_hidden_cache_read_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenCacheReadRateMultiplier)
+	}
+	if m.addaccount_input_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountInputTokenMultiplier)
+	}
+	if m.addaccount_output_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountOutputTokenMultiplier)
+	}
+	if m.addaccount_cache_creation_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountCacheCreationTokenMultiplier)
+	}
+	if m.addaccount_cache_read_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountCacheReadTokenMultiplier)
+	}
 	if m.addinput_cost != nil {
 		fields = append(fields, usagelog.FieldInputCost)
 	}
@@ -45114,6 +48702,38 @@ func (m *UsageLogMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedCacheCreation5mTokens()
 	case usagelog.FieldCacheCreation1hTokens:
 		return m.AddedCacheCreation1hTokens()
+	case usagelog.FieldRawInputTokens:
+		return m.AddedRawInputTokens()
+	case usagelog.FieldRawOutputTokens:
+		return m.AddedRawOutputTokens()
+	case usagelog.FieldRawCacheCreationTokens:
+		return m.AddedRawCacheCreationTokens()
+	case usagelog.FieldRawCacheReadTokens:
+		return m.AddedRawCacheReadTokens()
+	case usagelog.FieldGroupInputTokenMultiplier:
+		return m.AddedGroupInputTokenMultiplier()
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		return m.AddedGroupOutputTokenMultiplier()
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		return m.AddedGroupCacheCreationTokenMultiplier()
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		return m.AddedGroupCacheReadTokenMultiplier()
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		return m.AddedGroupHiddenInputRateMultiplier()
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		return m.AddedGroupHiddenOutputRateMultiplier()
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		return m.AddedGroupHiddenCacheCreationRateMultiplier()
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		return m.AddedGroupHiddenCacheReadRateMultiplier()
+	case usagelog.FieldAccountInputTokenMultiplier:
+		return m.AddedAccountInputTokenMultiplier()
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		return m.AddedAccountOutputTokenMultiplier()
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		return m.AddedAccountCacheCreationTokenMultiplier()
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		return m.AddedAccountCacheReadTokenMultiplier()
 	case usagelog.FieldInputCost:
 		return m.AddedInputCost()
 	case usagelog.FieldOutputCost:
@@ -45199,6 +48819,118 @@ func (m *UsageLogMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddCacheCreation1hTokens(v)
+		return nil
+	case usagelog.FieldRawInputTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRawInputTokens(v)
+		return nil
+	case usagelog.FieldRawOutputTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRawOutputTokens(v)
+		return nil
+	case usagelog.FieldRawCacheCreationTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRawCacheCreationTokens(v)
+		return nil
+	case usagelog.FieldRawCacheReadTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRawCacheReadTokens(v)
+		return nil
+	case usagelog.FieldGroupInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupInputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupOutputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupCacheCreationTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupCacheReadTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupHiddenInputRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupHiddenOutputRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupHiddenCacheCreationRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupHiddenCacheReadRateMultiplier(v)
+		return nil
+	case usagelog.FieldAccountInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccountInputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccountOutputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccountCacheCreationTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccountCacheReadTokenMultiplier(v)
 		return nil
 	case usagelog.FieldInputCost:
 		v, ok := value.(float64)
@@ -45505,6 +49237,57 @@ func (m *UsageLogMutation) ResetField(name string) error {
 	case usagelog.FieldCacheCreation1hTokens:
 		m.ResetCacheCreation1hTokens()
 		return nil
+	case usagelog.FieldRawInputTokens:
+		m.ResetRawInputTokens()
+		return nil
+	case usagelog.FieldRawOutputTokens:
+		m.ResetRawOutputTokens()
+		return nil
+	case usagelog.FieldRawCacheCreationTokens:
+		m.ResetRawCacheCreationTokens()
+		return nil
+	case usagelog.FieldRawCacheReadTokens:
+		m.ResetRawCacheReadTokens()
+		return nil
+	case usagelog.FieldGroupInputTokenMultiplier:
+		m.ResetGroupInputTokenMultiplier()
+		return nil
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		m.ResetGroupOutputTokenMultiplier()
+		return nil
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		m.ResetGroupCacheCreationTokenMultiplier()
+		return nil
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		m.ResetGroupCacheReadTokenMultiplier()
+		return nil
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		m.ResetGroupHiddenInputRateMultiplier()
+		return nil
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		m.ResetGroupHiddenOutputRateMultiplier()
+		return nil
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		m.ResetGroupHiddenCacheCreationRateMultiplier()
+		return nil
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		m.ResetGroupHiddenCacheReadRateMultiplier()
+		return nil
+	case usagelog.FieldAccountInputTokenMultiplier:
+		m.ResetAccountInputTokenMultiplier()
+		return nil
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		m.ResetAccountOutputTokenMultiplier()
+		return nil
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		m.ResetAccountCacheCreationTokenMultiplier()
+		return nil
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		m.ResetAccountCacheReadTokenMultiplier()
+		return nil
+	case usagelog.FieldMultiplierSnapshot:
+		m.ResetMultiplierSnapshot()
+		return nil
 	case usagelog.FieldInputCost:
 		m.ResetInputCost()
 		return nil
@@ -45797,6 +49580,9 @@ type UserMutation struct {
 	payment_orders                map[int64]struct{}
 	removedpayment_orders         map[int64]struct{}
 	clearedpayment_orders         bool
+	payment_invoices              map[int64]struct{}
+	removedpayment_invoices       map[int64]struct{}
+	clearedpayment_invoices       bool
 	auth_identities               map[int64]struct{}
 	removedauth_identities        map[int64]struct{}
 	clearedauth_identities        bool
@@ -47512,6 +51298,60 @@ func (m *UserMutation) ResetPaymentOrders() {
 	m.removedpayment_orders = nil
 }
 
+// AddPaymentInvoiceIDs adds the "payment_invoices" edge to the PaymentInvoice entity by ids.
+func (m *UserMutation) AddPaymentInvoiceIDs(ids ...int64) {
+	if m.payment_invoices == nil {
+		m.payment_invoices = make(map[int64]struct{})
+	}
+	for i := range ids {
+		m.payment_invoices[ids[i]] = struct{}{}
+	}
+}
+
+// ClearPaymentInvoices clears the "payment_invoices" edge to the PaymentInvoice entity.
+func (m *UserMutation) ClearPaymentInvoices() {
+	m.clearedpayment_invoices = true
+}
+
+// PaymentInvoicesCleared reports if the "payment_invoices" edge to the PaymentInvoice entity was cleared.
+func (m *UserMutation) PaymentInvoicesCleared() bool {
+	return m.clearedpayment_invoices
+}
+
+// RemovePaymentInvoiceIDs removes the "payment_invoices" edge to the PaymentInvoice entity by IDs.
+func (m *UserMutation) RemovePaymentInvoiceIDs(ids ...int64) {
+	if m.removedpayment_invoices == nil {
+		m.removedpayment_invoices = make(map[int64]struct{})
+	}
+	for i := range ids {
+		delete(m.payment_invoices, ids[i])
+		m.removedpayment_invoices[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedPaymentInvoices returns the removed IDs of the "payment_invoices" edge to the PaymentInvoice entity.
+func (m *UserMutation) RemovedPaymentInvoicesIDs() (ids []int64) {
+	for id := range m.removedpayment_invoices {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// PaymentInvoicesIDs returns the "payment_invoices" edge IDs in the mutation.
+func (m *UserMutation) PaymentInvoicesIDs() (ids []int64) {
+	for id := range m.payment_invoices {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetPaymentInvoices resets all changes to the "payment_invoices" edge.
+func (m *UserMutation) ResetPaymentInvoices() {
+	m.payment_invoices = nil
+	m.clearedpayment_invoices = false
+	m.removedpayment_invoices = nil
+}
+
 // AddAuthIdentityIDs adds the "auth_identities" edge to the AuthIdentity entity by ids.
 func (m *UserMutation) AddAuthIdentityIDs(ids ...int64) {
 	if m.auth_identities == nil {
@@ -48312,7 +52152,7 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 13)
+	edges := make([]string, 0, 14)
 	if m.api_keys != nil {
 		edges = append(edges, user.EdgeAPIKeys)
 	}
@@ -48342,6 +52182,9 @@ func (m *UserMutation) AddedEdges() []string {
 	}
 	if m.payment_orders != nil {
 		edges = append(edges, user.EdgePaymentOrders)
+	}
+	if m.payment_invoices != nil {
+		edges = append(edges, user.EdgePaymentInvoices)
 	}
 	if m.auth_identities != nil {
 		edges = append(edges, user.EdgeAuthIdentities)
@@ -48419,6 +52262,12 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgePaymentInvoices:
+		ids := make([]ent.Value, 0, len(m.payment_invoices))
+		for id := range m.payment_invoices {
+			ids = append(ids, id)
+		}
+		return ids
 	case user.EdgeAuthIdentities:
 		ids := make([]ent.Value, 0, len(m.auth_identities))
 		for id := range m.auth_identities {
@@ -48443,7 +52292,7 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 13)
+	edges := make([]string, 0, 14)
 	if m.removedapi_keys != nil {
 		edges = append(edges, user.EdgeAPIKeys)
 	}
@@ -48473,6 +52322,9 @@ func (m *UserMutation) RemovedEdges() []string {
 	}
 	if m.removedpayment_orders != nil {
 		edges = append(edges, user.EdgePaymentOrders)
+	}
+	if m.removedpayment_invoices != nil {
+		edges = append(edges, user.EdgePaymentInvoices)
 	}
 	if m.removedauth_identities != nil {
 		edges = append(edges, user.EdgeAuthIdentities)
@@ -48550,6 +52402,12 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgePaymentInvoices:
+		ids := make([]ent.Value, 0, len(m.removedpayment_invoices))
+		for id := range m.removedpayment_invoices {
+			ids = append(ids, id)
+		}
+		return ids
 	case user.EdgeAuthIdentities:
 		ids := make([]ent.Value, 0, len(m.removedauth_identities))
 		for id := range m.removedauth_identities {
@@ -48574,7 +52432,7 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 13)
+	edges := make([]string, 0, 14)
 	if m.clearedapi_keys {
 		edges = append(edges, user.EdgeAPIKeys)
 	}
@@ -48604,6 +52462,9 @@ func (m *UserMutation) ClearedEdges() []string {
 	}
 	if m.clearedpayment_orders {
 		edges = append(edges, user.EdgePaymentOrders)
+	}
+	if m.clearedpayment_invoices {
+		edges = append(edges, user.EdgePaymentInvoices)
 	}
 	if m.clearedauth_identities {
 		edges = append(edges, user.EdgeAuthIdentities)
@@ -48641,6 +52502,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 		return m.clearedpromo_code_usages
 	case user.EdgePaymentOrders:
 		return m.clearedpayment_orders
+	case user.EdgePaymentInvoices:
+		return m.clearedpayment_invoices
 	case user.EdgeAuthIdentities:
 		return m.clearedauth_identities
 	case user.EdgePendingAuthSessions:
@@ -48692,6 +52555,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 		return nil
 	case user.EdgePaymentOrders:
 		m.ResetPaymentOrders()
+		return nil
+	case user.EdgePaymentInvoices:
+		m.ResetPaymentInvoices()
 		return nil
 	case user.EdgeAuthIdentities:
 		m.ResetAuthIdentities()

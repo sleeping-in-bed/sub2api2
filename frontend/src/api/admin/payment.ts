@@ -7,6 +7,7 @@ import { apiClient } from '../client'
 import type {
   DashboardStats,
   PaymentOrder,
+  PaymentInvoice,
   PaymentChannel,
   SubscriptionPlan,
   ProviderInstance
@@ -123,6 +124,25 @@ export const adminPaymentAPI = {
   /** Query and finalize a pending refund */
   queryRefund(id: number) {
     return apiClient.post<RefundResult>(`/admin/payment/orders/${id}/refund/query`)
+  },
+
+  getInvoices(params?: { page?: number; page_size?: number; status?: string; keyword?: string }) {
+    return apiClient.get<BasePaginationResponse<PaymentInvoice>>('/admin/payment/invoices', { params })
+  },
+
+  issueInvoice(id: number, file: File) {
+    const data = new FormData()
+    data.append('file', file)
+    return apiClient.post<PaymentInvoice>(`/admin/payment/invoices/${id}/issue`, data)
+  },
+
+  failInvoice(id: number, reason: string) {
+    return apiClient.post<PaymentInvoice>(`/admin/payment/invoices/${id}/fail`, { reason })
+  },
+
+  async downloadInvoice(id: number): Promise<Blob> {
+    const response = await apiClient.get(`/admin/payment/invoices/${id}/download`, { responseType: 'blob' })
+    return response.data
   },
 
   // ==================== Channels ====================

@@ -26,7 +26,7 @@ import (
 const (
 	ConfigFileName             = "config.yaml"
 	InstallLockFile            = ".installed"
-	defaultUserConcurrency     = 5
+	defaultUserConcurrency     = 20
 	simpleModeAdminConcurrency = 30
 	defaultMigrationTimeout    = 60 * time.Second
 )

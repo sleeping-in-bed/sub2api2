@@ -17,6 +17,7 @@ import (
 	"github.com/Wei-Shaw/sub2api/ent/apikey"
 	"github.com/Wei-Shaw/sub2api/ent/authidentity"
 	"github.com/Wei-Shaw/sub2api/ent/group"
+	"github.com/Wei-Shaw/sub2api/ent/paymentinvoice"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
 	"github.com/Wei-Shaw/sub2api/ent/pendingauthsession"
 	"github.com/Wei-Shaw/sub2api/ent/predicate"
@@ -47,6 +48,7 @@ type UserQuery struct {
 	withAttributeValues       *UserAttributeValueQuery
 	withPromoCodeUsages       *PromoCodeUsageQuery
 	withPaymentOrders         *PaymentOrderQuery
+	withPaymentInvoices       *PaymentInvoiceQuery
 	withAuthIdentities        *AuthIdentityQuery
 	withPendingAuthSessions   *PendingAuthSessionQuery
 	withPlatformQuotas        *UserPlatformQuotaQuery
@@ -301,6 +303,28 @@ func (_q *UserQuery) QueryPaymentOrders() *PaymentOrderQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(paymentorder.Table, paymentorder.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.PaymentOrdersTable, user.PaymentOrdersColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryPaymentInvoices chains the current query on the "payment_invoices" edge.
+func (_q *UserQuery) QueryPaymentInvoices() *PaymentInvoiceQuery {
+	query := (&PaymentInvoiceClient{config: _q.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := _q.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := _q.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(paymentinvoice.Table, paymentinvoice.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.PaymentInvoicesTable, user.PaymentInvoicesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -598,6 +622,7 @@ func (_q *UserQuery) Clone() *UserQuery {
 		withAttributeValues:       _q.withAttributeValues.Clone(),
 		withPromoCodeUsages:       _q.withPromoCodeUsages.Clone(),
 		withPaymentOrders:         _q.withPaymentOrders.Clone(),
+		withPaymentInvoices:       _q.withPaymentInvoices.Clone(),
 		withAuthIdentities:        _q.withAuthIdentities.Clone(),
 		withPendingAuthSessions:   _q.withPendingAuthSessions.Clone(),
 		withPlatformQuotas:        _q.withPlatformQuotas.Clone(),
@@ -715,6 +740,17 @@ func (_q *UserQuery) WithPaymentOrders(opts ...func(*PaymentOrderQuery)) *UserQu
 		opt(query)
 	}
 	_q.withPaymentOrders = query
+	return _q
+}
+
+// WithPaymentInvoices tells the query-builder to eager-load the nodes that are connected to
+// the "payment_invoices" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *UserQuery) WithPaymentInvoices(opts ...func(*PaymentInvoiceQuery)) *UserQuery {
+	query := (&PaymentInvoiceClient{config: _q.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	_q.withPaymentInvoices = query
 	return _q
 }
 
@@ -840,7 +876,7 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = _q.querySpec()
-		loadedTypes = [14]bool{
+		loadedTypes = [15]bool{
 			_q.withAPIKeys != nil,
 			_q.withRedeemCodes != nil,
 			_q.withSubscriptions != nil,
@@ -851,6 +887,7 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 			_q.withAttributeValues != nil,
 			_q.withPromoCodeUsages != nil,
 			_q.withPaymentOrders != nil,
+			_q.withPaymentInvoices != nil,
 			_q.withAuthIdentities != nil,
 			_q.withPendingAuthSessions != nil,
 			_q.withPlatformQuotas != nil,
@@ -947,6 +984,13 @@ func (_q *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 		if err := _q.loadPaymentOrders(ctx, query, nodes,
 			func(n *User) { n.Edges.PaymentOrders = []*PaymentOrder{} },
 			func(n *User, e *PaymentOrder) { n.Edges.PaymentOrders = append(n.Edges.PaymentOrders, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := _q.withPaymentInvoices; query != nil {
+		if err := _q.loadPaymentInvoices(ctx, query, nodes,
+			func(n *User) { n.Edges.PaymentInvoices = []*PaymentInvoice{} },
+			func(n *User, e *PaymentInvoice) { n.Edges.PaymentInvoices = append(n.Edges.PaymentInvoices, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -1305,6 +1349,36 @@ func (_q *UserQuery) loadPaymentOrders(ctx context.Context, query *PaymentOrderQ
 	}
 	query.Where(predicate.PaymentOrder(func(s *sql.Selector) {
 		s.Where(sql.InValues(s.C(user.PaymentOrdersColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
+}
+func (_q *UserQuery) loadPaymentInvoices(ctx context.Context, query *PaymentInvoiceQuery, nodes []*User, init func(*User), assign func(*User, *PaymentInvoice)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int64]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(paymentinvoice.FieldUserID)
+	}
+	query.Where(predicate.PaymentInvoice(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.PaymentInvoicesColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {

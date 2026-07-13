@@ -112,6 +112,8 @@ export default {
         emailSuffixWhitelistInputHint: '留空则不限制。使用 *.edu.cn 可匹配 edu.cn 及其子域名。',
         promoCode: '优惠码',
         promoCodeHint: '允许用户在注册时使用优惠码',
+        promoCodeRequiredOnSignup: '注册时必须填写优惠码',
+        promoCodeRequiredOnSignupHint: '开启后，新用户必须填写有效优惠码才能创建账号',
         invitationCode: '邀请码注册',
         invitationCodeHint: '开启后，用户注册时需要填写有效的邀请码',
         passwordReset: '忘记密码',

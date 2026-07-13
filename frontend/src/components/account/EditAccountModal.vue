@@ -1441,6 +1441,23 @@
           <input v-model.number="form.rate_multiplier" type="number" min="0" step="0.001" class="input" />
           <p class="input-hint">{{ t('admin.accounts.billingRateMultiplierHint') }}</p>
         </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.inputTokenMultiplier') }}</label>
+          <input v-model.number="form.input_token_multiplier" type="number" min="0.001" step="0.001" required class="input" />
+          <p class="input-hint">{{ t('admin.accounts.tokenMultiplierHint') }}</p>
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.outputTokenMultiplier') }}</label>
+          <input v-model.number="form.output_token_multiplier" type="number" min="0.001" step="0.001" required class="input" />
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.cacheCreationTokenMultiplier') }}</label>
+          <input v-model.number="form.cache_creation_token_multiplier" type="number" min="0.001" step="0.001" required class="input" />
+        </div>
+        <div>
+          <label class="input-label">{{ t('admin.accounts.cacheReadTokenMultiplier') }}</label>
+          <input v-model.number="form.cache_read_token_multiplier" type="number" min="0.001" step="0.001" required class="input" />
+        </div>
       </div>
       <div class="border-t border-gray-200 pt-4 dark:border-dark-600">
         <label class="input-label">{{ t('admin.accounts.expiresAt') }}</label>
@@ -3094,6 +3111,10 @@ const form = reactive({
   load_factor: null as number | null,
   priority: 1,
   rate_multiplier: 1,
+  input_token_multiplier: 1,
+  output_token_multiplier: 1,
+  cache_creation_token_multiplier: 1,
+  cache_read_token_multiplier: 1,
   status: 'active' as 'active' | 'inactive' | 'error',
   group_ids: [] as number[],
   expires_at: null as number | null
@@ -3183,6 +3204,10 @@ const syncFormFromAccount = (newAccount: Account | null) => {
   form.load_factor = newAccount.load_factor ?? null
   form.priority = newAccount.priority
   form.rate_multiplier = newAccount.rate_multiplier ?? 1
+  form.input_token_multiplier = newAccount.input_token_multiplier ?? 1
+  form.output_token_multiplier = newAccount.output_token_multiplier ?? 1
+  form.cache_creation_token_multiplier = newAccount.cache_creation_token_multiplier ?? 1
+  form.cache_read_token_multiplier = newAccount.cache_read_token_multiplier ?? 1
   form.status = (newAccount.status === 'active' || newAccount.status === 'inactive' || newAccount.status === 'error')
     ? newAccount.status
     : 'active'
