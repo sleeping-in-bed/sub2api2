@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"regexp"
-	"strings"
 	"testing"
+	"time"
 
 	sqlmock "github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/require"
@@ -17,50 +17,50 @@ func TestEnsureInitialAnnouncementsNilDB(t *testing.T) {
 	require.Contains(t, err.Error(), "nil sql db")
 }
 
-func TestEnsureInitialAnnouncementsUpsertsAllSeeds(t *testing.T) {
+func TestEnsureInitialAnnouncementsHasNoHistoricalDefaults(t *testing.T) {
+	require.Empty(t, initialAnnouncementSeeds)
+}
+
+func TestUpsertInitialAnnouncements(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer func() { _ = db.Close() }()
 
-	for _, seed := range initialAnnouncementSeeds {
-		mock.ExpectExec(regexp.QuoteMeta(initialAnnouncementUpsertSQL)).
-			WithArgs(seed.SeedKey, seed.Title, seed.Content, seed.NotifyMode, seed.Published).
-			WillReturnResult(sqlmock.NewResult(0, 1))
+	seed := initialAnnouncementSeed{
+		SeedKey:    "release_notice_2026_07_13",
+		Title:      "Release notice",
+		Content:    "Release content",
+		NotifyMode: "silent",
+		Published:  time.Date(2026, 7, 13, 12, 0, 0, 0, time.FixedZone("UTC+8", 8*60*60)),
 	}
+	mock.ExpectExec(regexp.QuoteMeta(initialAnnouncementUpsertSQL)).
+		WithArgs(seed.SeedKey, seed.Title, seed.Content, seed.NotifyMode, seed.Published).
+		WillReturnResult(sqlmock.NewResult(0, 1))
 
-	require.NoError(t, ensureInitialAnnouncements(context.Background(), db))
+	require.NoError(t, upsertInitialAnnouncements(context.Background(), db, []initialAnnouncementSeed{seed}))
 	require.NoError(t, mock.ExpectationsWereMet())
 }
 
-func TestEnsureInitialAnnouncementsReturnsExecError(t *testing.T) {
+func TestUpsertInitialAnnouncementsReturnsExecError(t *testing.T) {
 	db, mock, err := sqlmock.New()
 	require.NoError(t, err)
 	defer func() { _ = db.Close() }()
 
 	wantErr := errors.New("insert failed")
-	seed := initialAnnouncementSeeds[0]
+	seed := initialAnnouncementSeed{
+		SeedKey:    "failed_notice",
+		Title:      "Failed notice",
+		Content:    "Failed content",
+		NotifyMode: "silent",
+		Published:  time.Now(),
+	}
 	mock.ExpectExec(regexp.QuoteMeta(initialAnnouncementUpsertSQL)).
 		WithArgs(seed.SeedKey, seed.Title, seed.Content, seed.NotifyMode, seed.Published).
 		WillReturnError(wantErr)
 
-	err = ensureInitialAnnouncements(context.Background(), db)
+	err = upsertInitialAnnouncements(context.Background(), db, []initialAnnouncementSeed{seed})
 	require.Error(t, err)
 	require.ErrorIs(t, err, wantErr)
 	require.Contains(t, err.Error(), seed.SeedKey)
 	require.NoError(t, mock.ExpectationsWereMet())
-}
-
-func TestInitialAnnouncementSeedsAreStableAndSanitized(t *testing.T) {
-	seen := make(map[string]struct{}, len(initialAnnouncementSeeds))
-	for _, seed := range initialAnnouncementSeeds {
-		require.NotEmpty(t, seed.SeedKey)
-		_, exists := seen[seed.SeedKey]
-		require.False(t, exists, "duplicate announcement seed key %s", seed.SeedKey)
-		seen[seed.SeedKey] = struct{}{}
-
-		body := seed.Title + "\n" + seed.Content
-		for _, prohibited := range []string{"售后群", "闲鱼", "咸鱼"} {
-			require.False(t, strings.Contains(body, prohibited), "announcement %s contains %s", seed.SeedKey, prohibited)
-		}
-	}
 }
