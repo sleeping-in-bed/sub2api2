@@ -11,6 +11,8 @@ import type {
   CheckoutInfoResponse,
   CreateOrderRequest,
   CreateOrderResult,
+  PaymentInvoice,
+  PaymentInvoiceSummaryResponse,
   PaymentOrder
 } from '@/types/payment'
 import type { BasePaginationResponse } from '@/types'
@@ -62,6 +64,27 @@ export const paymentAPI = {
   /** Cancel a pending order */
   cancelOrder(id: number) {
     return apiClient.post(`/payment/orders/${id}/cancel`)
+  },
+
+  getInvoiceSummary() {
+    return apiClient.get<PaymentInvoiceSummaryResponse>('/payment/invoices/summary')
+  },
+
+  getInvoiceAvailableOrders(params?: { page?: number; page_size?: number }) {
+    return apiClient.get<BasePaginationResponse<PaymentOrder>>('/payment/invoices/available-orders', { params })
+  },
+
+  getMyInvoices(params?: { page?: number; page_size?: number; status?: string }) {
+    return apiClient.get<BasePaginationResponse<PaymentInvoice>>('/payment/invoices', { params })
+  },
+
+  createInvoice(data: { order_ids: number[]; title_name: string; tax_id: string }) {
+    return apiClient.post<PaymentInvoice>('/payment/invoices', data)
+  },
+
+  async downloadInvoice(id: number): Promise<Blob> {
+    const response = await apiClient.get(`/payment/invoices/${id}/download`, { responseType: 'blob' })
+    return response.data
   },
 
   /** Verify order payment status with upstream provider */

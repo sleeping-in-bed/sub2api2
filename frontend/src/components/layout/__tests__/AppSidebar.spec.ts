@@ -53,3 +53,10 @@ describe('AppSidebar header styles', () => {
     expect(sidebarBrandBlockMatch?.[0]).not.toContain('overflow: hidden;')
   })
 })
+
+describe('AppSidebar user payment navigation', () => {
+  it('keeps invoice management inside the orders workflow', () => {
+    expect(componentSource).toContain("{ path: '/orders', label: t('nav.myOrders')")
+    expect(componentSource).not.toContain("{ path: '/invoices', label: t('nav.myInvoices')")
+  })
+})

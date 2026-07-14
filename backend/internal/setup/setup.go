@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Wei-Shaw/sub2api/internal/config"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/datadir"
 	"github.com/Wei-Shaw/sub2api/internal/pkg/logger"
 	"github.com/Wei-Shaw/sub2api/internal/repository"
 	"github.com/Wei-Shaw/sub2api/internal/service"
@@ -26,7 +27,7 @@ import (
 const (
 	ConfigFileName             = "config.yaml"
 	InstallLockFile            = ".installed"
-	defaultUserConcurrency     = 5
+	defaultUserConcurrency     = 20
 	simpleModeAdminConcurrency = 30
 	defaultMigrationTimeout    = 60 * time.Second
 )
@@ -38,38 +39,14 @@ func setupDefaultAdminConcurrency() int {
 	return defaultUserConcurrency
 }
 
-// GetDataDir returns the data directory for storing config and lock files.
-// Priority: DATA_DIR env > /app/data (if exists and writable) > current directory
-func GetDataDir() string {
-	// Check DATA_DIR environment variable first
-	if dir := os.Getenv("DATA_DIR"); dir != "" {
-		return dir
-	}
-
-	// Check if /app/data exists and is writable (Docker environment)
-	dockerDataDir := "/app/data"
-	if info, err := os.Stat(dockerDataDir); err == nil && info.IsDir() {
-		// Try to check if writable by creating a temp file
-		testFile := dockerDataDir + "/.write_test"
-		if f, err := os.Create(testFile); err == nil {
-			_ = f.Close()
-			_ = os.Remove(testFile)
-			return dockerDataDir
-		}
-	}
-
-	// Default to current directory
-	return "."
-}
-
 // GetConfigFilePath returns the full path to config.yaml
 func GetConfigFilePath() string {
-	return GetDataDir() + "/" + ConfigFileName
+	return datadir.Resolve() + "/" + ConfigFileName
 }
 
 // GetInstallLockPath returns the full path to .installed lock file
 func GetInstallLockPath() string {
-	return GetDataDir() + "/" + InstallLockFile
+	return datadir.Resolve() + "/" + InstallLockFile
 }
 
 // SetupConfig holds the setup configuration
@@ -549,7 +526,7 @@ func getEnvIntOrDefault(key string, defaultValue int) int {
 // This is designed for Docker deployment where all config is passed via env vars
 func AutoSetupFromEnv() error {
 	logger.LegacyPrintf("setup", "%s", "Auto setup enabled, configuring from environment variables...")
-	logger.LegacyPrintf("setup", "Data directory: %s", GetDataDir())
+	logger.LegacyPrintf("setup", "Data directory: %s", datadir.Resolve())
 
 	// Get timezone from TZ or TIMEZONE env var (TZ is standard for Docker)
 	tz := getEnvOrDefault("TZ", "")

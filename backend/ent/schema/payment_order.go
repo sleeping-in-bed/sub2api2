@@ -98,6 +98,7 @@ func (PaymentOrder) Fields() []ent.Field {
 		field.JSON("provider_snapshot", map[string]any{}).
 			Optional().
 			SchemaType(map[string]string{dialect.Postgres: "jsonb"}),
+		field.Int64("invoice_id").Optional().Nillable(),
 
 		// 状态
 		field.String("status").
@@ -180,6 +181,7 @@ func (PaymentOrder) Edges() []ent.Edge {
 			Field("user_id").
 			Unique().
 			Required(),
+		edge.From("invoice", PaymentInvoice.Type).Ref("orders").Field("invoice_id").Unique(),
 	}
 }
 
@@ -195,5 +197,6 @@ func (PaymentOrder) Indexes() []ent.Index {
 		index.Fields("paid_at"),
 		index.Fields("payment_type", "paid_at"),
 		index.Fields("order_type"),
+		index.Fields("invoice_id"),
 	}
 }
