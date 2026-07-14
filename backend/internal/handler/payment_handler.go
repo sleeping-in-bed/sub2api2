@@ -464,6 +464,7 @@ func (h *PaymentHandler) VerifyOrder(c *gin.Context) {
 // frontend contract needed by payment result pages.
 type PublicOrderResult struct {
 	ID                  int64      `json:"id"`
+	OrderUUID           string     `json:"order_uuid"`
 	OutTradeNo          string     `json:"out_trade_no"`
 	Amount              float64    `json:"amount"`
 	PayAmount           float64    `json:"pay_amount"`
@@ -499,6 +500,7 @@ type PublicOrderVerifyResult struct {
 func buildPublicOrderResult(order *dbent.PaymentOrder) PublicOrderResult {
 	return PublicOrderResult{
 		ID:                  order.ID,
+		OrderUUID:           service.PaymentOrderUUID(order.ID),
 		OutTradeNo:          order.OutTradeNo,
 		Amount:              order.Amount,
 		PayAmount:           order.PayAmount,
@@ -607,6 +609,7 @@ func isMobile(c *gin.Context) bool {
 
 type PaymentOrderResult struct {
 	ID                  int64      `json:"id"`
+	OrderUUID           string     `json:"order_uuid"`
 	UserID              int64      `json:"user_id"`
 	Amount              float64    `json:"amount"`
 	PayAmount           float64    `json:"pay_amount"`
@@ -645,6 +648,7 @@ func sanitizePaymentOrderForResponse(order *dbent.PaymentOrder) *PaymentOrderRes
 	}
 	return &PaymentOrderResult{
 		ID:                  order.ID,
+		OrderUUID:           service.PaymentOrderUUID(order.ID),
 		UserID:              order.UserID,
 		Amount:              order.Amount,
 		PayAmount:           order.PayAmount,

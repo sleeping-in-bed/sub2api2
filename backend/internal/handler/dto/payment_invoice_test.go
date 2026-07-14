@@ -34,6 +34,8 @@ func TestPaymentInvoiceFromEntBuildsStableResponseWithoutStorageMetadata(t *test
 	require.Equal(t, 110.0, result.TotalAmount)
 	require.Equal(t, 100.0, result.TotalPayAmount)
 	require.Len(t, result.Orders, 2)
+	require.Equal(t, "d5a5b456-1618-5dd4-bc70-5399b4a144a5", result.Orders[0].OrderUUID)
+	require.Equal(t, "4d0b10bb-b402-50e2-97b2-5f6e09e90dd3", result.Orders[1].OrderUUID)
 
 	payload, err := json.Marshal(result)
 	require.NoError(t, err)

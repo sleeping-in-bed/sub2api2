@@ -39,6 +39,9 @@ func TestBuildCreateOrderResponseDefaultsToOrderCreated(t *testing.T) {
 	if resp.OutTradeNo != "sub2_42" {
 		t.Fatalf("out_trade_no = %q, want %q", resp.OutTradeNo, "sub2_42")
 	}
+	if resp.OrderUUID != PaymentOrderUUID(42) {
+		t.Fatalf("order_uuid = %q, want %q", resp.OrderUUID, PaymentOrderUUID(42))
+	}
 	if resp.QRCode != "weixin://wxpay/bizpayurl?pr=test" {
 		t.Fatalf("qr_code = %q, want %q", resp.QRCode, "weixin://wxpay/bizpayurl?pr=test")
 	}
@@ -47,6 +50,21 @@ func TestBuildCreateOrderResponseDefaultsToOrderCreated(t *testing.T) {
 	}
 	if !resp.ExpiresAt.Equal(expiresAt) {
 		t.Fatalf("expires_at = %v, want %v", resp.ExpiresAt, expiresAt)
+	}
+}
+
+func TestPaymentOrderUUIDIsDeterministicAndUnique(t *testing.T) {
+	t.Parallel()
+
+	first := PaymentOrderUUID(42)
+	if first != PaymentOrderUUID(42) {
+		t.Fatalf("same payment order ID produced different UUIDs")
+	}
+	if first == PaymentOrderUUID(43) {
+		t.Fatalf("different payment order IDs produced the same UUID")
+	}
+	if len(first) != 36 {
+		t.Fatalf("UUID length = %d, want 36", len(first))
 	}
 }
 

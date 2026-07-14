@@ -20,7 +20,7 @@
             <thead class="bg-gray-50 dark:bg-dark-800">
               <tr>
                 <th class="w-12 px-4 py-3"></th>
-                <th class="px-4 py-3 text-left">{{ t('payment.orders.orderNo') }}</th>
+                <th class="px-4 py-3 text-left">{{ t('payment.orders.orderId') }}</th>
                 <th class="px-4 py-3 text-right">{{ t('payment.orders.payAmount') }}</th>
                 <th class="px-4 py-3 text-left">{{ t('payment.orders.completedAt') }}</th>
               </tr>
@@ -28,7 +28,7 @@
             <tbody class="divide-y divide-gray-200 bg-white dark:divide-dark-600 dark:bg-dark-900">
               <tr v-for="order in availableOrders" :key="order.id">
                 <td class="px-4 py-3"><input v-model="selectedOrderIDs" type="checkbox" :value="order.id" /></td>
-                <td class="px-4 py-3 font-mono text-gray-700 dark:text-gray-300">{{ order.out_trade_no }}</td>
+                <td class="px-4 py-3 font-mono text-gray-700 dark:text-gray-300">{{ order.order_uuid }}</td>
                 <td class="px-4 py-3 text-right font-medium text-gray-900 dark:text-white">{{ order.pay_amount.toFixed(2) }}</td>
                 <td class="px-4 py-3 text-gray-500 dark:text-gray-400">{{ formatDate(order.completed_at) }}</td>
               </tr>
@@ -56,7 +56,7 @@
           <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-dark-600">
             <thead class="bg-gray-50 dark:bg-dark-800">
               <tr>
-                <th class="px-4 py-3 text-left">ID</th>
+                <th class="px-4 py-3 text-left">{{ t('payment.orders.orderId') }}</th>
                 <th class="px-4 py-3 text-left">{{ t('payment.invoices.titleName') }}</th>
                 <th class="px-4 py-3 text-right">{{ t('payment.invoices.amount') }}</th>
                 <th class="px-4 py-3 text-left">{{ t('payment.orders.status') }}</th>
@@ -65,7 +65,9 @@
             </thead>
             <tbody class="divide-y divide-gray-200 bg-white dark:divide-dark-600 dark:bg-dark-900">
               <tr v-for="invoice in invoices" :key="invoice.id">
-                <td class="px-4 py-3 font-mono">#{{ invoice.id }}</td>
+                <td class="px-4 py-3 font-mono">
+                  <div v-for="order in invoice.orders" :key="order.id" class="whitespace-nowrap">{{ order.order_uuid }}</div>
+                </td>
                 <td class="px-4 py-3">{{ invoice.title_name }}</td>
                 <td class="px-4 py-3 text-right">{{ invoice.total_pay_amount.toFixed(2) }}</td>
                 <td class="px-4 py-3">{{ t(`payment.invoices.status.${invoice.status}`) }}</td>

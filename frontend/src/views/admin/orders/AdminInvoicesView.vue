@@ -11,7 +11,7 @@
         <table class="min-w-full divide-y divide-gray-200 text-sm dark:divide-dark-600">
           <thead class="bg-gray-50 dark:bg-dark-800">
             <tr>
-              <th class="px-4 py-3 text-left">ID</th>
+              <th class="px-4 py-3 text-left">{{ t('payment.orders.orderId') }}</th>
               <th class="px-4 py-3 text-left">{{ t('payment.invoices.titleName') }}</th>
               <th class="px-4 py-3 text-left">{{ t('payment.invoices.taxId') }}</th>
               <th class="px-4 py-3 text-right">{{ t('payment.invoices.amount') }}</th>
@@ -21,7 +21,9 @@
           </thead>
           <tbody class="divide-y divide-gray-200 bg-white dark:divide-dark-600 dark:bg-dark-900">
             <tr v-for="invoice in invoices" :key="invoice.id">
-              <td class="px-4 py-3 font-mono">#{{ invoice.id }}</td>
+              <td class="px-4 py-3 font-mono">
+                <div v-for="order in invoice.orders" :key="order.id" class="whitespace-nowrap">{{ order.order_uuid }}</div>
+              </td>
               <td class="px-4 py-3">{{ invoice.title_name }}</td>
               <td class="px-4 py-3 font-mono">{{ invoice.tax_id }}</td>
               <td class="px-4 py-3 text-right">{{ invoice.total_pay_amount?.toFixed(2) || '-' }}</td>

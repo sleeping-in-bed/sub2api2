@@ -4,6 +4,7 @@ import (
 	"time"
 
 	dbent "github.com/Wei-Shaw/sub2api/ent"
+	"github.com/Wei-Shaw/sub2api/internal/service"
 )
 
 type PaymentInvoiceSummary struct {
@@ -26,6 +27,7 @@ type PaymentInvoiceSummary struct {
 
 type PaymentInvoiceOrder struct {
 	ID          int64      `json:"id"`
+	OrderUUID   string     `json:"order_uuid"`
 	Status      string     `json:"status"`
 	OrderType   string     `json:"order_type"`
 	PaymentType string     `json:"payment_type"`
@@ -66,7 +68,7 @@ func PaymentInvoiceFromEnt(invoice *dbent.PaymentInvoice) *PaymentInvoice {
 		result.TotalAmount += order.Amount
 		result.TotalPayAmount += order.PayAmount
 		result.Orders = append(result.Orders, PaymentInvoiceOrder{
-			ID: order.ID, Status: order.Status, OrderType: order.OrderType, PaymentType: order.PaymentType,
+			ID: order.ID, OrderUUID: service.PaymentOrderUUID(order.ID), Status: order.Status, OrderType: order.OrderType, PaymentType: order.PaymentType,
 			OutTradeNo: order.OutTradeNo, Amount: order.Amount, PayAmount: order.PayAmount,
 			CreatedAt: order.CreatedAt, CompletedAt: order.CompletedAt,
 		})
