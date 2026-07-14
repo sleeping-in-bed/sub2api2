@@ -50,6 +50,7 @@ import { formatPaymentAmount } from '@/components/payment/currency'
 
 const orderFactory = (status: string) => ({
   id: 42,
+  order_uuid: 'd5a5b456-1618-5dd4-bc70-5399b4a144a5',
   user_id: 9,
   amount: 88,
   pay_amount: 88,
@@ -380,7 +381,7 @@ describe('PaymentResultView', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('payment.result.success')
-    expect(wrapper.text()).toContain('legacy-minimal')
+    expect(wrapper.text()).not.toContain('legacy-minimal')
     expect(wrapper.text()).not.toContain('payment.orders.paymentMethod')
   })
 

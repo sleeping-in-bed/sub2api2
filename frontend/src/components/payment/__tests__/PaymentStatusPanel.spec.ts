@@ -46,6 +46,7 @@ import PaymentStatusPanel from '../PaymentStatusPanel.vue'
 
 const orderFactory = (status: string) => ({
   id: 42,
+  order_uuid: 'd5a5b456-1618-5dd4-bc70-5399b4a144a5',
   user_id: 9,
   amount: 88,
   pay_amount: 88,
@@ -97,6 +98,7 @@ describe('PaymentStatusPanel', () => {
 
     expect(pollOrderStatus).toHaveBeenCalledWith(42)
     expect(wrapper.text()).toContain('payment.result.success')
+    expect(wrapper.text()).not.toContain('sub2_20260420abcd1234')
     expect(wrapper.emitted('success')).toHaveLength(1)
   })
 

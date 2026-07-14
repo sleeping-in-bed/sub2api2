@@ -344,7 +344,6 @@ export default {
       title: 'My Orders',
       empty: 'No orders yet',
       orderId: 'Order ID',
-      orderNo: 'Order No.',
       amount: 'Amount',
       payAmount: 'Paid',
       creditedAmount: 'Credited Amount',

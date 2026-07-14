@@ -16,10 +16,6 @@
                 <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.orderId') }}</span>
                 <span class="break-all font-mono font-medium text-gray-900 dark:text-white">{{ paidOrder.order_uuid }}</span>
               </div>
-              <div v-if="paidOrder.out_trade_no" class="flex justify-between">
-                <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.orderNo') }}</span>
-                <span class="font-medium text-gray-900 dark:text-white">{{ paidOrder.out_trade_no }}</span>
-              </div>
               <div class="flex justify-between">
                 <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.amount') }}</span>
                 <span class="font-medium text-gray-900 dark:text-white">{{ creditedAmountSymbol }}{{ paidOrder.amount.toFixed(2) }}</span>
