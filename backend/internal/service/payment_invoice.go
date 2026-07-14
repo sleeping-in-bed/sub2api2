@@ -16,6 +16,7 @@ import (
 	dbent "github.com/Wei-Shaw/sub2api/ent"
 	"github.com/Wei-Shaw/sub2api/ent/paymentinvoice"
 	"github.com/Wei-Shaw/sub2api/ent/paymentorder"
+	"github.com/Wei-Shaw/sub2api/internal/pkg/datadir"
 	infraerrors "github.com/Wei-Shaw/sub2api/internal/pkg/errors"
 )
 
@@ -392,15 +393,8 @@ func sanitizePaymentInvoiceFileName(original string, invoiceID int64) string {
 	return base + ".pdf"
 }
 
-func paymentInvoiceDataDir() string {
-	if dir := strings.TrimSpace(os.Getenv("DATA_DIR")); dir != "" {
-		return dir
-	}
-	return "."
-}
-
 func paymentInvoiceAbsolutePath(storageKey string) (string, error) {
-	baseDir, err := filepath.Abs(paymentInvoiceDataDir())
+	baseDir, err := filepath.Abs(datadir.Resolve())
 	if err != nil {
 		return "", fmt.Errorf("resolve invoice data directory: %w", err)
 	}
