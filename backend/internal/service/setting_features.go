@@ -43,11 +43,33 @@ func (s *SettingService) GetRegistrationEmailSuffixWhitelist(ctx context.Context
 
 // IsPromoCodeEnabled 检查是否启用优惠码功能
 func (s *SettingService) IsPromoCodeEnabled(ctx context.Context) bool {
+	if s.IsPromoCodeRequiredOnSignup(ctx) {
+		return true
+	}
 	value, err := s.settingRepo.GetValue(ctx, SettingKeyPromoCodeEnabled)
 	if err != nil {
 		return true // 默认启用
 	}
 	return value != "false"
+}
+
+// IsPromoCodeRequiredOnSignup 检查注册时是否必须填写有效优惠码。
+func (s *SettingService) IsPromoCodeRequiredOnSignup(ctx context.Context) bool {
+	if s != nil && s.cfg != nil && s.cfg.Signup.PromoCodeRequiredOnSignupExplicit {
+		return s.cfg.Signup.PromoCodeRequiredOnSignup
+	}
+	value, err := s.settingRepo.GetValue(ctx, SettingKeyPromoCodeRequiredOnSignup)
+	if err != nil {
+		return false
+	}
+	return value == "true"
+}
+
+func (s *SettingService) promoCodeRequiredOnSignupFromSettings(settings map[string]string) bool {
+	if s != nil && s.cfg != nil && s.cfg.Signup.PromoCodeRequiredOnSignupExplicit {
+		return s.cfg.Signup.PromoCodeRequiredOnSignup
+	}
+	return settings[SettingKeyPromoCodeRequiredOnSignup] == "true"
 }
 
 // IsInvitationCodeEnabled 检查是否启用邀请码注册功能
@@ -173,7 +195,7 @@ func (s *SettingService) IsTotpEncryptionKeyConfigured() bool {
 func (s *SettingService) GetSiteName(ctx context.Context) string {
 	value, err := s.settingRepo.GetValue(ctx, SettingKeySiteName)
 	if err != nil || value == "" {
-		return "Sub2API"
+		return "MindAI"
 	}
 	return value
 }

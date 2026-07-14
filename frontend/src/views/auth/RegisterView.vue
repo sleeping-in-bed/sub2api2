@@ -211,13 +211,6 @@
           @open="showAgreementModal = true"
         />
 
-        <div
-          v-if="errorMessage"
-          class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-300"
-        >
-          {{ errorMessage }}
-        </div>
-
         <!-- Submit Button -->
         <button
           type="submit"

@@ -94,8 +94,8 @@ func TestSettingService_GetPublicSettings_ExposesForceEmailOnThirdPartySignup(t 
 func TestSettingService_GetPublicSettings_ExposesPromoCodeRequiredOnSignup(t *testing.T) {
 	repo := &settingPublicRepoStub{
 		values: map[string]string{
-			SettingKeyPromoCodeEnabled:           "false",
-			SettingKeyPromoCodeRequiredOnSignup:  "true",
+			SettingKeyPromoCodeEnabled:          "false",
+			SettingKeyPromoCodeRequiredOnSignup: "true",
 		},
 	}
 	svc := NewSettingService(repo, &config.Config{})
@@ -106,11 +106,11 @@ func TestSettingService_GetPublicSettings_ExposesPromoCodeRequiredOnSignup(t *te
 	require.True(t, settings.PromoCodeEnabled)
 }
 
-func TestSettingService_GetPublicSettings_EnvOverridePromoCodeRequiredOnSignup(t *testing.T) {
+func TestSettingService_GetPublicSettings_ConfigOverridesPromoCodeRequiredOnSignup(t *testing.T) {
 	repo := &settingPublicRepoStub{
 		values: map[string]string{
-			SettingKeyPromoCodeEnabled:           "true",
-			SettingKeyPromoCodeRequiredOnSignup:  "true",
+			SettingKeyPromoCodeEnabled:          "true",
+			SettingKeyPromoCodeRequiredOnSignup: "true",
 		},
 	}
 	svc := NewSettingService(repo, &config.Config{

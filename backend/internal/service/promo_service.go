@@ -93,29 +93,47 @@ func (s *PromoService) ApplyPromoCode(ctx context.Context, userID int64, code st
 	if code == "" {
 		return nil
 	}
-	if s == nil || s.promoRepo == nil || s.userRepo == nil {
-		return ErrServiceUnavailable
+	if tx := dbent.TxFromContext(ctx); tx != nil {
+		return s.applyPromoCodeInTransaction(ctx, userID, code)
 	}
 
-	tx := dbent.TxFromContext(ctx)
-	txCtx := ctx
-	ownsTx := false
-	if tx == nil {
-		if s.entClient == nil {
-			return ErrServiceUnavailable
-		}
-		var err error
-		tx, err = s.entClient.Tx(ctx)
-		if err != nil {
-			return fmt.Errorf("begin transaction: %w", err)
-		}
-		ownsTx = true
-		txCtx = dbent.NewTxContext(ctx, tx)
-		defer func() { _ = tx.Rollback() }()
+	// 开启事务
+	tx, err := s.entClient.Tx(ctx)
+	if err != nil {
+		return fmt.Errorf("begin transaction: %w", err)
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	txCtx := dbent.NewTxContext(ctx, tx)
+
+	if err := s.applyPromoCodeInTransaction(txCtx, userID, code); err != nil {
+		return err
 	}
 
+	if err := tx.Commit(); err != nil {
+		return fmt.Errorf("commit transaction: %w", err)
+	}
+
+	promoCode, err := s.promoRepo.GetByCode(ctx, code)
+	if err == nil {
+		s.invalidatePromoCaches(ctx, userID, promoCode.BonusAmount)
+	}
+
+	// 失效余额缓存
+	if s.billingCacheService != nil {
+		go func() {
+			cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			_ = s.billingCacheService.InvalidateUserBalance(cacheCtx, userID)
+		}()
+	}
+
+	return nil
+}
+
+func (s *PromoService) applyPromoCodeInTransaction(ctx context.Context, userID int64, code string) error {
 	// 在事务中获取并锁定优惠码记录（FOR UPDATE）
-	promoCode, err := s.promoRepo.GetByCodeForUpdate(txCtx, code)
+	promoCode, err := s.promoRepo.GetByCodeForUpdate(ctx, code)
 	if err != nil {
 		return err
 	}
@@ -126,7 +144,7 @@ func (s *PromoService) ApplyPromoCode(ctx context.Context, userID int64, code st
 	}
 
 	// 在事务中检查用户是否已使用过此优惠码
-	existing, err := s.promoRepo.GetUsageByPromoCodeAndUser(txCtx, promoCode.ID, userID)
+	existing, err := s.promoRepo.GetUsageByPromoCodeAndUser(ctx, promoCode.ID, userID)
 	if err != nil {
 		return fmt.Errorf("check existing usage: %w", err)
 	}
@@ -135,7 +153,7 @@ func (s *PromoService) ApplyPromoCode(ctx context.Context, userID int64, code st
 	}
 
 	// 增加用户余额
-	if err := s.userRepo.UpdateBalance(txCtx, userID, promoCode.BonusAmount); err != nil {
+	if err := s.userRepo.UpdateBalance(ctx, userID, promoCode.BonusAmount); err != nil {
 		return fmt.Errorf("update user balance: %w", err)
 	}
 
@@ -146,34 +164,14 @@ func (s *PromoService) ApplyPromoCode(ctx context.Context, userID int64, code st
 		BonusAmount: promoCode.BonusAmount,
 		UsedAt:      time.Now(),
 	}
-	if err := s.promoRepo.CreateUsage(txCtx, usage); err != nil {
+	if err := s.promoRepo.CreateUsage(ctx, usage); err != nil {
 		return fmt.Errorf("create usage record: %w", err)
 	}
 
 	// 增加使用次数
-	if err := s.promoRepo.IncrementUsedCount(txCtx, promoCode.ID); err != nil {
+	if err := s.promoRepo.IncrementUsedCount(ctx, promoCode.ID); err != nil {
 		return fmt.Errorf("increment used count: %w", err)
 	}
-
-	if ownsTx {
-		if err := tx.Commit(); err != nil {
-			return fmt.Errorf("commit transaction: %w", err)
-		}
-	}
-
-	if ownsTx {
-		s.invalidatePromoCaches(ctx, userID, promoCode.BonusAmount)
-
-		// 失效余额缓存
-		if s.billingCacheService != nil {
-			go func() {
-				cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-				defer cancel()
-				_ = s.billingCacheService.InvalidateUserBalance(cacheCtx, userID)
-			}()
-		}
-	}
-
 	return nil
 }
 

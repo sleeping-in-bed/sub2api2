@@ -186,6 +186,7 @@ func TestRegisterOAuthEmailAccountRollsBackCreatedUserWhenTokenPairGenerationFai
 		"secret-123",
 		"246810",
 		"INVITE123",
+		"",
 		"oidc",
 	)
 
@@ -226,6 +227,7 @@ func TestRegisterOAuthEmailAccountSetsNormalizedSignupSourceOnCreatedUser(t *tes
 		"fresh@example.com",
 		"secret-123",
 		"246810",
+		"",
 		"",
 		" OIDC ",
 	)
@@ -287,6 +289,7 @@ func TestRegisterOAuthEmailAccountKeepsGitHubAndGoogleSignupSource(t *testing.T)
 				"secret-123",
 				"246810",
 				"",
+				"",
 				tt.signupSource,
 			)
 
@@ -326,6 +329,7 @@ func TestRegisterOAuthEmailAccountFallsBackUnknownSignupSourceToEmail(t *testing
 		"fallback@example.com",
 		"secret-123",
 		"246810",
+		"",
 		"",
 		"unknown-provider",
 	)
@@ -426,6 +430,7 @@ func TestFinalizeOAuthEmailAccount_SnapshotsPlatformQuotaDefaults(t *testing.T) 
 	err := authService.FinalizeOAuthEmailAccount(
 		context.Background(),
 		user,
+		"",
 		"",
 		"oidc",
 		"",

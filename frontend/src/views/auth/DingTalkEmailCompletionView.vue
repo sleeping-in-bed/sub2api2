@@ -82,7 +82,8 @@ async function handleCreateAccount(payload: PendingOAuthCreateAccountPayload) {
         email: payload.email,
         password: payload.password,
         verify_code: payload.verifyCode || undefined,
-        invitation_code: payload.invitationCode || undefined
+        invitation_code: payload.invitationCode || undefined,
+        promo_code: payload.promoCode || undefined
       }
     )
 

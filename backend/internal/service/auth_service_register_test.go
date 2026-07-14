@@ -324,19 +324,40 @@ func TestAuthService_Register_PromoCodeRequiredOnSignup(t *testing.T) {
 
 	_, _, err := service.RegisterWithVerification(context.Background(), "user@test.com", "password", "", "", "", "")
 	require.ErrorIs(t, err, ErrPromoCodeRequired)
+	require.Empty(t, repo.created)
 }
 
-func TestAuthService_Register_PromoCodeRequiredOnSignup_EnvOverride(t *testing.T) {
+func TestAuthService_ValidateSignupPromoCode_IgnoresCodeWhenDisabled(t *testing.T) {
+	service := newAuthService(&userRepoStub{}, map[string]string{
+		SettingKeyPromoCodeEnabled: "false",
+	}, nil, nil)
+
+	promoCode, err := service.validateSignupPromoCode(context.Background(), "STALE-CODE")
+	require.NoError(t, err)
+	require.Nil(t, promoCode)
+}
+
+func TestAuthService_ValidateSignupPromoCode_RequiredEnablesValidation(t *testing.T) {
+	service := newAuthService(&userRepoStub{}, map[string]string{
+		SettingKeyPromoCodeEnabled:          "false",
+		SettingKeyPromoCodeRequiredOnSignup: "true",
+	}, nil, nil)
+
+	_, err := service.validateSignupPromoCode(context.Background(), "REQUIRED-CODE")
+	require.ErrorIs(t, err, ErrServiceUnavailable)
+}
+
+func TestAuthService_OAuthRegister_PromoCodeRequiredOnSignup(t *testing.T) {
 	repo := &userRepoStub{}
 	service := newAuthService(repo, map[string]string{
 		SettingKeyRegistrationEnabled:       "true",
 		SettingKeyPromoCodeRequiredOnSignup: "true",
 	}, nil, nil)
-	service.settingService.cfg.Signup.PromoCodeRequiredOnSignup = false
-	service.settingService.cfg.Signup.PromoCodeRequiredOnSignupExplicit = true
+	service.refreshTokenCache = &refreshTokenCacheStub{}
 
-	_, _, err := service.RegisterWithVerification(context.Background(), "user@test.com", "password", "", "", "", "")
-	require.NoError(t, err)
+	_, _, err := service.LoginOrRegisterOAuthWithTokenPair(context.Background(), "oauth-user@example.com", "oauth-user", "", "", "oidc")
+	require.ErrorIs(t, err, ErrPromoCodeRequired)
+	require.Empty(t, repo.created)
 }
 
 func TestAuthService_Register_EmailVerifyEnabledButServiceNotConfigured(t *testing.T) {

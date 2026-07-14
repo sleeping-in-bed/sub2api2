@@ -67,11 +67,20 @@
       :placeholder="t('auth.invitationCodePlaceholder')"
       :disabled="isSubmitting"
     />
+    <input
+      v-if="promoCodeEnabled"
+      v-model="promoCode"
+      :data-testid="`${testIdPrefix}-create-account-promo-code`"
+      type="text"
+      class="input w-full"
+      :placeholder="promoCodeRequiredOnSignup ? t('auth.promoCodePlaceholderRequired') : t('auth.promoCodePlaceholder')"
+      :disabled="isSubmitting"
+    />
     <button
       :data-testid="`${testIdPrefix}-create-account-submit`"
       type="button"
       class="btn btn-primary w-full"
-      :disabled="isSubmitting || !email.trim() || password.length < 6 || (invitationCodeEnabled && !invitationCode.trim())"
+      :disabled="isSubmitting || !email.trim() || password.length < 6 || (invitationCodeEnabled && !invitationCode.trim()) || (promoCodeRequiredOnSignup && !promoCode.trim())"
       @click="handleSubmit"
     >
       {{ isSubmitting ? t('common.processing') : t('auth.createAccount') }}
@@ -99,6 +108,7 @@ export type PendingOAuthCreateAccountPayload = {
   password: string
   verifyCode: string
   invitationCode?: string
+  promoCode?: string
 }
 
 const props = defineProps<{
@@ -120,11 +130,14 @@ const email = ref('')
 const password = ref('')
 const verifyCode = ref('')
 const invitationCode = ref('')
+const promoCode = ref('')
 const isSendingCode = ref(false)
 const sendCodeError = ref('')
 const sendCodeSuccess = ref(false)
 const countdown = ref(0)
 const invitationCodeEnabled = ref(false)
+const promoCodeEnabled = ref(true)
+const promoCodeRequiredOnSignup = ref(false)
 const emailVerifyEnabled = ref(true)
 const turnstileEnabled = ref(false)
 const turnstileSiteKey = ref('')
@@ -249,7 +262,8 @@ function handleSubmit() {
     email: trimmedEmail,
     password: password.value,
     verifyCode: emailVerifyEnabled.value ? verifyCode.value.trim() : '',
-    invitationCode: invitationCode.value.trim() || undefined
+    invitationCode: invitationCode.value.trim() || undefined,
+    promoCode: promoCode.value.trim() || undefined
   })
 }
 
@@ -261,11 +275,15 @@ onMounted(async () => {
   try {
     const settings = await getPublicSettings()
     invitationCodeEnabled.value = settings.invitation_code_enabled === true
+    promoCodeEnabled.value = settings.promo_code_enabled !== false
+    promoCodeRequiredOnSignup.value = settings.promo_code_required_on_signup === true
     emailVerifyEnabled.value = settings.email_verify_enabled !== false
     turnstileEnabled.value = settings.turnstile_enabled === true
     turnstileSiteKey.value = settings.turnstile_site_key || ''
   } catch {
     invitationCodeEnabled.value = false
+    promoCodeEnabled.value = true
+    promoCodeRequiredOnSignup.value = false
     emailVerifyEnabled.value = true
     turnstileEnabled.value = false
     turnstileSiteKey.value = ''

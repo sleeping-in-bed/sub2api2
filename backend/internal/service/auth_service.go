@@ -136,8 +136,12 @@ func (s *AuthService) Register(ctx context.Context, email, password string) (str
 
 func (s *AuthService) validateSignupPromoCode(ctx context.Context, promoCode string) (*PromoCode, error) {
 	required := s != nil && s.settingService != nil && s.settingService.IsPromoCodeRequiredOnSignup(ctx)
+	enabled := required || (s != nil && s.settingService != nil && s.settingService.IsPromoCodeEnabled(ctx))
 	promoCode = strings.TrimSpace(promoCode)
 
+	if !enabled {
+		return nil, nil
+	}
 	if promoCode == "" {
 		if required {
 			return nil, ErrPromoCodeRequired
@@ -145,9 +149,6 @@ func (s *AuthService) validateSignupPromoCode(ctx context.Context, promoCode str
 		return nil, nil
 	}
 
-	if s == nil || s.settingService == nil || !s.settingService.IsPromoCodeEnabled(ctx) {
-		return nil, ErrPromoCodeDisabled
-	}
 	if s.promoService == nil {
 		return nil, ErrServiceUnavailable
 	}
@@ -271,7 +272,7 @@ func (s *AuthService) RegisterWithVerification(ctx context.Context, email, passw
 			}
 		}
 		if validatedPromoCode != nil {
-			if err := s.promoService.ApplyPromoCode(txCtx, user.ID, promoCode); err != nil {
+			if err := s.promoService.ApplyPromoCode(txCtx, user.ID, validatedPromoCode.Code); err != nil {
 				logger.LegacyPrintf("service.auth", "[Auth] Failed to apply promo code for user %d: %v", user.ID, err)
 				return "", nil, err
 			}
@@ -296,14 +297,13 @@ func (s *AuthService) RegisterWithVerification(ctx context.Context, email, passw
 			}
 		}
 		if validatedPromoCode != nil {
-			if err := s.promoService.ApplyPromoCode(ctx, user.ID, promoCode); err != nil {
+			if err := s.promoService.ApplyPromoCode(ctx, user.ID, validatedPromoCode.Code); err != nil {
 				logger.LegacyPrintf("service.auth", "[Auth] Failed to apply promo code for user %d: %v", user.ID, err)
 				return "", nil, err
 			}
 			user.Balance += validatedPromoCode.BonusAmount
 		}
 	}
-
 	s.postAuthUserBootstrap(ctx, user, "email", true)
 	s.assignSubscriptions(ctx, user.ID, grantPlan.Subscriptions, "auto assigned by signup defaults")
 	// snapshot user × platform quota（fail-open）
@@ -673,13 +673,18 @@ func (s *AuthService) loginOrRegisterOAuthWithTokenPair(ctx context.Context, ema
 	}
 
 	user, err := s.userRepo.GetByEmail(ctx, email)
-	created := false
 	if err != nil {
 		if errors.Is(err, ErrUserNotFound) {
 			// OAuth 首次登录视为注册
 			if s.settingService == nil || (!s.settingService.IsRegistrationEnabled(ctx) && !s.canBypassRegistrationDisabledForOAuth(ctx, signupSource)) {
 				return nil, nil, ErrRegDisabled
 			}
+
+			validatedPromoCode, err := s.validateSignupPromoCode(ctx, promoCode)
+			if err != nil {
+				return nil, nil, err
+			}
+			promoCode = strings.TrimSpace(promoCode)
 
 			// 检查是否需要邀请码
 			var invitationRedeemCode *RedeemCode
@@ -730,7 +735,7 @@ func (s *AuthService) loginOrRegisterOAuthWithTokenPair(ctx context.Context, ema
 				SignupSource: signupSource,
 			}
 
-			if s.entClient != nil && invitationRedeemCode != nil {
+			if s.entClient != nil && (invitationRedeemCode != nil || validatedPromoCode != nil) {
 				tx, err := s.entClient.Tx(ctx)
 				if err != nil {
 					logger.LegacyPrintf("service.auth", "[Auth] Failed to begin transaction for oauth registration: %v", err)
@@ -751,15 +756,22 @@ func (s *AuthService) loginOrRegisterOAuthWithTokenPair(ctx context.Context, ema
 						return nil, nil, ErrServiceUnavailable
 					}
 				} else {
-					if err := s.redeemRepo.Use(txCtx, invitationRedeemCode.ID, newUser.ID); err != nil {
-						return nil, nil, ErrInvitationCodeInvalid
+					if invitationRedeemCode != nil {
+						if err := s.redeemRepo.Use(txCtx, invitationRedeemCode.ID, newUser.ID); err != nil {
+							return nil, nil, ErrInvitationCodeInvalid
+						}
+					}
+					if validatedPromoCode != nil {
+						if err := s.promoService.ApplyPromoCode(txCtx, newUser.ID, validatedPromoCode.Code); err != nil {
+							return nil, nil, err
+						}
+						newUser.Balance += validatedPromoCode.BonusAmount
 					}
 					if err := tx.Commit(); err != nil {
 						logger.LegacyPrintf("service.auth", "[Auth] Failed to commit oauth registration transaction: %v", err)
 						return nil, nil, ErrServiceUnavailable
 					}
 					user = newUser
-					created = true
 					s.postAuthUserBootstrap(ctx, user, signupSource, false)
 					s.assignSubscriptions(ctx, user.ID, grantPlan.Subscriptions, "auto assigned by signup defaults")
 					// snapshot user × platform quota（fail-open）
@@ -780,7 +792,12 @@ func (s *AuthService) loginOrRegisterOAuthWithTokenPair(ctx context.Context, ema
 					}
 				} else {
 					user = newUser
-					created = true
+					if validatedPromoCode != nil {
+						if err := s.promoService.ApplyPromoCode(ctx, user.ID, validatedPromoCode.Code); err != nil {
+							return nil, nil, err
+						}
+						user.Balance += validatedPromoCode.BonusAmount
+					}
 					s.postAuthUserBootstrap(ctx, user, signupSource, false)
 					s.assignSubscriptions(ctx, user.ID, grantPlan.Subscriptions, "auto assigned by signup defaults")
 					// snapshot user × platform quota（fail-open）
@@ -809,36 +826,11 @@ func (s *AuthService) loginOrRegisterOAuthWithTokenPair(ctx context.Context, ema
 			logger.LegacyPrintf("service.auth", "[Auth] Failed to update username after oauth login: %v", err)
 		}
 	}
-	if created {
-		user = s.applyOAuthSignupPromoCode(ctx, user, promoCode)
-	}
 	tokenPair, err := s.GenerateTokenPair(ctx, user, "")
 	if err != nil {
 		return nil, nil, fmt.Errorf("generate token pair: %w", err)
 	}
 	return tokenPair, user, nil
-}
-
-func (s *AuthService) ApplyOAuthSignupPromoCode(ctx context.Context, userID int64, promoCode string) {
-	if userID <= 0 {
-		return
-	}
-	s.applyOAuthSignupPromoCode(ctx, &User{ID: userID}, promoCode)
-}
-
-func (s *AuthService) applyOAuthSignupPromoCode(ctx context.Context, user *User, promoCode string) *User {
-	promoCode = strings.TrimSpace(promoCode)
-	if user == nil || user.ID <= 0 || promoCode == "" || s.promoService == nil || s.settingService == nil || !s.settingService.IsPromoCodeEnabled(ctx) {
-		return user
-	}
-	if err := s.promoService.ApplyPromoCode(ctx, user.ID, promoCode); err != nil {
-		logger.LegacyPrintf("service.auth", "[Auth] Failed to apply promo code for oauth user %d: %v", user.ID, err)
-		return user
-	}
-	if updatedUser, err := s.userRepo.GetByID(ctx, user.ID); err == nil {
-		return updatedUser
-	}
-	return user
 }
 
 func (s *AuthService) assignSubscriptions(ctx context.Context, userID int64, items []DefaultSubscriptionSetting, notes string) {

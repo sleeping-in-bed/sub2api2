@@ -103,7 +103,7 @@ func (s *AuthService) loginOrRegisterVerifiedEmailOAuth(
 		user, err = s.userRepo.GetByEmail(ctx, email)
 		if err != nil {
 			if errors.Is(err, ErrUserNotFound) {
-				user, err = s.createEmailOAuthUser(ctx, email, input.Username, providerType, invitationCode, affiliateCode)
+				user, err = s.createEmailOAuthUser(ctx, email, input.Username, providerType, invitationCode, affiliateCode, promoCode)
 				if err != nil {
 					return nil, nil, err
 				}
@@ -142,8 +142,6 @@ func (s *AuthService) loginOrRegisterVerifiedEmailOAuth(
 		if err := s.ApplyProviderDefaultSettingsOnFirstBind(ctx, user.ID, providerType); err != nil {
 			logger.LegacyPrintf("service.auth", "[Auth] Failed to apply %s first bind defaults: %v", providerType, err)
 		}
-	} else {
-		user = s.applyOAuthSignupPromoCode(ctx, user, promoCode)
 	}
 	s.RecordSuccessfulLogin(ctx, user.ID)
 
@@ -154,7 +152,7 @@ func (s *AuthService) loginOrRegisterVerifiedEmailOAuth(
 	return tokenPair, user, nil
 }
 
-func (s *AuthService) createEmailOAuthUser(ctx context.Context, email, username, providerType, invitationCode, affiliateCode string) (*User, error) {
+func (s *AuthService) createEmailOAuthUser(ctx context.Context, email, username, providerType, invitationCode, affiliateCode, promoCode string) (*User, error) {
 	if s.settingService == nil || !s.settingService.IsRegistrationEnabled(ctx) {
 		return nil, ErrRegDisabled
 	}
@@ -163,6 +161,10 @@ func (s *AuthService) createEmailOAuthUser(ctx context.Context, email, username,
 		if errors.Is(err, ErrInvitationCodeRequired) {
 			return nil, ErrOAuthInvitationRequired
 		}
+		return nil, err
+	}
+	validatedPromoCode, err := s.validateSignupPromoCode(ctx, promoCode)
+	if err != nil {
 		return nil, err
 	}
 
@@ -209,6 +211,15 @@ func (s *AuthService) createEmailOAuthUser(ctx context.Context, email, username,
 		if err := s.useOAuthRegistrationInvitation(ctx, invitationRedeemCode.ID, user.ID); err != nil {
 			_ = s.RollbackOAuthEmailAccountCreation(ctx, user.ID, invitationCode)
 			return nil, ErrInvitationCodeInvalid
+		}
+	}
+	if validatedPromoCode != nil {
+		if err := s.promoService.ApplyPromoCode(ctx, user.ID, validatedPromoCode.Code); err != nil {
+			_ = s.RollbackOAuthEmailAccountCreation(ctx, user.ID, invitationCode)
+			return nil, err
+		}
+		if updatedUser, err := s.userRepo.GetByID(ctx, user.ID); err == nil {
+			user = updatedUser
 		}
 	}
 	return user, nil

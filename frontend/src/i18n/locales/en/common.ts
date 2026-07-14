@@ -253,6 +253,8 @@ export default {
     invalidCode: 'Please enter a valid 6-digit code',
     promoCodeLabel: 'Promo Code',
     promoCodePlaceholder: 'Enter promo code (optional)',
+    promoCodePlaceholderRequired: 'Enter promo code',
+    promoCodeRequired: 'Promo code is required',
     promoCodeValid: 'Valid! You will receive ${amount} bonus balance',
     promoCodeInvalid: 'Invalid promo code',
     promoCodeNotFound: 'Promo code not found',

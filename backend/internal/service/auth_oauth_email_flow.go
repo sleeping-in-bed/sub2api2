@@ -105,6 +105,7 @@ func (s *AuthService) RegisterOAuthEmailAccount(
 	password string,
 	verifyCode string,
 	invitationCode string,
+	promoCode string,
 	signupSource string,
 ) (*TokenPair, *User, error) {
 	if s == nil {
@@ -129,6 +130,9 @@ func (s *AuthService) RegisterOAuthEmailAccount(
 
 	if _, err := s.validateOAuthRegistrationInvitation(ctx, invitationCode); err != nil {
 		slog.Error("oauth email register: invitation failed", "email", email, "error", err.Error())
+		return nil, nil, err
+	}
+	if _, err := s.validateSignupPromoCode(ctx, promoCode); err != nil {
 		return nil, nil, err
 	}
 
@@ -182,6 +186,7 @@ func (s *AuthService) RegisterVerifiedOAuthEmailAccount(
 	email string,
 	password string,
 	invitationCode string,
+	promoCode string,
 	signupSource string,
 ) (*TokenPair, *User, error) {
 	if s == nil {
@@ -208,6 +213,9 @@ func (s *AuthService) RegisterVerifiedOAuthEmailAccount(
 		return nil, nil, infraerrors.BadRequest("PASSWORD_REQUIRED", "password is required")
 	}
 	if _, err := s.validateOAuthRegistrationInvitation(ctx, invitationCode); err != nil {
+		return nil, nil, err
+	}
+	if _, err := s.validateSignupPromoCode(ctx, promoCode); err != nil {
 		return nil, nil, err
 	}
 
@@ -262,6 +270,7 @@ func (s *AuthService) FinalizeOAuthEmailAccount(
 	ctx context.Context,
 	user *User,
 	invitationCode string,
+	promoCode string,
 	signupSource string,
 	affiliateCode string,
 ) error {
@@ -277,6 +286,15 @@ func (s *AuthService) FinalizeOAuthEmailAccount(
 	if invitationRedeemCode != nil {
 		if err := s.useOAuthRegistrationInvitation(ctx, invitationRedeemCode.ID, user.ID); err != nil {
 			return ErrInvitationCodeInvalid
+		}
+	}
+	validatedPromoCode, err := s.validateSignupPromoCode(ctx, promoCode)
+	if err != nil {
+		return err
+	}
+	if validatedPromoCode != nil {
+		if err := s.promoService.ApplyPromoCode(ctx, user.ID, validatedPromoCode.Code); err != nil {
+			return err
 		}
 	}
 

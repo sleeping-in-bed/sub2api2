@@ -44,6 +44,9 @@ func diffSettings(before *service.SystemSettings, after *service.SystemSettings,
 	if before.PromoCodeEnabled != after.PromoCodeEnabled {
 		changed = append(changed, "promo_code_enabled")
 	}
+	if before.PromoCodeRequiredOnSignup != after.PromoCodeRequiredOnSignup {
+		changed = append(changed, "promo_code_required_on_signup")
+	}
 	if before.InvitationCodeEnabled != after.InvitationCodeEnabled {
 		changed = append(changed, "invitation_code_enabled")
 	}
