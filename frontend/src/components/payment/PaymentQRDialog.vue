@@ -41,7 +41,7 @@
         <div class="space-y-2 text-sm">
           <div class="flex justify-between">
             <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.orderId') }}</span>
-            <span class="font-medium text-gray-900 dark:text-white">#{{ paidOrder.id }}</span>
+            <span class="break-all font-mono font-medium text-gray-900 dark:text-white">{{ paidOrder.order_uuid }}</span>
           </div>
           <div class="flex justify-between">
             <span class="text-gray-500 dark:text-gray-400">{{ t('payment.orders.amount') }}</span>

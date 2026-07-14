@@ -82,6 +82,7 @@ export interface CheckoutInfoResponse {
 
 export interface PaymentOrder {
   id: number
+  order_uuid: string
   user_id: number
   amount: number
   pay_amount: number
@@ -196,6 +197,7 @@ export interface WechatJSAPIPayload {
 
 export interface CreateOrderResult {
   order_id: number
+  order_uuid?: string
   amount: number
   pay_url?: string
   qr_code?: string

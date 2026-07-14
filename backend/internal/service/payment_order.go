@@ -719,6 +719,7 @@ func classifyCreatePaymentError(req CreateOrderRequest, providerKey string, err 
 func buildCreateOrderResponse(order *dbent.PaymentOrder, req CreateOrderRequest, payAmount float64, sel *payment.InstanceSelection, pr *payment.CreatePaymentResponse, resultType payment.CreatePaymentResultType) *CreateOrderResponse {
 	return &CreateOrderResponse{
 		OrderID:      order.ID,
+		OrderUUID:    PaymentOrderUUID(order.ID),
 		Amount:       order.Amount,
 		PayAmount:    payAmount,
 		FeeRate:      order.FeeRate,

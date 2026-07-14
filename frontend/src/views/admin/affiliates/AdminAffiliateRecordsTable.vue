@@ -57,10 +57,7 @@
             <span class="font-mono text-sm text-gray-700 dark:text-gray-300">{{ row.aff_code || '-' }}</span>
           </template>
           <template #cell-order="{ row }">
-            <div class="space-y-0.5">
-              <div class="font-mono text-sm text-gray-900 dark:text-white">#{{ row.order_id }}</div>
-              <div class="max-w-56 truncate text-sm text-gray-500 dark:text-dark-400">{{ row.out_trade_no }}</div>
-            </div>
+            <div class="font-mono text-sm text-gray-900 dark:text-white">#{{ row.order_id }}</div>
           </template>
           <template #cell-payment_type="{ row }">
             {{ t('payment.methods.' + row.payment_type, row.payment_type || '-') }}

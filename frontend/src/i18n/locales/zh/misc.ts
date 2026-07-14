@@ -368,7 +368,6 @@ export default {
       title: '我的订单',
       empty: '暂无订单',
       orderId: '订单 ID',
-      orderNo: '订单编号',
       amount: '金额',
       payAmount: '实付',
       creditedAmount: '到账金额',

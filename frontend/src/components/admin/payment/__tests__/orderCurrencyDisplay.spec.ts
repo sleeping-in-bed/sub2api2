@@ -22,7 +22,7 @@ const BaseDialogStub = {
 }
 
 const DataTableStub = {
-  props: ['data'],
+  props: ['columns', 'data'],
   template: `
     <div>
       <div v-for="row in data" :key="row.id">
@@ -121,6 +121,8 @@ describe('admin order currency display', () => {
     expect(text).toContain('$108.00')
     expect(text).toContain('¥108.00')
     expect(text).toContain('$100.00')
+    const columns = wrapper.findComponent(DataTableStub).props('columns') as Array<{ key: string }>
+    expect(columns.map((column) => column.key)).not.toContain('out_trade_no')
   })
 
   it('renders payment currency consistently in the admin order table', () => {

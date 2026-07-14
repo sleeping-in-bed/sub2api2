@@ -1,10 +1,7 @@
 <template>
   <DataTable :columns="columns" :data="orders" :loading="loading">
-    <template #cell-id="{ value }">
-      <span class="font-mono text-sm">#{{ value }}</span>
-    </template>
-    <template #cell-out_trade_no="{ value }">
-      <span class="text-sm text-gray-900 dark:text-white">{{ value }}</span>
+    <template #cell-order_uuid="{ value }">
+      <span class="font-mono text-sm">{{ value }}</span>
     </template>
     <template v-if="showUser" #cell-user_email="{ value, row }">
       <div class="text-sm">
@@ -65,8 +62,7 @@ function paymentAmountSymbol(order: PaymentOrder): string {
 
 const columns = computed((): Column[] => {
   const cols: Column[] = [
-    { key: 'id', label: t('payment.orders.orderId') },
-    { key: 'out_trade_no', label: t('payment.orders.orderNo') },
+    { key: 'order_uuid', label: t('payment.orders.orderId') },
   ]
   if (props.showUser) {
     cols.push({ key: 'user_email', label: t('payment.admin.colUser') })
