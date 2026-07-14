@@ -32,7 +32,7 @@
           v-if="dropdownOpen"
           ref="dropdownRef"
           class="absolute left-0 z-50 mt-2 overflow-hidden whitespace-normal rounded-xl border border-gray-200 bg-white shadow-lg transition-all duration-200 dark:border-dark-700 dark:bg-dark-800"
-          :class="rollbackPanelOpen && isReleaseBuild ? 'w-80' : 'w-64'"
+          :class="rollbackPanelOpen && binaryUpdateEnabled && isReleaseBuild ? 'w-80' : 'w-64'"
         >
           <!-- Header with refresh button -->
           <div
@@ -231,8 +231,8 @@
                 </button>
               </div>
 
-              <!-- Priority 3: Update available for source build - show git pull hint -->
-              <div v-else-if="hasUpdate && !isReleaseBuild" class="space-y-2">
+              <!-- Priority 3: Update available without online binary updates -->
+              <div v-else-if="hasUpdate && (!isReleaseBuild || !binaryUpdateEnabled)" class="space-y-2">
                 <a
                   v-if="releaseInfo?.html_url && releaseInfo.html_url !== '#'"
                   :href="releaseInfo.html_url"
@@ -268,7 +268,6 @@
                     <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
                   </svg>
                 </a>
-                <!-- Source build hint -->
                 <div
                   class="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-2 dark:border-blue-800/50 dark:bg-blue-900/20"
                 >
@@ -286,13 +285,17 @@
                     />
                   </svg>
                   <p class="text-xs text-blue-600 dark:text-blue-400">
-                    {{ t('version.sourceModeHint') }}
+                    {{
+                      binaryUpdateEnabled
+                        ? t('version.sourceModeHint')
+                        : t('version.managedDeploymentHint')
+                    }}
                   </p>
                 </div>
               </div>
 
               <!-- Priority 4: Update available for release build - show update button -->
-              <div v-else-if="hasUpdate && isReleaseBuild" class="space-y-2">
+              <div v-else-if="hasUpdate && isReleaseBuild && binaryUpdateEnabled" class="space-y-2">
                 <!-- Update info card -->
                 <div
                   class="flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800/50 dark:bg-amber-900/20"
@@ -374,8 +377,23 @@
                   {{ t('version.viewRelease') }}
                 </a>
 
+                <div
+                  v-if="!binaryUpdateEnabled"
+                  class="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 p-2 dark:border-blue-800/50 dark:bg-blue-900/20"
+                >
+                  <Icon
+                    name="infoCircle"
+                    size="xs"
+                    :stroke-width="2"
+                    class="flex-shrink-0 text-blue-500 dark:text-blue-400"
+                  />
+                  <p class="text-xs text-blue-600 dark:text-blue-400">
+                    {{ t('version.managedDeploymentHint') }}
+                  </p>
+                </div>
+
                 <!-- Version rollback entry -->
-                <div class="border-t border-gray-100 pt-2 dark:border-dark-700">
+                <div v-else class="border-t border-gray-100 pt-2 dark:border-dark-700">
                   <button
                     @click="toggleRollbackPanel"
                     class="group flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-xs text-gray-400 transition-colors hover:bg-gray-50 hover:text-gray-600 dark:text-dark-500 dark:hover:bg-dark-700/50 dark:hover:text-dark-300"
@@ -676,6 +694,7 @@ const latestVersion = computed(() => appStore.latestVersion)
 const hasUpdate = computed(() => appStore.hasUpdate)
 const releaseInfo = computed(() => appStore.releaseInfo)
 const buildType = computed(() => appStore.buildType)
+const binaryUpdateEnabled = computed(() => appStore.binaryUpdateEnabled)
 
 // Update process states (local to this component)
 const updating = ref(false)
@@ -752,7 +771,7 @@ async function refreshVersion(force = true) {
 }
 
 async function handleUpdate() {
-  if (updating.value) return
+  if (updating.value || !binaryUpdateEnabled.value) return
 
   updating.value = true
   updateError.value = ''
@@ -783,7 +802,7 @@ function resetRollbackState() {
 }
 
 async function toggleRollbackPanel() {
-  if (!isAdmin.value) return
+  if (!isAdmin.value || !binaryUpdateEnabled.value) return
   rollbackPanelOpen.value = !rollbackPanelOpen.value
   // Source builds only show a hint, no version list to fetch
   if (
@@ -797,7 +816,7 @@ async function toggleRollbackPanel() {
 }
 
 async function loadRollbackVersions() {
-  if (!isAdmin.value) return
+  if (!isAdmin.value || !binaryUpdateEnabled.value) return
   rollbackVersionsLoading.value = true
   rollbackVersionsError.value = ''
   try {
@@ -826,7 +845,7 @@ function formatPublishedAt(publishedAt: string): string {
 }
 
 async function handleRollback() {
-  if (!isAdmin.value) return
+  if (!isAdmin.value || !binaryUpdateEnabled.value) return
   if (rollingBack.value || !selectedRollbackVersion.value) return
 
   rollingBack.value = true

@@ -25,6 +25,7 @@ import (
 var (
 	ErrNoUpdateAvailable         = infraerrors.Conflict("ALREADY_UP_TO_DATE", "no update available; current version is latest")
 	ErrRollbackVersionNotAllowed = infraerrors.BadRequest("ROLLBACK_VERSION_NOT_ALLOWED", "version is not in the allowed rollback list")
+	ErrBinaryUpdateDisabled      = infraerrors.Forbidden("BINARY_UPDATE_DISABLED", "binary updates are disabled; deploy this product through Ansible")
 )
 
 const (
@@ -43,6 +44,7 @@ const (
 	maxRollbackVersions = 3
 	// Fetch a few extra releases so filtering (current/newer/prerelease) still leaves enough candidates
 	rollbackFetchPageSize = 15
+	binaryUpdateEnabled   = false
 )
 
 // UpdateCache defines cache operations for update service
@@ -79,13 +81,14 @@ func NewUpdateService(cache UpdateCache, githubClient GitHubReleaseClient, versi
 
 // UpdateInfo contains update information
 type UpdateInfo struct {
-	CurrentVersion string       `json:"current_version"`
-	LatestVersion  string       `json:"latest_version"`
-	HasUpdate      bool         `json:"has_update"`
-	ReleaseInfo    *ReleaseInfo `json:"release_info,omitempty"`
-	Cached         bool         `json:"cached"`
-	Warning        string       `json:"warning,omitempty"`
-	BuildType      string       `json:"build_type"` // "source" or "release"
+	CurrentVersion      string       `json:"current_version"`
+	LatestVersion       string       `json:"latest_version"`
+	HasUpdate           bool         `json:"has_update"`
+	ReleaseInfo         *ReleaseInfo `json:"release_info,omitempty"`
+	Cached              bool         `json:"cached"`
+	Warning             string       `json:"warning,omitempty"`
+	BuildType           string       `json:"build_type"` // "source" or "release"
+	BinaryUpdateEnabled bool         `json:"binary_update_enabled"`
 }
 
 // ReleaseInfo contains GitHub release details
@@ -147,11 +150,12 @@ func (s *UpdateService) CheckUpdate(ctx context.Context, force bool) (*UpdateInf
 			return cached, nil
 		}
 		return &UpdateInfo{
-			CurrentVersion: s.currentVersion,
-			LatestVersion:  s.currentVersion,
-			HasUpdate:      false,
-			Warning:        err.Error(),
-			BuildType:      s.buildType,
+			CurrentVersion:      s.currentVersion,
+			LatestVersion:       s.currentVersion,
+			HasUpdate:           false,
+			Warning:             err.Error(),
+			BuildType:           s.buildType,
+			BinaryUpdateEnabled: binaryUpdateEnabled,
 		}, nil
 	}
 
@@ -163,6 +167,9 @@ func (s *UpdateService) CheckUpdate(ctx context.Context, force bool) (*UpdateInf
 // PerformUpdate downloads and applies the update
 // Uses atomic file replacement pattern for safe in-place updates
 func (s *UpdateService) PerformUpdate(ctx context.Context) error {
+	if !binaryUpdateEnabled {
+		return ErrBinaryUpdateDisabled
+	}
 	info, err := s.CheckUpdate(ctx, true)
 	if err != nil {
 		return err
@@ -281,6 +288,9 @@ func (s *UpdateService) applyReleaseAssets(ctx context.Context, releaseAssets []
 
 // Rollback restores the previous version
 func (s *UpdateService) Rollback() error {
+	if !binaryUpdateEnabled {
+		return ErrBinaryUpdateDisabled
+	}
 	exePath, err := os.Executable()
 	if err != nil {
 		return fmt.Errorf("failed to get executable path: %w", err)
@@ -327,6 +337,9 @@ func (s *UpdateService) ListRollbackVersions(ctx context.Context) ([]RollbackVer
 // The target must be one of the versions returned by ListRollbackVersions;
 // anything else (including the current version) is rejected.
 func (s *UpdateService) RollbackToVersion(ctx context.Context, version string) error {
+	if !binaryUpdateEnabled {
+		return ErrBinaryUpdateDisabled
+	}
 	target := strings.TrimPrefix(strings.TrimSpace(version), "v")
 	if target == "" {
 		return ErrRollbackVersionNotAllowed
@@ -427,8 +440,9 @@ func (s *UpdateService) fetchLatestRelease(ctx context.Context) (*UpdateInfo, er
 			HTMLURL:     release.HTMLURL,
 			Assets:      assets,
 		},
-		Cached:    false,
-		BuildType: s.buildType,
+		Cached:              false,
+		BuildType:           s.buildType,
+		BinaryUpdateEnabled: binaryUpdateEnabled,
 	}, nil
 }
 
@@ -613,12 +627,13 @@ func (s *UpdateService) getFromCache(ctx context.Context) (*UpdateInfo, error) {
 	}
 
 	return &UpdateInfo{
-		CurrentVersion: s.currentVersion,
-		LatestVersion:  cached.Latest,
-		HasUpdate:      compareVersions(s.currentVersion, cached.Latest) < 0,
-		ReleaseInfo:    cached.ReleaseInfo,
-		Cached:         true,
-		BuildType:      s.buildType,
+		CurrentVersion:      s.currentVersion,
+		LatestVersion:       cached.Latest,
+		HasUpdate:           compareVersions(s.currentVersion, cached.Latest) < 0,
+		ReleaseInfo:         cached.ReleaseInfo,
+		Cached:              true,
+		BuildType:           s.buildType,
+		BinaryUpdateEnabled: binaryUpdateEnabled,
 	}, nil
 }
 
