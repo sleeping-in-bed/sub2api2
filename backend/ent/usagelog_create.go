@@ -253,6 +253,236 @@ func (_c *UsageLogCreate) SetNillableCacheCreation1hTokens(v *int) *UsageLogCrea
 	return _c
 }
 
+// SetRawInputTokens sets the "raw_input_tokens" field.
+func (_c *UsageLogCreate) SetRawInputTokens(v int) *UsageLogCreate {
+	_c.mutation.SetRawInputTokens(v)
+	return _c
+}
+
+// SetNillableRawInputTokens sets the "raw_input_tokens" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableRawInputTokens(v *int) *UsageLogCreate {
+	if v != nil {
+		_c.SetRawInputTokens(*v)
+	}
+	return _c
+}
+
+// SetRawOutputTokens sets the "raw_output_tokens" field.
+func (_c *UsageLogCreate) SetRawOutputTokens(v int) *UsageLogCreate {
+	_c.mutation.SetRawOutputTokens(v)
+	return _c
+}
+
+// SetNillableRawOutputTokens sets the "raw_output_tokens" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableRawOutputTokens(v *int) *UsageLogCreate {
+	if v != nil {
+		_c.SetRawOutputTokens(*v)
+	}
+	return _c
+}
+
+// SetRawCacheCreationTokens sets the "raw_cache_creation_tokens" field.
+func (_c *UsageLogCreate) SetRawCacheCreationTokens(v int) *UsageLogCreate {
+	_c.mutation.SetRawCacheCreationTokens(v)
+	return _c
+}
+
+// SetNillableRawCacheCreationTokens sets the "raw_cache_creation_tokens" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableRawCacheCreationTokens(v *int) *UsageLogCreate {
+	if v != nil {
+		_c.SetRawCacheCreationTokens(*v)
+	}
+	return _c
+}
+
+// SetRawCacheReadTokens sets the "raw_cache_read_tokens" field.
+func (_c *UsageLogCreate) SetRawCacheReadTokens(v int) *UsageLogCreate {
+	_c.mutation.SetRawCacheReadTokens(v)
+	return _c
+}
+
+// SetNillableRawCacheReadTokens sets the "raw_cache_read_tokens" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableRawCacheReadTokens(v *int) *UsageLogCreate {
+	if v != nil {
+		_c.SetRawCacheReadTokens(*v)
+	}
+	return _c
+}
+
+// SetGroupInputTokenMultiplier sets the "group_input_token_multiplier" field.
+func (_c *UsageLogCreate) SetGroupInputTokenMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetGroupInputTokenMultiplier(v)
+	return _c
+}
+
+// SetNillableGroupInputTokenMultiplier sets the "group_input_token_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableGroupInputTokenMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetGroupInputTokenMultiplier(*v)
+	}
+	return _c
+}
+
+// SetGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field.
+func (_c *UsageLogCreate) SetGroupOutputTokenMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetGroupOutputTokenMultiplier(v)
+	return _c
+}
+
+// SetNillableGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableGroupOutputTokenMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetGroupOutputTokenMultiplier(*v)
+	}
+	return _c
+}
+
+// SetGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field.
+func (_c *UsageLogCreate) SetGroupCacheCreationTokenMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetGroupCacheCreationTokenMultiplier(v)
+	return _c
+}
+
+// SetNillableGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableGroupCacheCreationTokenMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetGroupCacheCreationTokenMultiplier(*v)
+	}
+	return _c
+}
+
+// SetGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field.
+func (_c *UsageLogCreate) SetGroupCacheReadTokenMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetGroupCacheReadTokenMultiplier(v)
+	return _c
+}
+
+// SetNillableGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableGroupCacheReadTokenMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetGroupCacheReadTokenMultiplier(*v)
+	}
+	return _c
+}
+
+// SetGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field.
+func (_c *UsageLogCreate) SetGroupHiddenInputRateMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetGroupHiddenInputRateMultiplier(v)
+	return _c
+}
+
+// SetNillableGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableGroupHiddenInputRateMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetGroupHiddenInputRateMultiplier(*v)
+	}
+	return _c
+}
+
+// SetGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field.
+func (_c *UsageLogCreate) SetGroupHiddenOutputRateMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetGroupHiddenOutputRateMultiplier(v)
+	return _c
+}
+
+// SetNillableGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableGroupHiddenOutputRateMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetGroupHiddenOutputRateMultiplier(*v)
+	}
+	return _c
+}
+
+// SetGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field.
+func (_c *UsageLogCreate) SetGroupHiddenCacheCreationRateMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetGroupHiddenCacheCreationRateMultiplier(v)
+	return _c
+}
+
+// SetNillableGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableGroupHiddenCacheCreationRateMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetGroupHiddenCacheCreationRateMultiplier(*v)
+	}
+	return _c
+}
+
+// SetGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field.
+func (_c *UsageLogCreate) SetGroupHiddenCacheReadRateMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetGroupHiddenCacheReadRateMultiplier(v)
+	return _c
+}
+
+// SetNillableGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableGroupHiddenCacheReadRateMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetGroupHiddenCacheReadRateMultiplier(*v)
+	}
+	return _c
+}
+
+// SetAccountInputTokenMultiplier sets the "account_input_token_multiplier" field.
+func (_c *UsageLogCreate) SetAccountInputTokenMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetAccountInputTokenMultiplier(v)
+	return _c
+}
+
+// SetNillableAccountInputTokenMultiplier sets the "account_input_token_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableAccountInputTokenMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetAccountInputTokenMultiplier(*v)
+	}
+	return _c
+}
+
+// SetAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field.
+func (_c *UsageLogCreate) SetAccountOutputTokenMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetAccountOutputTokenMultiplier(v)
+	return _c
+}
+
+// SetNillableAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableAccountOutputTokenMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetAccountOutputTokenMultiplier(*v)
+	}
+	return _c
+}
+
+// SetAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field.
+func (_c *UsageLogCreate) SetAccountCacheCreationTokenMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetAccountCacheCreationTokenMultiplier(v)
+	return _c
+}
+
+// SetNillableAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableAccountCacheCreationTokenMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetAccountCacheCreationTokenMultiplier(*v)
+	}
+	return _c
+}
+
+// SetAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field.
+func (_c *UsageLogCreate) SetAccountCacheReadTokenMultiplier(v float64) *UsageLogCreate {
+	_c.mutation.SetAccountCacheReadTokenMultiplier(v)
+	return _c
+}
+
+// SetNillableAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field if the given value is not nil.
+func (_c *UsageLogCreate) SetNillableAccountCacheReadTokenMultiplier(v *float64) *UsageLogCreate {
+	if v != nil {
+		_c.SetAccountCacheReadTokenMultiplier(*v)
+	}
+	return _c
+}
+
+// SetMultiplierSnapshot sets the "multiplier_snapshot" field.
+func (_c *UsageLogCreate) SetMultiplierSnapshot(v map[string]interface{}) *UsageLogCreate {
+	_c.mutation.SetMultiplierSnapshot(v)
+	return _c
+}
+
 // SetInputCost sets the "input_cost" field.
 func (_c *UsageLogCreate) SetInputCost(v float64) *UsageLogCreate {
 	_c.mutation.SetInputCost(v)
@@ -679,6 +909,74 @@ func (_c *UsageLogCreate) defaults() {
 		v := usagelog.DefaultCacheCreation1hTokens
 		_c.mutation.SetCacheCreation1hTokens(v)
 	}
+	if _, ok := _c.mutation.RawInputTokens(); !ok {
+		v := usagelog.DefaultRawInputTokens
+		_c.mutation.SetRawInputTokens(v)
+	}
+	if _, ok := _c.mutation.RawOutputTokens(); !ok {
+		v := usagelog.DefaultRawOutputTokens
+		_c.mutation.SetRawOutputTokens(v)
+	}
+	if _, ok := _c.mutation.RawCacheCreationTokens(); !ok {
+		v := usagelog.DefaultRawCacheCreationTokens
+		_c.mutation.SetRawCacheCreationTokens(v)
+	}
+	if _, ok := _c.mutation.RawCacheReadTokens(); !ok {
+		v := usagelog.DefaultRawCacheReadTokens
+		_c.mutation.SetRawCacheReadTokens(v)
+	}
+	if _, ok := _c.mutation.GroupInputTokenMultiplier(); !ok {
+		v := usagelog.DefaultGroupInputTokenMultiplier
+		_c.mutation.SetGroupInputTokenMultiplier(v)
+	}
+	if _, ok := _c.mutation.GroupOutputTokenMultiplier(); !ok {
+		v := usagelog.DefaultGroupOutputTokenMultiplier
+		_c.mutation.SetGroupOutputTokenMultiplier(v)
+	}
+	if _, ok := _c.mutation.GroupCacheCreationTokenMultiplier(); !ok {
+		v := usagelog.DefaultGroupCacheCreationTokenMultiplier
+		_c.mutation.SetGroupCacheCreationTokenMultiplier(v)
+	}
+	if _, ok := _c.mutation.GroupCacheReadTokenMultiplier(); !ok {
+		v := usagelog.DefaultGroupCacheReadTokenMultiplier
+		_c.mutation.SetGroupCacheReadTokenMultiplier(v)
+	}
+	if _, ok := _c.mutation.GroupHiddenInputRateMultiplier(); !ok {
+		v := usagelog.DefaultGroupHiddenInputRateMultiplier
+		_c.mutation.SetGroupHiddenInputRateMultiplier(v)
+	}
+	if _, ok := _c.mutation.GroupHiddenOutputRateMultiplier(); !ok {
+		v := usagelog.DefaultGroupHiddenOutputRateMultiplier
+		_c.mutation.SetGroupHiddenOutputRateMultiplier(v)
+	}
+	if _, ok := _c.mutation.GroupHiddenCacheCreationRateMultiplier(); !ok {
+		v := usagelog.DefaultGroupHiddenCacheCreationRateMultiplier
+		_c.mutation.SetGroupHiddenCacheCreationRateMultiplier(v)
+	}
+	if _, ok := _c.mutation.GroupHiddenCacheReadRateMultiplier(); !ok {
+		v := usagelog.DefaultGroupHiddenCacheReadRateMultiplier
+		_c.mutation.SetGroupHiddenCacheReadRateMultiplier(v)
+	}
+	if _, ok := _c.mutation.AccountInputTokenMultiplier(); !ok {
+		v := usagelog.DefaultAccountInputTokenMultiplier
+		_c.mutation.SetAccountInputTokenMultiplier(v)
+	}
+	if _, ok := _c.mutation.AccountOutputTokenMultiplier(); !ok {
+		v := usagelog.DefaultAccountOutputTokenMultiplier
+		_c.mutation.SetAccountOutputTokenMultiplier(v)
+	}
+	if _, ok := _c.mutation.AccountCacheCreationTokenMultiplier(); !ok {
+		v := usagelog.DefaultAccountCacheCreationTokenMultiplier
+		_c.mutation.SetAccountCacheCreationTokenMultiplier(v)
+	}
+	if _, ok := _c.mutation.AccountCacheReadTokenMultiplier(); !ok {
+		v := usagelog.DefaultAccountCacheReadTokenMultiplier
+		_c.mutation.SetAccountCacheReadTokenMultiplier(v)
+	}
+	if _, ok := _c.mutation.MultiplierSnapshot(); !ok {
+		v := usagelog.DefaultMultiplierSnapshot()
+		_c.mutation.SetMultiplierSnapshot(v)
+	}
 	if _, ok := _c.mutation.InputCost(); !ok {
 		v := usagelog.DefaultInputCost
 		_c.mutation.SetInputCost(v)
@@ -802,6 +1100,57 @@ func (_c *UsageLogCreate) check() error {
 	}
 	if _, ok := _c.mutation.CacheCreation1hTokens(); !ok {
 		return &ValidationError{Name: "cache_creation_1h_tokens", err: errors.New(`ent: missing required field "UsageLog.cache_creation_1h_tokens"`)}
+	}
+	if _, ok := _c.mutation.RawInputTokens(); !ok {
+		return &ValidationError{Name: "raw_input_tokens", err: errors.New(`ent: missing required field "UsageLog.raw_input_tokens"`)}
+	}
+	if _, ok := _c.mutation.RawOutputTokens(); !ok {
+		return &ValidationError{Name: "raw_output_tokens", err: errors.New(`ent: missing required field "UsageLog.raw_output_tokens"`)}
+	}
+	if _, ok := _c.mutation.RawCacheCreationTokens(); !ok {
+		return &ValidationError{Name: "raw_cache_creation_tokens", err: errors.New(`ent: missing required field "UsageLog.raw_cache_creation_tokens"`)}
+	}
+	if _, ok := _c.mutation.RawCacheReadTokens(); !ok {
+		return &ValidationError{Name: "raw_cache_read_tokens", err: errors.New(`ent: missing required field "UsageLog.raw_cache_read_tokens"`)}
+	}
+	if _, ok := _c.mutation.GroupInputTokenMultiplier(); !ok {
+		return &ValidationError{Name: "group_input_token_multiplier", err: errors.New(`ent: missing required field "UsageLog.group_input_token_multiplier"`)}
+	}
+	if _, ok := _c.mutation.GroupOutputTokenMultiplier(); !ok {
+		return &ValidationError{Name: "group_output_token_multiplier", err: errors.New(`ent: missing required field "UsageLog.group_output_token_multiplier"`)}
+	}
+	if _, ok := _c.mutation.GroupCacheCreationTokenMultiplier(); !ok {
+		return &ValidationError{Name: "group_cache_creation_token_multiplier", err: errors.New(`ent: missing required field "UsageLog.group_cache_creation_token_multiplier"`)}
+	}
+	if _, ok := _c.mutation.GroupCacheReadTokenMultiplier(); !ok {
+		return &ValidationError{Name: "group_cache_read_token_multiplier", err: errors.New(`ent: missing required field "UsageLog.group_cache_read_token_multiplier"`)}
+	}
+	if _, ok := _c.mutation.GroupHiddenInputRateMultiplier(); !ok {
+		return &ValidationError{Name: "group_hidden_input_rate_multiplier", err: errors.New(`ent: missing required field "UsageLog.group_hidden_input_rate_multiplier"`)}
+	}
+	if _, ok := _c.mutation.GroupHiddenOutputRateMultiplier(); !ok {
+		return &ValidationError{Name: "group_hidden_output_rate_multiplier", err: errors.New(`ent: missing required field "UsageLog.group_hidden_output_rate_multiplier"`)}
+	}
+	if _, ok := _c.mutation.GroupHiddenCacheCreationRateMultiplier(); !ok {
+		return &ValidationError{Name: "group_hidden_cache_creation_rate_multiplier", err: errors.New(`ent: missing required field "UsageLog.group_hidden_cache_creation_rate_multiplier"`)}
+	}
+	if _, ok := _c.mutation.GroupHiddenCacheReadRateMultiplier(); !ok {
+		return &ValidationError{Name: "group_hidden_cache_read_rate_multiplier", err: errors.New(`ent: missing required field "UsageLog.group_hidden_cache_read_rate_multiplier"`)}
+	}
+	if _, ok := _c.mutation.AccountInputTokenMultiplier(); !ok {
+		return &ValidationError{Name: "account_input_token_multiplier", err: errors.New(`ent: missing required field "UsageLog.account_input_token_multiplier"`)}
+	}
+	if _, ok := _c.mutation.AccountOutputTokenMultiplier(); !ok {
+		return &ValidationError{Name: "account_output_token_multiplier", err: errors.New(`ent: missing required field "UsageLog.account_output_token_multiplier"`)}
+	}
+	if _, ok := _c.mutation.AccountCacheCreationTokenMultiplier(); !ok {
+		return &ValidationError{Name: "account_cache_creation_token_multiplier", err: errors.New(`ent: missing required field "UsageLog.account_cache_creation_token_multiplier"`)}
+	}
+	if _, ok := _c.mutation.AccountCacheReadTokenMultiplier(); !ok {
+		return &ValidationError{Name: "account_cache_read_token_multiplier", err: errors.New(`ent: missing required field "UsageLog.account_cache_read_token_multiplier"`)}
+	}
+	if _, ok := _c.mutation.MultiplierSnapshot(); !ok {
+		return &ValidationError{Name: "multiplier_snapshot", err: errors.New(`ent: missing required field "UsageLog.multiplier_snapshot"`)}
 	}
 	if _, ok := _c.mutation.InputCost(); !ok {
 		return &ValidationError{Name: "input_cost", err: errors.New(`ent: missing required field "UsageLog.input_cost"`)}
@@ -968,6 +1317,74 @@ func (_c *UsageLogCreate) createSpec() (*UsageLog, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.CacheCreation1hTokens(); ok {
 		_spec.SetField(usagelog.FieldCacheCreation1hTokens, field.TypeInt, value)
 		_node.CacheCreation1hTokens = value
+	}
+	if value, ok := _c.mutation.RawInputTokens(); ok {
+		_spec.SetField(usagelog.FieldRawInputTokens, field.TypeInt, value)
+		_node.RawInputTokens = value
+	}
+	if value, ok := _c.mutation.RawOutputTokens(); ok {
+		_spec.SetField(usagelog.FieldRawOutputTokens, field.TypeInt, value)
+		_node.RawOutputTokens = value
+	}
+	if value, ok := _c.mutation.RawCacheCreationTokens(); ok {
+		_spec.SetField(usagelog.FieldRawCacheCreationTokens, field.TypeInt, value)
+		_node.RawCacheCreationTokens = value
+	}
+	if value, ok := _c.mutation.RawCacheReadTokens(); ok {
+		_spec.SetField(usagelog.FieldRawCacheReadTokens, field.TypeInt, value)
+		_node.RawCacheReadTokens = value
+	}
+	if value, ok := _c.mutation.GroupInputTokenMultiplier(); ok {
+		_spec.SetField(usagelog.FieldGroupInputTokenMultiplier, field.TypeFloat64, value)
+		_node.GroupInputTokenMultiplier = value
+	}
+	if value, ok := _c.mutation.GroupOutputTokenMultiplier(); ok {
+		_spec.SetField(usagelog.FieldGroupOutputTokenMultiplier, field.TypeFloat64, value)
+		_node.GroupOutputTokenMultiplier = value
+	}
+	if value, ok := _c.mutation.GroupCacheCreationTokenMultiplier(); ok {
+		_spec.SetField(usagelog.FieldGroupCacheCreationTokenMultiplier, field.TypeFloat64, value)
+		_node.GroupCacheCreationTokenMultiplier = value
+	}
+	if value, ok := _c.mutation.GroupCacheReadTokenMultiplier(); ok {
+		_spec.SetField(usagelog.FieldGroupCacheReadTokenMultiplier, field.TypeFloat64, value)
+		_node.GroupCacheReadTokenMultiplier = value
+	}
+	if value, ok := _c.mutation.GroupHiddenInputRateMultiplier(); ok {
+		_spec.SetField(usagelog.FieldGroupHiddenInputRateMultiplier, field.TypeFloat64, value)
+		_node.GroupHiddenInputRateMultiplier = value
+	}
+	if value, ok := _c.mutation.GroupHiddenOutputRateMultiplier(); ok {
+		_spec.SetField(usagelog.FieldGroupHiddenOutputRateMultiplier, field.TypeFloat64, value)
+		_node.GroupHiddenOutputRateMultiplier = value
+	}
+	if value, ok := _c.mutation.GroupHiddenCacheCreationRateMultiplier(); ok {
+		_spec.SetField(usagelog.FieldGroupHiddenCacheCreationRateMultiplier, field.TypeFloat64, value)
+		_node.GroupHiddenCacheCreationRateMultiplier = value
+	}
+	if value, ok := _c.mutation.GroupHiddenCacheReadRateMultiplier(); ok {
+		_spec.SetField(usagelog.FieldGroupHiddenCacheReadRateMultiplier, field.TypeFloat64, value)
+		_node.GroupHiddenCacheReadRateMultiplier = value
+	}
+	if value, ok := _c.mutation.AccountInputTokenMultiplier(); ok {
+		_spec.SetField(usagelog.FieldAccountInputTokenMultiplier, field.TypeFloat64, value)
+		_node.AccountInputTokenMultiplier = value
+	}
+	if value, ok := _c.mutation.AccountOutputTokenMultiplier(); ok {
+		_spec.SetField(usagelog.FieldAccountOutputTokenMultiplier, field.TypeFloat64, value)
+		_node.AccountOutputTokenMultiplier = value
+	}
+	if value, ok := _c.mutation.AccountCacheCreationTokenMultiplier(); ok {
+		_spec.SetField(usagelog.FieldAccountCacheCreationTokenMultiplier, field.TypeFloat64, value)
+		_node.AccountCacheCreationTokenMultiplier = value
+	}
+	if value, ok := _c.mutation.AccountCacheReadTokenMultiplier(); ok {
+		_spec.SetField(usagelog.FieldAccountCacheReadTokenMultiplier, field.TypeFloat64, value)
+		_node.AccountCacheReadTokenMultiplier = value
+	}
+	if value, ok := _c.mutation.MultiplierSnapshot(); ok {
+		_spec.SetField(usagelog.FieldMultiplierSnapshot, field.TypeJSON, value)
+		_node.MultiplierSnapshot = value
 	}
 	if value, ok := _c.mutation.InputCost(); ok {
 		_spec.SetField(usagelog.FieldInputCost, field.TypeFloat64, value)
@@ -1521,6 +1938,306 @@ func (u *UsageLogUpsert) UpdateCacheCreation1hTokens() *UsageLogUpsert {
 // AddCacheCreation1hTokens adds v to the "cache_creation_1h_tokens" field.
 func (u *UsageLogUpsert) AddCacheCreation1hTokens(v int) *UsageLogUpsert {
 	u.Add(usagelog.FieldCacheCreation1hTokens, v)
+	return u
+}
+
+// SetRawInputTokens sets the "raw_input_tokens" field.
+func (u *UsageLogUpsert) SetRawInputTokens(v int) *UsageLogUpsert {
+	u.Set(usagelog.FieldRawInputTokens, v)
+	return u
+}
+
+// UpdateRawInputTokens sets the "raw_input_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateRawInputTokens() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldRawInputTokens)
+	return u
+}
+
+// AddRawInputTokens adds v to the "raw_input_tokens" field.
+func (u *UsageLogUpsert) AddRawInputTokens(v int) *UsageLogUpsert {
+	u.Add(usagelog.FieldRawInputTokens, v)
+	return u
+}
+
+// SetRawOutputTokens sets the "raw_output_tokens" field.
+func (u *UsageLogUpsert) SetRawOutputTokens(v int) *UsageLogUpsert {
+	u.Set(usagelog.FieldRawOutputTokens, v)
+	return u
+}
+
+// UpdateRawOutputTokens sets the "raw_output_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateRawOutputTokens() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldRawOutputTokens)
+	return u
+}
+
+// AddRawOutputTokens adds v to the "raw_output_tokens" field.
+func (u *UsageLogUpsert) AddRawOutputTokens(v int) *UsageLogUpsert {
+	u.Add(usagelog.FieldRawOutputTokens, v)
+	return u
+}
+
+// SetRawCacheCreationTokens sets the "raw_cache_creation_tokens" field.
+func (u *UsageLogUpsert) SetRawCacheCreationTokens(v int) *UsageLogUpsert {
+	u.Set(usagelog.FieldRawCacheCreationTokens, v)
+	return u
+}
+
+// UpdateRawCacheCreationTokens sets the "raw_cache_creation_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateRawCacheCreationTokens() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldRawCacheCreationTokens)
+	return u
+}
+
+// AddRawCacheCreationTokens adds v to the "raw_cache_creation_tokens" field.
+func (u *UsageLogUpsert) AddRawCacheCreationTokens(v int) *UsageLogUpsert {
+	u.Add(usagelog.FieldRawCacheCreationTokens, v)
+	return u
+}
+
+// SetRawCacheReadTokens sets the "raw_cache_read_tokens" field.
+func (u *UsageLogUpsert) SetRawCacheReadTokens(v int) *UsageLogUpsert {
+	u.Set(usagelog.FieldRawCacheReadTokens, v)
+	return u
+}
+
+// UpdateRawCacheReadTokens sets the "raw_cache_read_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateRawCacheReadTokens() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldRawCacheReadTokens)
+	return u
+}
+
+// AddRawCacheReadTokens adds v to the "raw_cache_read_tokens" field.
+func (u *UsageLogUpsert) AddRawCacheReadTokens(v int) *UsageLogUpsert {
+	u.Add(usagelog.FieldRawCacheReadTokens, v)
+	return u
+}
+
+// SetGroupInputTokenMultiplier sets the "group_input_token_multiplier" field.
+func (u *UsageLogUpsert) SetGroupInputTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldGroupInputTokenMultiplier, v)
+	return u
+}
+
+// UpdateGroupInputTokenMultiplier sets the "group_input_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateGroupInputTokenMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldGroupInputTokenMultiplier)
+	return u
+}
+
+// AddGroupInputTokenMultiplier adds v to the "group_input_token_multiplier" field.
+func (u *UsageLogUpsert) AddGroupInputTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldGroupInputTokenMultiplier, v)
+	return u
+}
+
+// SetGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field.
+func (u *UsageLogUpsert) SetGroupOutputTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldGroupOutputTokenMultiplier, v)
+	return u
+}
+
+// UpdateGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateGroupOutputTokenMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldGroupOutputTokenMultiplier)
+	return u
+}
+
+// AddGroupOutputTokenMultiplier adds v to the "group_output_token_multiplier" field.
+func (u *UsageLogUpsert) AddGroupOutputTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldGroupOutputTokenMultiplier, v)
+	return u
+}
+
+// SetGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsert) SetGroupCacheCreationTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldGroupCacheCreationTokenMultiplier, v)
+	return u
+}
+
+// UpdateGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateGroupCacheCreationTokenMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldGroupCacheCreationTokenMultiplier)
+	return u
+}
+
+// AddGroupCacheCreationTokenMultiplier adds v to the "group_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsert) AddGroupCacheCreationTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldGroupCacheCreationTokenMultiplier, v)
+	return u
+}
+
+// SetGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field.
+func (u *UsageLogUpsert) SetGroupCacheReadTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldGroupCacheReadTokenMultiplier, v)
+	return u
+}
+
+// UpdateGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateGroupCacheReadTokenMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldGroupCacheReadTokenMultiplier)
+	return u
+}
+
+// AddGroupCacheReadTokenMultiplier adds v to the "group_cache_read_token_multiplier" field.
+func (u *UsageLogUpsert) AddGroupCacheReadTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldGroupCacheReadTokenMultiplier, v)
+	return u
+}
+
+// SetGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field.
+func (u *UsageLogUpsert) SetGroupHiddenInputRateMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldGroupHiddenInputRateMultiplier, v)
+	return u
+}
+
+// UpdateGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateGroupHiddenInputRateMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldGroupHiddenInputRateMultiplier)
+	return u
+}
+
+// AddGroupHiddenInputRateMultiplier adds v to the "group_hidden_input_rate_multiplier" field.
+func (u *UsageLogUpsert) AddGroupHiddenInputRateMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldGroupHiddenInputRateMultiplier, v)
+	return u
+}
+
+// SetGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field.
+func (u *UsageLogUpsert) SetGroupHiddenOutputRateMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldGroupHiddenOutputRateMultiplier, v)
+	return u
+}
+
+// UpdateGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateGroupHiddenOutputRateMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldGroupHiddenOutputRateMultiplier)
+	return u
+}
+
+// AddGroupHiddenOutputRateMultiplier adds v to the "group_hidden_output_rate_multiplier" field.
+func (u *UsageLogUpsert) AddGroupHiddenOutputRateMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldGroupHiddenOutputRateMultiplier, v)
+	return u
+}
+
+// SetGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field.
+func (u *UsageLogUpsert) SetGroupHiddenCacheCreationRateMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldGroupHiddenCacheCreationRateMultiplier, v)
+	return u
+}
+
+// UpdateGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateGroupHiddenCacheCreationRateMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldGroupHiddenCacheCreationRateMultiplier)
+	return u
+}
+
+// AddGroupHiddenCacheCreationRateMultiplier adds v to the "group_hidden_cache_creation_rate_multiplier" field.
+func (u *UsageLogUpsert) AddGroupHiddenCacheCreationRateMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldGroupHiddenCacheCreationRateMultiplier, v)
+	return u
+}
+
+// SetGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field.
+func (u *UsageLogUpsert) SetGroupHiddenCacheReadRateMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldGroupHiddenCacheReadRateMultiplier, v)
+	return u
+}
+
+// UpdateGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateGroupHiddenCacheReadRateMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldGroupHiddenCacheReadRateMultiplier)
+	return u
+}
+
+// AddGroupHiddenCacheReadRateMultiplier adds v to the "group_hidden_cache_read_rate_multiplier" field.
+func (u *UsageLogUpsert) AddGroupHiddenCacheReadRateMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldGroupHiddenCacheReadRateMultiplier, v)
+	return u
+}
+
+// SetAccountInputTokenMultiplier sets the "account_input_token_multiplier" field.
+func (u *UsageLogUpsert) SetAccountInputTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldAccountInputTokenMultiplier, v)
+	return u
+}
+
+// UpdateAccountInputTokenMultiplier sets the "account_input_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateAccountInputTokenMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldAccountInputTokenMultiplier)
+	return u
+}
+
+// AddAccountInputTokenMultiplier adds v to the "account_input_token_multiplier" field.
+func (u *UsageLogUpsert) AddAccountInputTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldAccountInputTokenMultiplier, v)
+	return u
+}
+
+// SetAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field.
+func (u *UsageLogUpsert) SetAccountOutputTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldAccountOutputTokenMultiplier, v)
+	return u
+}
+
+// UpdateAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateAccountOutputTokenMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldAccountOutputTokenMultiplier)
+	return u
+}
+
+// AddAccountOutputTokenMultiplier adds v to the "account_output_token_multiplier" field.
+func (u *UsageLogUpsert) AddAccountOutputTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldAccountOutputTokenMultiplier, v)
+	return u
+}
+
+// SetAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsert) SetAccountCacheCreationTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldAccountCacheCreationTokenMultiplier, v)
+	return u
+}
+
+// UpdateAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateAccountCacheCreationTokenMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldAccountCacheCreationTokenMultiplier)
+	return u
+}
+
+// AddAccountCacheCreationTokenMultiplier adds v to the "account_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsert) AddAccountCacheCreationTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldAccountCacheCreationTokenMultiplier, v)
+	return u
+}
+
+// SetAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field.
+func (u *UsageLogUpsert) SetAccountCacheReadTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Set(usagelog.FieldAccountCacheReadTokenMultiplier, v)
+	return u
+}
+
+// UpdateAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateAccountCacheReadTokenMultiplier() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldAccountCacheReadTokenMultiplier)
+	return u
+}
+
+// AddAccountCacheReadTokenMultiplier adds v to the "account_cache_read_token_multiplier" field.
+func (u *UsageLogUpsert) AddAccountCacheReadTokenMultiplier(v float64) *UsageLogUpsert {
+	u.Add(usagelog.FieldAccountCacheReadTokenMultiplier, v)
+	return u
+}
+
+// SetMultiplierSnapshot sets the "multiplier_snapshot" field.
+func (u *UsageLogUpsert) SetMultiplierSnapshot(v map[string]interface{}) *UsageLogUpsert {
+	u.Set(usagelog.FieldMultiplierSnapshot, v)
+	return u
+}
+
+// UpdateMultiplierSnapshot sets the "multiplier_snapshot" field to the value that was provided on create.
+func (u *UsageLogUpsert) UpdateMultiplierSnapshot() *UsageLogUpsert {
+	u.SetExcluded(usagelog.FieldMultiplierSnapshot)
 	return u
 }
 
@@ -2381,6 +3098,356 @@ func (u *UsageLogUpsertOne) AddCacheCreation1hTokens(v int) *UsageLogUpsertOne {
 func (u *UsageLogUpsertOne) UpdateCacheCreation1hTokens() *UsageLogUpsertOne {
 	return u.Update(func(s *UsageLogUpsert) {
 		s.UpdateCacheCreation1hTokens()
+	})
+}
+
+// SetRawInputTokens sets the "raw_input_tokens" field.
+func (u *UsageLogUpsertOne) SetRawInputTokens(v int) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRawInputTokens(v)
+	})
+}
+
+// AddRawInputTokens adds v to the "raw_input_tokens" field.
+func (u *UsageLogUpsertOne) AddRawInputTokens(v int) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddRawInputTokens(v)
+	})
+}
+
+// UpdateRawInputTokens sets the "raw_input_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateRawInputTokens() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRawInputTokens()
+	})
+}
+
+// SetRawOutputTokens sets the "raw_output_tokens" field.
+func (u *UsageLogUpsertOne) SetRawOutputTokens(v int) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRawOutputTokens(v)
+	})
+}
+
+// AddRawOutputTokens adds v to the "raw_output_tokens" field.
+func (u *UsageLogUpsertOne) AddRawOutputTokens(v int) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddRawOutputTokens(v)
+	})
+}
+
+// UpdateRawOutputTokens sets the "raw_output_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateRawOutputTokens() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRawOutputTokens()
+	})
+}
+
+// SetRawCacheCreationTokens sets the "raw_cache_creation_tokens" field.
+func (u *UsageLogUpsertOne) SetRawCacheCreationTokens(v int) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRawCacheCreationTokens(v)
+	})
+}
+
+// AddRawCacheCreationTokens adds v to the "raw_cache_creation_tokens" field.
+func (u *UsageLogUpsertOne) AddRawCacheCreationTokens(v int) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddRawCacheCreationTokens(v)
+	})
+}
+
+// UpdateRawCacheCreationTokens sets the "raw_cache_creation_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateRawCacheCreationTokens() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRawCacheCreationTokens()
+	})
+}
+
+// SetRawCacheReadTokens sets the "raw_cache_read_tokens" field.
+func (u *UsageLogUpsertOne) SetRawCacheReadTokens(v int) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRawCacheReadTokens(v)
+	})
+}
+
+// AddRawCacheReadTokens adds v to the "raw_cache_read_tokens" field.
+func (u *UsageLogUpsertOne) AddRawCacheReadTokens(v int) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddRawCacheReadTokens(v)
+	})
+}
+
+// UpdateRawCacheReadTokens sets the "raw_cache_read_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateRawCacheReadTokens() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRawCacheReadTokens()
+	})
+}
+
+// SetGroupInputTokenMultiplier sets the "group_input_token_multiplier" field.
+func (u *UsageLogUpsertOne) SetGroupInputTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupInputTokenMultiplier(v)
+	})
+}
+
+// AddGroupInputTokenMultiplier adds v to the "group_input_token_multiplier" field.
+func (u *UsageLogUpsertOne) AddGroupInputTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupInputTokenMultiplier(v)
+	})
+}
+
+// UpdateGroupInputTokenMultiplier sets the "group_input_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateGroupInputTokenMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupInputTokenMultiplier()
+	})
+}
+
+// SetGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field.
+func (u *UsageLogUpsertOne) SetGroupOutputTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupOutputTokenMultiplier(v)
+	})
+}
+
+// AddGroupOutputTokenMultiplier adds v to the "group_output_token_multiplier" field.
+func (u *UsageLogUpsertOne) AddGroupOutputTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupOutputTokenMultiplier(v)
+	})
+}
+
+// UpdateGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateGroupOutputTokenMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupOutputTokenMultiplier()
+	})
+}
+
+// SetGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsertOne) SetGroupCacheCreationTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupCacheCreationTokenMultiplier(v)
+	})
+}
+
+// AddGroupCacheCreationTokenMultiplier adds v to the "group_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsertOne) AddGroupCacheCreationTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupCacheCreationTokenMultiplier(v)
+	})
+}
+
+// UpdateGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateGroupCacheCreationTokenMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupCacheCreationTokenMultiplier()
+	})
+}
+
+// SetGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field.
+func (u *UsageLogUpsertOne) SetGroupCacheReadTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupCacheReadTokenMultiplier(v)
+	})
+}
+
+// AddGroupCacheReadTokenMultiplier adds v to the "group_cache_read_token_multiplier" field.
+func (u *UsageLogUpsertOne) AddGroupCacheReadTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupCacheReadTokenMultiplier(v)
+	})
+}
+
+// UpdateGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateGroupCacheReadTokenMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupCacheReadTokenMultiplier()
+	})
+}
+
+// SetGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field.
+func (u *UsageLogUpsertOne) SetGroupHiddenInputRateMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupHiddenInputRateMultiplier(v)
+	})
+}
+
+// AddGroupHiddenInputRateMultiplier adds v to the "group_hidden_input_rate_multiplier" field.
+func (u *UsageLogUpsertOne) AddGroupHiddenInputRateMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupHiddenInputRateMultiplier(v)
+	})
+}
+
+// UpdateGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateGroupHiddenInputRateMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupHiddenInputRateMultiplier()
+	})
+}
+
+// SetGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field.
+func (u *UsageLogUpsertOne) SetGroupHiddenOutputRateMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupHiddenOutputRateMultiplier(v)
+	})
+}
+
+// AddGroupHiddenOutputRateMultiplier adds v to the "group_hidden_output_rate_multiplier" field.
+func (u *UsageLogUpsertOne) AddGroupHiddenOutputRateMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupHiddenOutputRateMultiplier(v)
+	})
+}
+
+// UpdateGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateGroupHiddenOutputRateMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupHiddenOutputRateMultiplier()
+	})
+}
+
+// SetGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field.
+func (u *UsageLogUpsertOne) SetGroupHiddenCacheCreationRateMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupHiddenCacheCreationRateMultiplier(v)
+	})
+}
+
+// AddGroupHiddenCacheCreationRateMultiplier adds v to the "group_hidden_cache_creation_rate_multiplier" field.
+func (u *UsageLogUpsertOne) AddGroupHiddenCacheCreationRateMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupHiddenCacheCreationRateMultiplier(v)
+	})
+}
+
+// UpdateGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateGroupHiddenCacheCreationRateMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupHiddenCacheCreationRateMultiplier()
+	})
+}
+
+// SetGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field.
+func (u *UsageLogUpsertOne) SetGroupHiddenCacheReadRateMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupHiddenCacheReadRateMultiplier(v)
+	})
+}
+
+// AddGroupHiddenCacheReadRateMultiplier adds v to the "group_hidden_cache_read_rate_multiplier" field.
+func (u *UsageLogUpsertOne) AddGroupHiddenCacheReadRateMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupHiddenCacheReadRateMultiplier(v)
+	})
+}
+
+// UpdateGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateGroupHiddenCacheReadRateMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupHiddenCacheReadRateMultiplier()
+	})
+}
+
+// SetAccountInputTokenMultiplier sets the "account_input_token_multiplier" field.
+func (u *UsageLogUpsertOne) SetAccountInputTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetAccountInputTokenMultiplier(v)
+	})
+}
+
+// AddAccountInputTokenMultiplier adds v to the "account_input_token_multiplier" field.
+func (u *UsageLogUpsertOne) AddAccountInputTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddAccountInputTokenMultiplier(v)
+	})
+}
+
+// UpdateAccountInputTokenMultiplier sets the "account_input_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateAccountInputTokenMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateAccountInputTokenMultiplier()
+	})
+}
+
+// SetAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field.
+func (u *UsageLogUpsertOne) SetAccountOutputTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetAccountOutputTokenMultiplier(v)
+	})
+}
+
+// AddAccountOutputTokenMultiplier adds v to the "account_output_token_multiplier" field.
+func (u *UsageLogUpsertOne) AddAccountOutputTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddAccountOutputTokenMultiplier(v)
+	})
+}
+
+// UpdateAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateAccountOutputTokenMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateAccountOutputTokenMultiplier()
+	})
+}
+
+// SetAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsertOne) SetAccountCacheCreationTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetAccountCacheCreationTokenMultiplier(v)
+	})
+}
+
+// AddAccountCacheCreationTokenMultiplier adds v to the "account_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsertOne) AddAccountCacheCreationTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddAccountCacheCreationTokenMultiplier(v)
+	})
+}
+
+// UpdateAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateAccountCacheCreationTokenMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateAccountCacheCreationTokenMultiplier()
+	})
+}
+
+// SetAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field.
+func (u *UsageLogUpsertOne) SetAccountCacheReadTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetAccountCacheReadTokenMultiplier(v)
+	})
+}
+
+// AddAccountCacheReadTokenMultiplier adds v to the "account_cache_read_token_multiplier" field.
+func (u *UsageLogUpsertOne) AddAccountCacheReadTokenMultiplier(v float64) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddAccountCacheReadTokenMultiplier(v)
+	})
+}
+
+// UpdateAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateAccountCacheReadTokenMultiplier() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateAccountCacheReadTokenMultiplier()
+	})
+}
+
+// SetMultiplierSnapshot sets the "multiplier_snapshot" field.
+func (u *UsageLogUpsertOne) SetMultiplierSnapshot(v map[string]interface{}) *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetMultiplierSnapshot(v)
+	})
+}
+
+// UpdateMultiplierSnapshot sets the "multiplier_snapshot" field to the value that was provided on create.
+func (u *UsageLogUpsertOne) UpdateMultiplierSnapshot() *UsageLogUpsertOne {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateMultiplierSnapshot()
 	})
 }
 
@@ -3481,6 +4548,356 @@ func (u *UsageLogUpsertBulk) AddCacheCreation1hTokens(v int) *UsageLogUpsertBulk
 func (u *UsageLogUpsertBulk) UpdateCacheCreation1hTokens() *UsageLogUpsertBulk {
 	return u.Update(func(s *UsageLogUpsert) {
 		s.UpdateCacheCreation1hTokens()
+	})
+}
+
+// SetRawInputTokens sets the "raw_input_tokens" field.
+func (u *UsageLogUpsertBulk) SetRawInputTokens(v int) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRawInputTokens(v)
+	})
+}
+
+// AddRawInputTokens adds v to the "raw_input_tokens" field.
+func (u *UsageLogUpsertBulk) AddRawInputTokens(v int) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddRawInputTokens(v)
+	})
+}
+
+// UpdateRawInputTokens sets the "raw_input_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateRawInputTokens() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRawInputTokens()
+	})
+}
+
+// SetRawOutputTokens sets the "raw_output_tokens" field.
+func (u *UsageLogUpsertBulk) SetRawOutputTokens(v int) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRawOutputTokens(v)
+	})
+}
+
+// AddRawOutputTokens adds v to the "raw_output_tokens" field.
+func (u *UsageLogUpsertBulk) AddRawOutputTokens(v int) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddRawOutputTokens(v)
+	})
+}
+
+// UpdateRawOutputTokens sets the "raw_output_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateRawOutputTokens() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRawOutputTokens()
+	})
+}
+
+// SetRawCacheCreationTokens sets the "raw_cache_creation_tokens" field.
+func (u *UsageLogUpsertBulk) SetRawCacheCreationTokens(v int) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRawCacheCreationTokens(v)
+	})
+}
+
+// AddRawCacheCreationTokens adds v to the "raw_cache_creation_tokens" field.
+func (u *UsageLogUpsertBulk) AddRawCacheCreationTokens(v int) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddRawCacheCreationTokens(v)
+	})
+}
+
+// UpdateRawCacheCreationTokens sets the "raw_cache_creation_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateRawCacheCreationTokens() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRawCacheCreationTokens()
+	})
+}
+
+// SetRawCacheReadTokens sets the "raw_cache_read_tokens" field.
+func (u *UsageLogUpsertBulk) SetRawCacheReadTokens(v int) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetRawCacheReadTokens(v)
+	})
+}
+
+// AddRawCacheReadTokens adds v to the "raw_cache_read_tokens" field.
+func (u *UsageLogUpsertBulk) AddRawCacheReadTokens(v int) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddRawCacheReadTokens(v)
+	})
+}
+
+// UpdateRawCacheReadTokens sets the "raw_cache_read_tokens" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateRawCacheReadTokens() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateRawCacheReadTokens()
+	})
+}
+
+// SetGroupInputTokenMultiplier sets the "group_input_token_multiplier" field.
+func (u *UsageLogUpsertBulk) SetGroupInputTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupInputTokenMultiplier(v)
+	})
+}
+
+// AddGroupInputTokenMultiplier adds v to the "group_input_token_multiplier" field.
+func (u *UsageLogUpsertBulk) AddGroupInputTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupInputTokenMultiplier(v)
+	})
+}
+
+// UpdateGroupInputTokenMultiplier sets the "group_input_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateGroupInputTokenMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupInputTokenMultiplier()
+	})
+}
+
+// SetGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field.
+func (u *UsageLogUpsertBulk) SetGroupOutputTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupOutputTokenMultiplier(v)
+	})
+}
+
+// AddGroupOutputTokenMultiplier adds v to the "group_output_token_multiplier" field.
+func (u *UsageLogUpsertBulk) AddGroupOutputTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupOutputTokenMultiplier(v)
+	})
+}
+
+// UpdateGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateGroupOutputTokenMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupOutputTokenMultiplier()
+	})
+}
+
+// SetGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsertBulk) SetGroupCacheCreationTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupCacheCreationTokenMultiplier(v)
+	})
+}
+
+// AddGroupCacheCreationTokenMultiplier adds v to the "group_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsertBulk) AddGroupCacheCreationTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupCacheCreationTokenMultiplier(v)
+	})
+}
+
+// UpdateGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateGroupCacheCreationTokenMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupCacheCreationTokenMultiplier()
+	})
+}
+
+// SetGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field.
+func (u *UsageLogUpsertBulk) SetGroupCacheReadTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupCacheReadTokenMultiplier(v)
+	})
+}
+
+// AddGroupCacheReadTokenMultiplier adds v to the "group_cache_read_token_multiplier" field.
+func (u *UsageLogUpsertBulk) AddGroupCacheReadTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupCacheReadTokenMultiplier(v)
+	})
+}
+
+// UpdateGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateGroupCacheReadTokenMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupCacheReadTokenMultiplier()
+	})
+}
+
+// SetGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field.
+func (u *UsageLogUpsertBulk) SetGroupHiddenInputRateMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupHiddenInputRateMultiplier(v)
+	})
+}
+
+// AddGroupHiddenInputRateMultiplier adds v to the "group_hidden_input_rate_multiplier" field.
+func (u *UsageLogUpsertBulk) AddGroupHiddenInputRateMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupHiddenInputRateMultiplier(v)
+	})
+}
+
+// UpdateGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateGroupHiddenInputRateMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupHiddenInputRateMultiplier()
+	})
+}
+
+// SetGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field.
+func (u *UsageLogUpsertBulk) SetGroupHiddenOutputRateMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupHiddenOutputRateMultiplier(v)
+	})
+}
+
+// AddGroupHiddenOutputRateMultiplier adds v to the "group_hidden_output_rate_multiplier" field.
+func (u *UsageLogUpsertBulk) AddGroupHiddenOutputRateMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupHiddenOutputRateMultiplier(v)
+	})
+}
+
+// UpdateGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateGroupHiddenOutputRateMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupHiddenOutputRateMultiplier()
+	})
+}
+
+// SetGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field.
+func (u *UsageLogUpsertBulk) SetGroupHiddenCacheCreationRateMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupHiddenCacheCreationRateMultiplier(v)
+	})
+}
+
+// AddGroupHiddenCacheCreationRateMultiplier adds v to the "group_hidden_cache_creation_rate_multiplier" field.
+func (u *UsageLogUpsertBulk) AddGroupHiddenCacheCreationRateMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupHiddenCacheCreationRateMultiplier(v)
+	})
+}
+
+// UpdateGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateGroupHiddenCacheCreationRateMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupHiddenCacheCreationRateMultiplier()
+	})
+}
+
+// SetGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field.
+func (u *UsageLogUpsertBulk) SetGroupHiddenCacheReadRateMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetGroupHiddenCacheReadRateMultiplier(v)
+	})
+}
+
+// AddGroupHiddenCacheReadRateMultiplier adds v to the "group_hidden_cache_read_rate_multiplier" field.
+func (u *UsageLogUpsertBulk) AddGroupHiddenCacheReadRateMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddGroupHiddenCacheReadRateMultiplier(v)
+	})
+}
+
+// UpdateGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateGroupHiddenCacheReadRateMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateGroupHiddenCacheReadRateMultiplier()
+	})
+}
+
+// SetAccountInputTokenMultiplier sets the "account_input_token_multiplier" field.
+func (u *UsageLogUpsertBulk) SetAccountInputTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetAccountInputTokenMultiplier(v)
+	})
+}
+
+// AddAccountInputTokenMultiplier adds v to the "account_input_token_multiplier" field.
+func (u *UsageLogUpsertBulk) AddAccountInputTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddAccountInputTokenMultiplier(v)
+	})
+}
+
+// UpdateAccountInputTokenMultiplier sets the "account_input_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateAccountInputTokenMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateAccountInputTokenMultiplier()
+	})
+}
+
+// SetAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field.
+func (u *UsageLogUpsertBulk) SetAccountOutputTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetAccountOutputTokenMultiplier(v)
+	})
+}
+
+// AddAccountOutputTokenMultiplier adds v to the "account_output_token_multiplier" field.
+func (u *UsageLogUpsertBulk) AddAccountOutputTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddAccountOutputTokenMultiplier(v)
+	})
+}
+
+// UpdateAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateAccountOutputTokenMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateAccountOutputTokenMultiplier()
+	})
+}
+
+// SetAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsertBulk) SetAccountCacheCreationTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetAccountCacheCreationTokenMultiplier(v)
+	})
+}
+
+// AddAccountCacheCreationTokenMultiplier adds v to the "account_cache_creation_token_multiplier" field.
+func (u *UsageLogUpsertBulk) AddAccountCacheCreationTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddAccountCacheCreationTokenMultiplier(v)
+	})
+}
+
+// UpdateAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateAccountCacheCreationTokenMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateAccountCacheCreationTokenMultiplier()
+	})
+}
+
+// SetAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field.
+func (u *UsageLogUpsertBulk) SetAccountCacheReadTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetAccountCacheReadTokenMultiplier(v)
+	})
+}
+
+// AddAccountCacheReadTokenMultiplier adds v to the "account_cache_read_token_multiplier" field.
+func (u *UsageLogUpsertBulk) AddAccountCacheReadTokenMultiplier(v float64) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.AddAccountCacheReadTokenMultiplier(v)
+	})
+}
+
+// UpdateAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateAccountCacheReadTokenMultiplier() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateAccountCacheReadTokenMultiplier()
+	})
+}
+
+// SetMultiplierSnapshot sets the "multiplier_snapshot" field.
+func (u *UsageLogUpsertBulk) SetMultiplierSnapshot(v map[string]interface{}) *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.SetMultiplierSnapshot(v)
+	})
+}
+
+// UpdateMultiplierSnapshot sets the "multiplier_snapshot" field to the value that was provided on create.
+func (u *UsageLogUpsertBulk) UpdateMultiplierSnapshot() *UsageLogUpsertBulk {
+	return u.Update(func(s *UsageLogUpsert) {
+		s.UpdateMultiplierSnapshot()
 	})
 }
 

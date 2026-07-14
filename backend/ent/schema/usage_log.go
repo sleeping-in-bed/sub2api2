@@ -77,6 +77,23 @@ func (UsageLog) Fields() []ent.Field {
 			Default(0),
 		field.Int("cache_creation_1h_tokens").
 			Default(0),
+		field.Int("raw_input_tokens").Default(0),
+		field.Int("raw_output_tokens").Default(0),
+		field.Int("raw_cache_creation_tokens").Default(0),
+		field.Int("raw_cache_read_tokens").Default(0),
+		field.Float("group_input_token_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("group_output_token_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("group_cache_creation_token_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("group_cache_read_token_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("group_hidden_input_rate_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("group_hidden_output_rate_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("group_hidden_cache_creation_rate_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("group_hidden_cache_read_rate_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("account_input_token_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("account_output_token_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("account_cache_creation_token_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.Float("account_cache_read_token_multiplier").Default(1).SchemaType(map[string]string{dialect.Postgres: "decimal(10,4)"}),
+		field.JSON("multiplier_snapshot", map[string]any{}).Default(func() map[string]any { return map[string]any{} }).SchemaType(map[string]string{dialect.Postgres: "jsonb"}),
 
 		// 成本字段
 		field.Float("input_cost").

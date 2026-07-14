@@ -91,9 +91,10 @@ func TestUsageLogRepositoryCreateSyncRequestTypeAndLegacyFields(t *testing.T) {
 			sqlmock.AnyArg(), // channel_id
 			sqlmock.AnyArg(), // model_mapping_chain
 			sqlmock.AnyArg(), // billing_tier
-			sqlmock.AnyArg(), // billing_mode
-			sqlmock.AnyArg(), // account_stats_cost
-			createdAt,
+				sqlmock.AnyArg(), // billing_mode
+				sqlmock.AnyArg(), // account_stats_cost
+				sqlmock.AnyArg(), // multiplier_snapshot
+				createdAt,
 		).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "created_at"}).AddRow(int64(99), createdAt))
 
@@ -177,9 +178,10 @@ func TestUsageLogRepositoryCreate_PersistsServiceTier(t *testing.T) {
 			sqlmock.AnyArg(), // channel_id
 			sqlmock.AnyArg(), // model_mapping_chain
 			sqlmock.AnyArg(), // billing_tier
-			sqlmock.AnyArg(), // billing_mode
-			sqlmock.AnyArg(), // account_stats_cost
-			createdAt,
+				sqlmock.AnyArg(), // billing_mode
+				sqlmock.AnyArg(), // account_stats_cost
+				sqlmock.AnyArg(), // multiplier_snapshot
+				createdAt,
 		).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "created_at"}).AddRow(int64(100), createdAt))
 
@@ -816,9 +818,10 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			sql.NullInt64{},
 			sql.NullString{},
 			sql.NullString{},
-			sql.NullString{},
-			sql.NullFloat64{},
-			now,
+				sql.NullString{},
+				sql.NullFloat64{},
+				sql.NullString{Valid: true, String: `{"public_rate_multiplier":1.5}`},
+				now,
 		}})
 		require.NoError(t, err)
 		require.Equal(t, 2, log.ImageCount)
@@ -831,6 +834,7 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 		require.NotNil(t, log.ImageSizeSource)
 		require.Equal(t, "output", *log.ImageSizeSource)
 		require.Equal(t, map[string]int{"4K": 2}, log.ImageSizeBreakdown)
+		require.Equal(t, 1.5, log.MultiplierSnapshot["public_rate_multiplier"])
 	})
 
 	t.Run("request_type_ws_v2_overrides_legacy", func(t *testing.T) {
@@ -887,9 +891,10 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			sql.NullInt64{},   // channel_id
 			sql.NullString{},  // model_mapping_chain
 			sql.NullString{},  // billing_tier
-			sql.NullString{},  // billing_mode
-			sql.NullFloat64{}, // account_stats_cost
-			now,
+				sql.NullString{},  // billing_mode
+				sql.NullFloat64{}, // account_stats_cost
+				sql.NullString{},  // multiplier_snapshot
+				now,
 		}})
 		require.NoError(t, err)
 		require.NotNil(t, log.ServiceTier)
@@ -942,9 +947,10 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			sql.NullInt64{},   // channel_id
 			sql.NullString{},  // model_mapping_chain
 			sql.NullString{},  // billing_tier
-			sql.NullString{},  // billing_mode
-			sql.NullFloat64{}, // account_stats_cost
-			now,
+				sql.NullString{},  // billing_mode
+				sql.NullFloat64{}, // account_stats_cost
+				sql.NullString{},  // multiplier_snapshot
+				now,
 		}})
 		require.NoError(t, err)
 		require.NotNil(t, log.ServiceTier)
@@ -997,9 +1003,10 @@ func TestScanUsageLogRequestTypeAndLegacyFallback(t *testing.T) {
 			sql.NullInt64{},   // channel_id
 			sql.NullString{},  // model_mapping_chain
 			sql.NullString{},  // billing_tier
-			sql.NullString{},  // billing_mode
-			sql.NullFloat64{}, // account_stats_cost
-			now,
+				sql.NullString{},  // billing_mode
+				sql.NullFloat64{}, // account_stats_cost
+				sql.NullString{},  // multiplier_snapshot
+				now,
 		}})
 		require.NoError(t, err)
 		require.NotNil(t, log.ServiceTier)

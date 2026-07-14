@@ -127,7 +127,7 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 	}
 
 	// Calculate cost
-	tokens := UsageTokens{
+	rawTokens := UsageTokens{
 		InputTokens:         actualInputTokens,
 		ImageInputTokens:    result.Usage.ImageInputTokens,
 		OutputTokens:        result.Usage.OutputTokens,
@@ -135,6 +135,7 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 		CacheReadTokens:     result.Usage.CacheReadInputTokens,
 		ImageOutputTokens:   result.Usage.ImageOutputTokens,
 	}
+	tokens := applyGroupTokenMultipliers(apiKey.Group, rawTokens)
 
 	// Get rate multiplier
 	multiplier := 1.0
@@ -194,6 +195,10 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 		).Warn("openai_usage.pricing_missing_record_zero_cost", zap.Error(err))
 		cost = &CostBreakdown{BillingMode: string(BillingModeToken)}
 	}
+	if (!isGrokVideoUsageResult(result, billingModels) && result.ImageCount == 0) ||
+		(cost != nil && cost.BillingMode == string(BillingModeToken)) {
+		applyHiddenAndAccountTokenMultipliers(apiKey.Group, account, multiplier, cost)
+	}
 
 	// Determine billing type
 	isSubscriptionBilling := subscription != nil && apiKey.Group != nil && apiKey.Group.IsSubscriptionType()
@@ -230,10 +235,10 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 		ReasoningEffort:     result.ReasoningEffort,
 		InboundEndpoint:     optionalTrimmedStringPtr(input.InboundEndpoint),
 		UpstreamEndpoint:    optionalTrimmedStringPtr(input.UpstreamEndpoint),
-		InputTokens:         actualInputTokens,
-		OutputTokens:        result.Usage.OutputTokens,
-		CacheCreationTokens: result.Usage.CacheCreationInputTokens,
-		CacheReadTokens:     result.Usage.CacheReadInputTokens,
+		InputTokens:         tokens.InputTokens,
+		OutputTokens:        tokens.OutputTokens,
+		CacheCreationTokens: tokens.CacheCreationTokens,
+		CacheReadTokens:     tokens.CacheReadTokens,
 		ImageOutputTokens:   result.Usage.ImageOutputTokens,
 		ImageCount:          result.ImageCount,
 		ImageSize:           optionalTrimmedStringPtr(result.ImageSize),
@@ -241,6 +246,7 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 		ImageOutputSize:     optionalTrimmedStringPtr(result.ImageOutputSize),
 		ImageSizeSource:     optionalTrimmedStringPtr(result.ImageSizeSource),
 		ImageSizeBreakdown:  result.ImageSizeBreakdown,
+		MultiplierSnapshot: buildUsageMultiplierSnapshot(apiKey.Group, account, rawTokens, tokens, multiplier, account.BillingRateMultiplier()),
 	}
 	isVideoUsage := isGrokVideoUsageResult(result, billingModels)
 	if isVideoUsage {
@@ -313,7 +319,7 @@ func (s *OpenAIGatewayService) RecordUsage(ctx context.Context, input *OpenAIRec
 	if apiKey.GroupID != nil {
 		applyAccountStatsCost(ctx, usageLog, s.channelService, s.billingService,
 			account.ID, *apiKey.GroupID, result.UpstreamModel, result.Model,
-			tokens, cost.TotalCost,
+			rawTokens, cost.TotalCost,
 		)
 	}
 

@@ -4,6 +4,7 @@ package service
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"hash/fnv"
 	"log/slog"
 	"net/url"
@@ -91,6 +92,13 @@ const (
 const openAIEndpointCapabilitiesCredentialKey = "openai_capabilities"
 
 const (
+	accountInputTokenMultiplierExtraKey         = "input_token_multiplier"
+	accountOutputTokenMultiplierExtraKey        = "output_token_multiplier"
+	accountCacheCreationTokenMultiplierExtraKey = "cache_creation_token_multiplier"
+	accountCacheReadTokenMultiplierExtraKey     = "cache_read_token_multiplier"
+)
+
+const (
 	OpenAIAuthModePersonalAccessToken = "personalAccessToken"
 	openAIAuthModeCredentialKey       = "auth_mode"
 	openAIAuthModeLegacyCredentialKey = "openai_auth_mode"
@@ -129,6 +137,26 @@ func (a *Account) BillingRateMultiplier() float64 {
 	}
 	return *a.RateMultiplier
 }
+
+func (a *Account) tokenMultiplier(key string) float64 {
+	if a == nil || a.Extra == nil {
+		return 1
+	}
+	value, ok := a.Extra[key]
+	if !ok {
+		return 1
+	}
+	parsed, err := strconv.ParseFloat(strings.TrimSpace(fmt.Sprint(value)), 64)
+	if err != nil || parsed <= 0 {
+		return 1
+	}
+	return parsed
+}
+
+func (a *Account) InputTokenMultiplier() float64 { return a.tokenMultiplier(accountInputTokenMultiplierExtraKey) }
+func (a *Account) OutputTokenMultiplier() float64 { return a.tokenMultiplier(accountOutputTokenMultiplierExtraKey) }
+func (a *Account) CacheCreationTokenMultiplier() float64 { return a.tokenMultiplier(accountCacheCreationTokenMultiplierExtraKey) }
+func (a *Account) CacheReadTokenMultiplier() float64 { return a.tokenMultiplier(accountCacheReadTokenMultiplierExtraKey) }
 
 func (a *Account) EffectiveLoadFactor() int {
 	if a == nil {

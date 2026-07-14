@@ -20866,101 +20866,117 @@ func (m *ErrorPassthroughRuleMutation) ResetEdge(name string) error {
 // GroupMutation represents an operation that mutates the Group nodes in the graph.
 type GroupMutation struct {
 	config
-	op                                      Op
-	typ                                     string
-	id                                      *int64
-	created_at                              *time.Time
-	updated_at                              *time.Time
-	deleted_at                              *time.Time
-	name                                    *string
-	description                             *string
-	rate_multiplier                         *float64
-	addrate_multiplier                      *float64
-	peak_rate_enabled                       *bool
-	peak_start                              *string
-	peak_end                                *string
-	peak_rate_multiplier                    *float64
-	addpeak_rate_multiplier                 *float64
-	is_exclusive                            *bool
-	status                                  *string
-	platform                                *string
-	subscription_type                       *string
-	daily_limit_usd                         *float64
-	adddaily_limit_usd                      *float64
-	weekly_limit_usd                        *float64
-	addweekly_limit_usd                     *float64
-	monthly_limit_usd                       *float64
-	addmonthly_limit_usd                    *float64
-	default_validity_days                   *int
-	adddefault_validity_days                *int
-	allow_image_generation                  *bool
-	allow_batch_image_generation            *bool
-	image_rate_independent                  *bool
-	image_rate_multiplier                   *float64
-	addimage_rate_multiplier                *float64
-	image_price_1k                          *float64
-	addimage_price_1k                       *float64
-	image_price_2k                          *float64
-	addimage_price_2k                       *float64
-	image_price_4k                          *float64
-	addimage_price_4k                       *float64
-	batch_image_discount_multiplier         *float64
-	addbatch_image_discount_multiplier      *float64
-	batch_image_hold_multiplier             *float64
-	addbatch_image_hold_multiplier          *float64
-	video_rate_independent                  *bool
-	video_rate_multiplier                   *float64
-	addvideo_rate_multiplier                *float64
-	video_price_480p                        *float64
-	addvideo_price_480p                     *float64
-	video_price_720p                        *float64
-	addvideo_price_720p                     *float64
-	video_price_1080p                       *float64
-	addvideo_price_1080p                    *float64
-	web_search_price_per_call               *float64
-	addweb_search_price_per_call            *float64
-	claude_code_only                        *bool
-	fallback_group_id                       *int64
-	addfallback_group_id                    *int64
-	fallback_group_id_on_invalid_request    *int64
-	addfallback_group_id_on_invalid_request *int64
-	model_routing                           *map[string][]int64
-	model_routing_enabled                   *bool
-	mcp_xml_inject                          *bool
-	supported_model_scopes                  *[]string
-	appendsupported_model_scopes            []string
-	sort_order                              *int
-	addsort_order                           *int
-	allow_messages_dispatch                 *bool
-	require_oauth_only                      *bool
-	require_privacy_set                     *bool
-	default_mapped_model                    *string
-	messages_dispatch_model_config          *domain.OpenAIMessagesDispatchModelConfig
-	models_list_config                      *domain.GroupModelsListConfig
-	rpm_limit                               *int
-	addrpm_limit                            *int
-	clearedFields                           map[string]struct{}
-	api_keys                                map[int64]struct{}
-	removedapi_keys                         map[int64]struct{}
-	clearedapi_keys                         bool
-	redeem_codes                            map[int64]struct{}
-	removedredeem_codes                     map[int64]struct{}
-	clearedredeem_codes                     bool
-	subscriptions                           map[int64]struct{}
-	removedsubscriptions                    map[int64]struct{}
-	clearedsubscriptions                    bool
-	usage_logs                              map[int64]struct{}
-	removedusage_logs                       map[int64]struct{}
-	clearedusage_logs                       bool
-	accounts                                map[int64]struct{}
-	removedaccounts                         map[int64]struct{}
-	clearedaccounts                         bool
-	allowed_users                           map[int64]struct{}
-	removedallowed_users                    map[int64]struct{}
-	clearedallowed_users                    bool
-	done                                    bool
-	oldValue                                func(context.Context) (*Group, error)
-	predicates                              []predicate.Group
+	op                                       Op
+	typ                                      string
+	id                                       *int64
+	created_at                               *time.Time
+	updated_at                               *time.Time
+	deleted_at                               *time.Time
+	name                                     *string
+	description                              *string
+	rate_multiplier                          *float64
+	addrate_multiplier                       *float64
+	input_token_multiplier                   *float64
+	addinput_token_multiplier                *float64
+	output_token_multiplier                  *float64
+	addoutput_token_multiplier               *float64
+	cache_creation_token_multiplier          *float64
+	addcache_creation_token_multiplier       *float64
+	cache_read_token_multiplier              *float64
+	addcache_read_token_multiplier           *float64
+	hidden_input_rate_multiplier             *float64
+	addhidden_input_rate_multiplier          *float64
+	hidden_output_rate_multiplier            *float64
+	addhidden_output_rate_multiplier         *float64
+	hidden_cache_creation_rate_multiplier    *float64
+	addhidden_cache_creation_rate_multiplier *float64
+	hidden_cache_read_rate_multiplier        *float64
+	addhidden_cache_read_rate_multiplier     *float64
+	peak_rate_enabled                        *bool
+	peak_start                               *string
+	peak_end                                 *string
+	peak_rate_multiplier                     *float64
+	addpeak_rate_multiplier                  *float64
+	is_exclusive                             *bool
+	status                                   *string
+	platform                                 *string
+	subscription_type                        *string
+	daily_limit_usd                          *float64
+	adddaily_limit_usd                       *float64
+	weekly_limit_usd                         *float64
+	addweekly_limit_usd                      *float64
+	monthly_limit_usd                        *float64
+	addmonthly_limit_usd                     *float64
+	default_validity_days                    *int
+	adddefault_validity_days                 *int
+	allow_image_generation                   *bool
+	allow_batch_image_generation             *bool
+	image_rate_independent                   *bool
+	image_rate_multiplier                    *float64
+	addimage_rate_multiplier                 *float64
+	image_price_1k                           *float64
+	addimage_price_1k                        *float64
+	image_price_2k                           *float64
+	addimage_price_2k                        *float64
+	image_price_4k                           *float64
+	addimage_price_4k                        *float64
+	batch_image_discount_multiplier          *float64
+	addbatch_image_discount_multiplier       *float64
+	batch_image_hold_multiplier              *float64
+	addbatch_image_hold_multiplier           *float64
+	video_rate_independent                   *bool
+	video_rate_multiplier                    *float64
+	addvideo_rate_multiplier                 *float64
+	video_price_480p                         *float64
+	addvideo_price_480p                      *float64
+	video_price_720p                         *float64
+	addvideo_price_720p                      *float64
+	video_price_1080p                        *float64
+	addvideo_price_1080p                     *float64
+	web_search_price_per_call                *float64
+	addweb_search_price_per_call             *float64
+	claude_code_only                         *bool
+	fallback_group_id                        *int64
+	addfallback_group_id                     *int64
+	fallback_group_id_on_invalid_request     *int64
+	addfallback_group_id_on_invalid_request  *int64
+	model_routing                            *map[string][]int64
+	model_routing_enabled                    *bool
+	mcp_xml_inject                           *bool
+	supported_model_scopes                   *[]string
+	appendsupported_model_scopes             []string
+	sort_order                               *int
+	addsort_order                            *int
+	allow_messages_dispatch                  *bool
+	require_oauth_only                       *bool
+	require_privacy_set                      *bool
+	default_mapped_model                     *string
+	messages_dispatch_model_config           *domain.OpenAIMessagesDispatchModelConfig
+	models_list_config                       *domain.GroupModelsListConfig
+	rpm_limit                                *int
+	addrpm_limit                             *int
+	clearedFields                            map[string]struct{}
+	api_keys                                 map[int64]struct{}
+	removedapi_keys                          map[int64]struct{}
+	clearedapi_keys                          bool
+	redeem_codes                             map[int64]struct{}
+	removedredeem_codes                      map[int64]struct{}
+	clearedredeem_codes                      bool
+	subscriptions                            map[int64]struct{}
+	removedsubscriptions                     map[int64]struct{}
+	clearedsubscriptions                     bool
+	usage_logs                               map[int64]struct{}
+	removedusage_logs                        map[int64]struct{}
+	clearedusage_logs                        bool
+	accounts                                 map[int64]struct{}
+	removedaccounts                          map[int64]struct{}
+	clearedaccounts                          bool
+	allowed_users                            map[int64]struct{}
+	removedallowed_users                     map[int64]struct{}
+	clearedallowed_users                     bool
+	done                                     bool
+	oldValue                                 func(context.Context) (*Group, error)
+	predicates                               []predicate.Group
 }
 
 var _ ent.Mutation = (*GroupMutation)(nil)
@@ -21321,6 +21337,454 @@ func (m *GroupMutation) AddedRateMultiplier() (r float64, exists bool) {
 func (m *GroupMutation) ResetRateMultiplier() {
 	m.rate_multiplier = nil
 	m.addrate_multiplier = nil
+}
+
+// SetInputTokenMultiplier sets the "input_token_multiplier" field.
+func (m *GroupMutation) SetInputTokenMultiplier(f float64) {
+	m.input_token_multiplier = &f
+	m.addinput_token_multiplier = nil
+}
+
+// InputTokenMultiplier returns the value of the "input_token_multiplier" field in the mutation.
+func (m *GroupMutation) InputTokenMultiplier() (r float64, exists bool) {
+	v := m.input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldInputTokenMultiplier returns the old "input_token_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldInputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldInputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldInputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldInputTokenMultiplier: %w", err)
+	}
+	return oldValue.InputTokenMultiplier, nil
+}
+
+// AddInputTokenMultiplier adds f to the "input_token_multiplier" field.
+func (m *GroupMutation) AddInputTokenMultiplier(f float64) {
+	if m.addinput_token_multiplier != nil {
+		*m.addinput_token_multiplier += f
+	} else {
+		m.addinput_token_multiplier = &f
+	}
+}
+
+// AddedInputTokenMultiplier returns the value that was added to the "input_token_multiplier" field in this mutation.
+func (m *GroupMutation) AddedInputTokenMultiplier() (r float64, exists bool) {
+	v := m.addinput_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetInputTokenMultiplier resets all changes to the "input_token_multiplier" field.
+func (m *GroupMutation) ResetInputTokenMultiplier() {
+	m.input_token_multiplier = nil
+	m.addinput_token_multiplier = nil
+}
+
+// SetOutputTokenMultiplier sets the "output_token_multiplier" field.
+func (m *GroupMutation) SetOutputTokenMultiplier(f float64) {
+	m.output_token_multiplier = &f
+	m.addoutput_token_multiplier = nil
+}
+
+// OutputTokenMultiplier returns the value of the "output_token_multiplier" field in the mutation.
+func (m *GroupMutation) OutputTokenMultiplier() (r float64, exists bool) {
+	v := m.output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOutputTokenMultiplier returns the old "output_token_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldOutputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOutputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOutputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOutputTokenMultiplier: %w", err)
+	}
+	return oldValue.OutputTokenMultiplier, nil
+}
+
+// AddOutputTokenMultiplier adds f to the "output_token_multiplier" field.
+func (m *GroupMutation) AddOutputTokenMultiplier(f float64) {
+	if m.addoutput_token_multiplier != nil {
+		*m.addoutput_token_multiplier += f
+	} else {
+		m.addoutput_token_multiplier = &f
+	}
+}
+
+// AddedOutputTokenMultiplier returns the value that was added to the "output_token_multiplier" field in this mutation.
+func (m *GroupMutation) AddedOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.addoutput_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetOutputTokenMultiplier resets all changes to the "output_token_multiplier" field.
+func (m *GroupMutation) ResetOutputTokenMultiplier() {
+	m.output_token_multiplier = nil
+	m.addoutput_token_multiplier = nil
+}
+
+// SetCacheCreationTokenMultiplier sets the "cache_creation_token_multiplier" field.
+func (m *GroupMutation) SetCacheCreationTokenMultiplier(f float64) {
+	m.cache_creation_token_multiplier = &f
+	m.addcache_creation_token_multiplier = nil
+}
+
+// CacheCreationTokenMultiplier returns the value of the "cache_creation_token_multiplier" field in the mutation.
+func (m *GroupMutation) CacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCacheCreationTokenMultiplier returns the old "cache_creation_token_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldCacheCreationTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCacheCreationTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCacheCreationTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCacheCreationTokenMultiplier: %w", err)
+	}
+	return oldValue.CacheCreationTokenMultiplier, nil
+}
+
+// AddCacheCreationTokenMultiplier adds f to the "cache_creation_token_multiplier" field.
+func (m *GroupMutation) AddCacheCreationTokenMultiplier(f float64) {
+	if m.addcache_creation_token_multiplier != nil {
+		*m.addcache_creation_token_multiplier += f
+	} else {
+		m.addcache_creation_token_multiplier = &f
+	}
+}
+
+// AddedCacheCreationTokenMultiplier returns the value that was added to the "cache_creation_token_multiplier" field in this mutation.
+func (m *GroupMutation) AddedCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.addcache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCacheCreationTokenMultiplier resets all changes to the "cache_creation_token_multiplier" field.
+func (m *GroupMutation) ResetCacheCreationTokenMultiplier() {
+	m.cache_creation_token_multiplier = nil
+	m.addcache_creation_token_multiplier = nil
+}
+
+// SetCacheReadTokenMultiplier sets the "cache_read_token_multiplier" field.
+func (m *GroupMutation) SetCacheReadTokenMultiplier(f float64) {
+	m.cache_read_token_multiplier = &f
+	m.addcache_read_token_multiplier = nil
+}
+
+// CacheReadTokenMultiplier returns the value of the "cache_read_token_multiplier" field in the mutation.
+func (m *GroupMutation) CacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCacheReadTokenMultiplier returns the old "cache_read_token_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldCacheReadTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCacheReadTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCacheReadTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCacheReadTokenMultiplier: %w", err)
+	}
+	return oldValue.CacheReadTokenMultiplier, nil
+}
+
+// AddCacheReadTokenMultiplier adds f to the "cache_read_token_multiplier" field.
+func (m *GroupMutation) AddCacheReadTokenMultiplier(f float64) {
+	if m.addcache_read_token_multiplier != nil {
+		*m.addcache_read_token_multiplier += f
+	} else {
+		m.addcache_read_token_multiplier = &f
+	}
+}
+
+// AddedCacheReadTokenMultiplier returns the value that was added to the "cache_read_token_multiplier" field in this mutation.
+func (m *GroupMutation) AddedCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.addcache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetCacheReadTokenMultiplier resets all changes to the "cache_read_token_multiplier" field.
+func (m *GroupMutation) ResetCacheReadTokenMultiplier() {
+	m.cache_read_token_multiplier = nil
+	m.addcache_read_token_multiplier = nil
+}
+
+// SetHiddenInputRateMultiplier sets the "hidden_input_rate_multiplier" field.
+func (m *GroupMutation) SetHiddenInputRateMultiplier(f float64) {
+	m.hidden_input_rate_multiplier = &f
+	m.addhidden_input_rate_multiplier = nil
+}
+
+// HiddenInputRateMultiplier returns the value of the "hidden_input_rate_multiplier" field in the mutation.
+func (m *GroupMutation) HiddenInputRateMultiplier() (r float64, exists bool) {
+	v := m.hidden_input_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHiddenInputRateMultiplier returns the old "hidden_input_rate_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldHiddenInputRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHiddenInputRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHiddenInputRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHiddenInputRateMultiplier: %w", err)
+	}
+	return oldValue.HiddenInputRateMultiplier, nil
+}
+
+// AddHiddenInputRateMultiplier adds f to the "hidden_input_rate_multiplier" field.
+func (m *GroupMutation) AddHiddenInputRateMultiplier(f float64) {
+	if m.addhidden_input_rate_multiplier != nil {
+		*m.addhidden_input_rate_multiplier += f
+	} else {
+		m.addhidden_input_rate_multiplier = &f
+	}
+}
+
+// AddedHiddenInputRateMultiplier returns the value that was added to the "hidden_input_rate_multiplier" field in this mutation.
+func (m *GroupMutation) AddedHiddenInputRateMultiplier() (r float64, exists bool) {
+	v := m.addhidden_input_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHiddenInputRateMultiplier resets all changes to the "hidden_input_rate_multiplier" field.
+func (m *GroupMutation) ResetHiddenInputRateMultiplier() {
+	m.hidden_input_rate_multiplier = nil
+	m.addhidden_input_rate_multiplier = nil
+}
+
+// SetHiddenOutputRateMultiplier sets the "hidden_output_rate_multiplier" field.
+func (m *GroupMutation) SetHiddenOutputRateMultiplier(f float64) {
+	m.hidden_output_rate_multiplier = &f
+	m.addhidden_output_rate_multiplier = nil
+}
+
+// HiddenOutputRateMultiplier returns the value of the "hidden_output_rate_multiplier" field in the mutation.
+func (m *GroupMutation) HiddenOutputRateMultiplier() (r float64, exists bool) {
+	v := m.hidden_output_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHiddenOutputRateMultiplier returns the old "hidden_output_rate_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldHiddenOutputRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHiddenOutputRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHiddenOutputRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHiddenOutputRateMultiplier: %w", err)
+	}
+	return oldValue.HiddenOutputRateMultiplier, nil
+}
+
+// AddHiddenOutputRateMultiplier adds f to the "hidden_output_rate_multiplier" field.
+func (m *GroupMutation) AddHiddenOutputRateMultiplier(f float64) {
+	if m.addhidden_output_rate_multiplier != nil {
+		*m.addhidden_output_rate_multiplier += f
+	} else {
+		m.addhidden_output_rate_multiplier = &f
+	}
+}
+
+// AddedHiddenOutputRateMultiplier returns the value that was added to the "hidden_output_rate_multiplier" field in this mutation.
+func (m *GroupMutation) AddedHiddenOutputRateMultiplier() (r float64, exists bool) {
+	v := m.addhidden_output_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHiddenOutputRateMultiplier resets all changes to the "hidden_output_rate_multiplier" field.
+func (m *GroupMutation) ResetHiddenOutputRateMultiplier() {
+	m.hidden_output_rate_multiplier = nil
+	m.addhidden_output_rate_multiplier = nil
+}
+
+// SetHiddenCacheCreationRateMultiplier sets the "hidden_cache_creation_rate_multiplier" field.
+func (m *GroupMutation) SetHiddenCacheCreationRateMultiplier(f float64) {
+	m.hidden_cache_creation_rate_multiplier = &f
+	m.addhidden_cache_creation_rate_multiplier = nil
+}
+
+// HiddenCacheCreationRateMultiplier returns the value of the "hidden_cache_creation_rate_multiplier" field in the mutation.
+func (m *GroupMutation) HiddenCacheCreationRateMultiplier() (r float64, exists bool) {
+	v := m.hidden_cache_creation_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHiddenCacheCreationRateMultiplier returns the old "hidden_cache_creation_rate_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldHiddenCacheCreationRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHiddenCacheCreationRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHiddenCacheCreationRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHiddenCacheCreationRateMultiplier: %w", err)
+	}
+	return oldValue.HiddenCacheCreationRateMultiplier, nil
+}
+
+// AddHiddenCacheCreationRateMultiplier adds f to the "hidden_cache_creation_rate_multiplier" field.
+func (m *GroupMutation) AddHiddenCacheCreationRateMultiplier(f float64) {
+	if m.addhidden_cache_creation_rate_multiplier != nil {
+		*m.addhidden_cache_creation_rate_multiplier += f
+	} else {
+		m.addhidden_cache_creation_rate_multiplier = &f
+	}
+}
+
+// AddedHiddenCacheCreationRateMultiplier returns the value that was added to the "hidden_cache_creation_rate_multiplier" field in this mutation.
+func (m *GroupMutation) AddedHiddenCacheCreationRateMultiplier() (r float64, exists bool) {
+	v := m.addhidden_cache_creation_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHiddenCacheCreationRateMultiplier resets all changes to the "hidden_cache_creation_rate_multiplier" field.
+func (m *GroupMutation) ResetHiddenCacheCreationRateMultiplier() {
+	m.hidden_cache_creation_rate_multiplier = nil
+	m.addhidden_cache_creation_rate_multiplier = nil
+}
+
+// SetHiddenCacheReadRateMultiplier sets the "hidden_cache_read_rate_multiplier" field.
+func (m *GroupMutation) SetHiddenCacheReadRateMultiplier(f float64) {
+	m.hidden_cache_read_rate_multiplier = &f
+	m.addhidden_cache_read_rate_multiplier = nil
+}
+
+// HiddenCacheReadRateMultiplier returns the value of the "hidden_cache_read_rate_multiplier" field in the mutation.
+func (m *GroupMutation) HiddenCacheReadRateMultiplier() (r float64, exists bool) {
+	v := m.hidden_cache_read_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldHiddenCacheReadRateMultiplier returns the old "hidden_cache_read_rate_multiplier" field's value of the Group entity.
+// If the Group object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *GroupMutation) OldHiddenCacheReadRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldHiddenCacheReadRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldHiddenCacheReadRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldHiddenCacheReadRateMultiplier: %w", err)
+	}
+	return oldValue.HiddenCacheReadRateMultiplier, nil
+}
+
+// AddHiddenCacheReadRateMultiplier adds f to the "hidden_cache_read_rate_multiplier" field.
+func (m *GroupMutation) AddHiddenCacheReadRateMultiplier(f float64) {
+	if m.addhidden_cache_read_rate_multiplier != nil {
+		*m.addhidden_cache_read_rate_multiplier += f
+	} else {
+		m.addhidden_cache_read_rate_multiplier = &f
+	}
+}
+
+// AddedHiddenCacheReadRateMultiplier returns the value that was added to the "hidden_cache_read_rate_multiplier" field in this mutation.
+func (m *GroupMutation) AddedHiddenCacheReadRateMultiplier() (r float64, exists bool) {
+	v := m.addhidden_cache_read_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetHiddenCacheReadRateMultiplier resets all changes to the "hidden_cache_read_rate_multiplier" field.
+func (m *GroupMutation) ResetHiddenCacheReadRateMultiplier() {
+	m.hidden_cache_read_rate_multiplier = nil
+	m.addhidden_cache_read_rate_multiplier = nil
 }
 
 // SetPeakRateEnabled sets the "peak_rate_enabled" field.
@@ -23789,7 +24253,7 @@ func (m *GroupMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *GroupMutation) Fields() []string {
-	fields := make([]string, 0, 48)
+	fields := make([]string, 0, 56)
 	if m.created_at != nil {
 		fields = append(fields, group.FieldCreatedAt)
 	}
@@ -23807,6 +24271,30 @@ func (m *GroupMutation) Fields() []string {
 	}
 	if m.rate_multiplier != nil {
 		fields = append(fields, group.FieldRateMultiplier)
+	}
+	if m.input_token_multiplier != nil {
+		fields = append(fields, group.FieldInputTokenMultiplier)
+	}
+	if m.output_token_multiplier != nil {
+		fields = append(fields, group.FieldOutputTokenMultiplier)
+	}
+	if m.cache_creation_token_multiplier != nil {
+		fields = append(fields, group.FieldCacheCreationTokenMultiplier)
+	}
+	if m.cache_read_token_multiplier != nil {
+		fields = append(fields, group.FieldCacheReadTokenMultiplier)
+	}
+	if m.hidden_input_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenInputRateMultiplier)
+	}
+	if m.hidden_output_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenOutputRateMultiplier)
+	}
+	if m.hidden_cache_creation_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenCacheCreationRateMultiplier)
+	}
+	if m.hidden_cache_read_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenCacheReadRateMultiplier)
 	}
 	if m.peak_rate_enabled != nil {
 		fields = append(fields, group.FieldPeakRateEnabled)
@@ -23954,6 +24442,22 @@ func (m *GroupMutation) Field(name string) (ent.Value, bool) {
 		return m.Description()
 	case group.FieldRateMultiplier:
 		return m.RateMultiplier()
+	case group.FieldInputTokenMultiplier:
+		return m.InputTokenMultiplier()
+	case group.FieldOutputTokenMultiplier:
+		return m.OutputTokenMultiplier()
+	case group.FieldCacheCreationTokenMultiplier:
+		return m.CacheCreationTokenMultiplier()
+	case group.FieldCacheReadTokenMultiplier:
+		return m.CacheReadTokenMultiplier()
+	case group.FieldHiddenInputRateMultiplier:
+		return m.HiddenInputRateMultiplier()
+	case group.FieldHiddenOutputRateMultiplier:
+		return m.HiddenOutputRateMultiplier()
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		return m.HiddenCacheCreationRateMultiplier()
+	case group.FieldHiddenCacheReadRateMultiplier:
+		return m.HiddenCacheReadRateMultiplier()
 	case group.FieldPeakRateEnabled:
 		return m.PeakRateEnabled()
 	case group.FieldPeakStart:
@@ -24059,6 +24563,22 @@ func (m *GroupMutation) OldField(ctx context.Context, name string) (ent.Value, e
 		return m.OldDescription(ctx)
 	case group.FieldRateMultiplier:
 		return m.OldRateMultiplier(ctx)
+	case group.FieldInputTokenMultiplier:
+		return m.OldInputTokenMultiplier(ctx)
+	case group.FieldOutputTokenMultiplier:
+		return m.OldOutputTokenMultiplier(ctx)
+	case group.FieldCacheCreationTokenMultiplier:
+		return m.OldCacheCreationTokenMultiplier(ctx)
+	case group.FieldCacheReadTokenMultiplier:
+		return m.OldCacheReadTokenMultiplier(ctx)
+	case group.FieldHiddenInputRateMultiplier:
+		return m.OldHiddenInputRateMultiplier(ctx)
+	case group.FieldHiddenOutputRateMultiplier:
+		return m.OldHiddenOutputRateMultiplier(ctx)
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		return m.OldHiddenCacheCreationRateMultiplier(ctx)
+	case group.FieldHiddenCacheReadRateMultiplier:
+		return m.OldHiddenCacheReadRateMultiplier(ctx)
 	case group.FieldPeakRateEnabled:
 		return m.OldPeakRateEnabled(ctx)
 	case group.FieldPeakStart:
@@ -24193,6 +24713,62 @@ func (m *GroupMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetRateMultiplier(v)
+		return nil
+	case group.FieldInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetInputTokenMultiplier(v)
+		return nil
+	case group.FieldOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOutputTokenMultiplier(v)
+		return nil
+	case group.FieldCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCacheCreationTokenMultiplier(v)
+		return nil
+	case group.FieldCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCacheReadTokenMultiplier(v)
+		return nil
+	case group.FieldHiddenInputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHiddenInputRateMultiplier(v)
+		return nil
+	case group.FieldHiddenOutputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHiddenOutputRateMultiplier(v)
+		return nil
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHiddenCacheCreationRateMultiplier(v)
+		return nil
+	case group.FieldHiddenCacheReadRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetHiddenCacheReadRateMultiplier(v)
 		return nil
 	case group.FieldPeakRateEnabled:
 		v, ok := value.(bool)
@@ -24499,6 +25075,30 @@ func (m *GroupMutation) AddedFields() []string {
 	if m.addrate_multiplier != nil {
 		fields = append(fields, group.FieldRateMultiplier)
 	}
+	if m.addinput_token_multiplier != nil {
+		fields = append(fields, group.FieldInputTokenMultiplier)
+	}
+	if m.addoutput_token_multiplier != nil {
+		fields = append(fields, group.FieldOutputTokenMultiplier)
+	}
+	if m.addcache_creation_token_multiplier != nil {
+		fields = append(fields, group.FieldCacheCreationTokenMultiplier)
+	}
+	if m.addcache_read_token_multiplier != nil {
+		fields = append(fields, group.FieldCacheReadTokenMultiplier)
+	}
+	if m.addhidden_input_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenInputRateMultiplier)
+	}
+	if m.addhidden_output_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenOutputRateMultiplier)
+	}
+	if m.addhidden_cache_creation_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenCacheCreationRateMultiplier)
+	}
+	if m.addhidden_cache_read_rate_multiplier != nil {
+		fields = append(fields, group.FieldHiddenCacheReadRateMultiplier)
+	}
 	if m.addpeak_rate_multiplier != nil {
 		fields = append(fields, group.FieldPeakRateMultiplier)
 	}
@@ -24569,6 +25169,22 @@ func (m *GroupMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
 	case group.FieldRateMultiplier:
 		return m.AddedRateMultiplier()
+	case group.FieldInputTokenMultiplier:
+		return m.AddedInputTokenMultiplier()
+	case group.FieldOutputTokenMultiplier:
+		return m.AddedOutputTokenMultiplier()
+	case group.FieldCacheCreationTokenMultiplier:
+		return m.AddedCacheCreationTokenMultiplier()
+	case group.FieldCacheReadTokenMultiplier:
+		return m.AddedCacheReadTokenMultiplier()
+	case group.FieldHiddenInputRateMultiplier:
+		return m.AddedHiddenInputRateMultiplier()
+	case group.FieldHiddenOutputRateMultiplier:
+		return m.AddedHiddenOutputRateMultiplier()
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		return m.AddedHiddenCacheCreationRateMultiplier()
+	case group.FieldHiddenCacheReadRateMultiplier:
+		return m.AddedHiddenCacheReadRateMultiplier()
 	case group.FieldPeakRateMultiplier:
 		return m.AddedPeakRateMultiplier()
 	case group.FieldDailyLimitUsd:
@@ -24624,6 +25240,62 @@ func (m *GroupMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddRateMultiplier(v)
+		return nil
+	case group.FieldInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddInputTokenMultiplier(v)
+		return nil
+	case group.FieldOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddOutputTokenMultiplier(v)
+		return nil
+	case group.FieldCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCacheCreationTokenMultiplier(v)
+		return nil
+	case group.FieldCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddCacheReadTokenMultiplier(v)
+		return nil
+	case group.FieldHiddenInputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHiddenInputRateMultiplier(v)
+		return nil
+	case group.FieldHiddenOutputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHiddenOutputRateMultiplier(v)
+		return nil
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHiddenCacheCreationRateMultiplier(v)
+		return nil
+	case group.FieldHiddenCacheReadRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddHiddenCacheReadRateMultiplier(v)
 		return nil
 	case group.FieldPeakRateMultiplier:
 		v, ok := value.(float64)
@@ -24902,6 +25574,30 @@ func (m *GroupMutation) ResetField(name string) error {
 		return nil
 	case group.FieldRateMultiplier:
 		m.ResetRateMultiplier()
+		return nil
+	case group.FieldInputTokenMultiplier:
+		m.ResetInputTokenMultiplier()
+		return nil
+	case group.FieldOutputTokenMultiplier:
+		m.ResetOutputTokenMultiplier()
+		return nil
+	case group.FieldCacheCreationTokenMultiplier:
+		m.ResetCacheCreationTokenMultiplier()
+		return nil
+	case group.FieldCacheReadTokenMultiplier:
+		m.ResetCacheReadTokenMultiplier()
+		return nil
+	case group.FieldHiddenInputRateMultiplier:
+		m.ResetHiddenInputRateMultiplier()
+		return nil
+	case group.FieldHiddenOutputRateMultiplier:
+		m.ResetHiddenOutputRateMultiplier()
+		return nil
+	case group.FieldHiddenCacheCreationRateMultiplier:
+		m.ResetHiddenCacheCreationRateMultiplier()
+		return nil
+	case group.FieldHiddenCacheReadRateMultiplier:
+		m.ResetHiddenCacheReadRateMultiplier()
 		return nil
 	case group.FieldPeakRateEnabled:
 		m.ResetPeakRateEnabled()
@@ -43404,83 +44100,116 @@ func (m *UsageCleanupTaskMutation) ResetEdge(name string) error {
 // UsageLogMutation represents an operation that mutates the UsageLog nodes in the graph.
 type UsageLogMutation struct {
 	config
-	op                          Op
-	typ                         string
-	id                          *int64
-	request_id                  *string
-	model                       *string
-	requested_model             *string
-	upstream_model              *string
-	channel_id                  *int64
-	addchannel_id               *int64
-	model_mapping_chain         *string
-	billing_tier                *string
-	billing_mode                *string
-	input_tokens                *int
-	addinput_tokens             *int
-	output_tokens               *int
-	addoutput_tokens            *int
-	cache_creation_tokens       *int
-	addcache_creation_tokens    *int
-	cache_read_tokens           *int
-	addcache_read_tokens        *int
-	cache_creation_5m_tokens    *int
-	addcache_creation_5m_tokens *int
-	cache_creation_1h_tokens    *int
-	addcache_creation_1h_tokens *int
-	input_cost                  *float64
-	addinput_cost               *float64
-	output_cost                 *float64
-	addoutput_cost              *float64
-	cache_creation_cost         *float64
-	addcache_creation_cost      *float64
-	cache_read_cost             *float64
-	addcache_read_cost          *float64
-	total_cost                  *float64
-	addtotal_cost               *float64
-	actual_cost                 *float64
-	addactual_cost              *float64
-	rate_multiplier             *float64
-	addrate_multiplier          *float64
-	account_rate_multiplier     *float64
-	addaccount_rate_multiplier  *float64
-	billing_type                *int8
-	addbilling_type             *int8
-	stream                      *bool
-	duration_ms                 *int
-	addduration_ms              *int
-	first_token_ms              *int
-	addfirst_token_ms           *int
-	user_agent                  *string
-	ip_address                  *string
-	image_count                 *int
-	addimage_count              *int
-	image_size                  *string
-	image_input_size            *string
-	image_output_size           *string
-	image_size_source           *string
-	image_size_breakdown        *map[string]int
-	video_count                 *int
-	addvideo_count              *int
-	video_resolution            *string
-	video_duration_seconds      *int
-	addvideo_duration_seconds   *int
-	cache_ttl_overridden        *bool
-	created_at                  *time.Time
-	clearedFields               map[string]struct{}
-	user                        *int64
-	cleareduser                 bool
-	api_key                     *int64
-	clearedapi_key              bool
-	account                     *int64
-	clearedaccount              bool
-	group                       *int64
-	clearedgroup                bool
-	subscription                *int64
-	clearedsubscription         bool
-	done                        bool
-	oldValue                    func(context.Context) (*UsageLog, error)
-	predicates                  []predicate.UsageLog
+	op                                             Op
+	typ                                            string
+	id                                             *int64
+	request_id                                     *string
+	model                                          *string
+	requested_model                                *string
+	upstream_model                                 *string
+	channel_id                                     *int64
+	addchannel_id                                  *int64
+	model_mapping_chain                            *string
+	billing_tier                                   *string
+	billing_mode                                   *string
+	input_tokens                                   *int
+	addinput_tokens                                *int
+	output_tokens                                  *int
+	addoutput_tokens                               *int
+	cache_creation_tokens                          *int
+	addcache_creation_tokens                       *int
+	cache_read_tokens                              *int
+	addcache_read_tokens                           *int
+	cache_creation_5m_tokens                       *int
+	addcache_creation_5m_tokens                    *int
+	cache_creation_1h_tokens                       *int
+	addcache_creation_1h_tokens                    *int
+	raw_input_tokens                               *int
+	addraw_input_tokens                            *int
+	raw_output_tokens                              *int
+	addraw_output_tokens                           *int
+	raw_cache_creation_tokens                      *int
+	addraw_cache_creation_tokens                   *int
+	raw_cache_read_tokens                          *int
+	addraw_cache_read_tokens                       *int
+	group_input_token_multiplier                   *float64
+	addgroup_input_token_multiplier                *float64
+	group_output_token_multiplier                  *float64
+	addgroup_output_token_multiplier               *float64
+	group_cache_creation_token_multiplier          *float64
+	addgroup_cache_creation_token_multiplier       *float64
+	group_cache_read_token_multiplier              *float64
+	addgroup_cache_read_token_multiplier           *float64
+	group_hidden_input_rate_multiplier             *float64
+	addgroup_hidden_input_rate_multiplier          *float64
+	group_hidden_output_rate_multiplier            *float64
+	addgroup_hidden_output_rate_multiplier         *float64
+	group_hidden_cache_creation_rate_multiplier    *float64
+	addgroup_hidden_cache_creation_rate_multiplier *float64
+	group_hidden_cache_read_rate_multiplier        *float64
+	addgroup_hidden_cache_read_rate_multiplier     *float64
+	account_input_token_multiplier                 *float64
+	addaccount_input_token_multiplier              *float64
+	account_output_token_multiplier                *float64
+	addaccount_output_token_multiplier             *float64
+	account_cache_creation_token_multiplier        *float64
+	addaccount_cache_creation_token_multiplier     *float64
+	account_cache_read_token_multiplier            *float64
+	addaccount_cache_read_token_multiplier         *float64
+	multiplier_snapshot                            *map[string]interface{}
+	input_cost                                     *float64
+	addinput_cost                                  *float64
+	output_cost                                    *float64
+	addoutput_cost                                 *float64
+	cache_creation_cost                            *float64
+	addcache_creation_cost                         *float64
+	cache_read_cost                                *float64
+	addcache_read_cost                             *float64
+	total_cost                                     *float64
+	addtotal_cost                                  *float64
+	actual_cost                                    *float64
+	addactual_cost                                 *float64
+	rate_multiplier                                *float64
+	addrate_multiplier                             *float64
+	account_rate_multiplier                        *float64
+	addaccount_rate_multiplier                     *float64
+	billing_type                                   *int8
+	addbilling_type                                *int8
+	stream                                         *bool
+	duration_ms                                    *int
+	addduration_ms                                 *int
+	first_token_ms                                 *int
+	addfirst_token_ms                              *int
+	user_agent                                     *string
+	ip_address                                     *string
+	image_count                                    *int
+	addimage_count                                 *int
+	image_size                                     *string
+	image_input_size                               *string
+	image_output_size                              *string
+	image_size_source                              *string
+	image_size_breakdown                           *map[string]int
+	video_count                                    *int
+	addvideo_count                                 *int
+	video_resolution                               *string
+	video_duration_seconds                         *int
+	addvideo_duration_seconds                      *int
+	cache_ttl_overridden                           *bool
+	created_at                                     *time.Time
+	clearedFields                                  map[string]struct{}
+	user                                           *int64
+	cleareduser                                    bool
+	api_key                                        *int64
+	clearedapi_key                                 bool
+	account                                        *int64
+	clearedaccount                                 bool
+	group                                          *int64
+	clearedgroup                                   bool
+	subscription                                   *int64
+	clearedsubscription                            bool
+	done                                           bool
+	oldValue                                       func(context.Context) (*UsageLog, error)
+	predicates                                     []predicate.UsageLog
 }
 
 var _ ent.Mutation = (*UsageLogMutation)(nil)
@@ -44508,6 +45237,938 @@ func (m *UsageLogMutation) AddedCacheCreation1hTokens() (r int, exists bool) {
 func (m *UsageLogMutation) ResetCacheCreation1hTokens() {
 	m.cache_creation_1h_tokens = nil
 	m.addcache_creation_1h_tokens = nil
+}
+
+// SetRawInputTokens sets the "raw_input_tokens" field.
+func (m *UsageLogMutation) SetRawInputTokens(i int) {
+	m.raw_input_tokens = &i
+	m.addraw_input_tokens = nil
+}
+
+// RawInputTokens returns the value of the "raw_input_tokens" field in the mutation.
+func (m *UsageLogMutation) RawInputTokens() (r int, exists bool) {
+	v := m.raw_input_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawInputTokens returns the old "raw_input_tokens" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldRawInputTokens(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawInputTokens is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawInputTokens requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawInputTokens: %w", err)
+	}
+	return oldValue.RawInputTokens, nil
+}
+
+// AddRawInputTokens adds i to the "raw_input_tokens" field.
+func (m *UsageLogMutation) AddRawInputTokens(i int) {
+	if m.addraw_input_tokens != nil {
+		*m.addraw_input_tokens += i
+	} else {
+		m.addraw_input_tokens = &i
+	}
+}
+
+// AddedRawInputTokens returns the value that was added to the "raw_input_tokens" field in this mutation.
+func (m *UsageLogMutation) AddedRawInputTokens() (r int, exists bool) {
+	v := m.addraw_input_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRawInputTokens resets all changes to the "raw_input_tokens" field.
+func (m *UsageLogMutation) ResetRawInputTokens() {
+	m.raw_input_tokens = nil
+	m.addraw_input_tokens = nil
+}
+
+// SetRawOutputTokens sets the "raw_output_tokens" field.
+func (m *UsageLogMutation) SetRawOutputTokens(i int) {
+	m.raw_output_tokens = &i
+	m.addraw_output_tokens = nil
+}
+
+// RawOutputTokens returns the value of the "raw_output_tokens" field in the mutation.
+func (m *UsageLogMutation) RawOutputTokens() (r int, exists bool) {
+	v := m.raw_output_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawOutputTokens returns the old "raw_output_tokens" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldRawOutputTokens(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawOutputTokens is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawOutputTokens requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawOutputTokens: %w", err)
+	}
+	return oldValue.RawOutputTokens, nil
+}
+
+// AddRawOutputTokens adds i to the "raw_output_tokens" field.
+func (m *UsageLogMutation) AddRawOutputTokens(i int) {
+	if m.addraw_output_tokens != nil {
+		*m.addraw_output_tokens += i
+	} else {
+		m.addraw_output_tokens = &i
+	}
+}
+
+// AddedRawOutputTokens returns the value that was added to the "raw_output_tokens" field in this mutation.
+func (m *UsageLogMutation) AddedRawOutputTokens() (r int, exists bool) {
+	v := m.addraw_output_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRawOutputTokens resets all changes to the "raw_output_tokens" field.
+func (m *UsageLogMutation) ResetRawOutputTokens() {
+	m.raw_output_tokens = nil
+	m.addraw_output_tokens = nil
+}
+
+// SetRawCacheCreationTokens sets the "raw_cache_creation_tokens" field.
+func (m *UsageLogMutation) SetRawCacheCreationTokens(i int) {
+	m.raw_cache_creation_tokens = &i
+	m.addraw_cache_creation_tokens = nil
+}
+
+// RawCacheCreationTokens returns the value of the "raw_cache_creation_tokens" field in the mutation.
+func (m *UsageLogMutation) RawCacheCreationTokens() (r int, exists bool) {
+	v := m.raw_cache_creation_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawCacheCreationTokens returns the old "raw_cache_creation_tokens" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldRawCacheCreationTokens(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawCacheCreationTokens is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawCacheCreationTokens requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawCacheCreationTokens: %w", err)
+	}
+	return oldValue.RawCacheCreationTokens, nil
+}
+
+// AddRawCacheCreationTokens adds i to the "raw_cache_creation_tokens" field.
+func (m *UsageLogMutation) AddRawCacheCreationTokens(i int) {
+	if m.addraw_cache_creation_tokens != nil {
+		*m.addraw_cache_creation_tokens += i
+	} else {
+		m.addraw_cache_creation_tokens = &i
+	}
+}
+
+// AddedRawCacheCreationTokens returns the value that was added to the "raw_cache_creation_tokens" field in this mutation.
+func (m *UsageLogMutation) AddedRawCacheCreationTokens() (r int, exists bool) {
+	v := m.addraw_cache_creation_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRawCacheCreationTokens resets all changes to the "raw_cache_creation_tokens" field.
+func (m *UsageLogMutation) ResetRawCacheCreationTokens() {
+	m.raw_cache_creation_tokens = nil
+	m.addraw_cache_creation_tokens = nil
+}
+
+// SetRawCacheReadTokens sets the "raw_cache_read_tokens" field.
+func (m *UsageLogMutation) SetRawCacheReadTokens(i int) {
+	m.raw_cache_read_tokens = &i
+	m.addraw_cache_read_tokens = nil
+}
+
+// RawCacheReadTokens returns the value of the "raw_cache_read_tokens" field in the mutation.
+func (m *UsageLogMutation) RawCacheReadTokens() (r int, exists bool) {
+	v := m.raw_cache_read_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldRawCacheReadTokens returns the old "raw_cache_read_tokens" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldRawCacheReadTokens(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldRawCacheReadTokens is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldRawCacheReadTokens requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldRawCacheReadTokens: %w", err)
+	}
+	return oldValue.RawCacheReadTokens, nil
+}
+
+// AddRawCacheReadTokens adds i to the "raw_cache_read_tokens" field.
+func (m *UsageLogMutation) AddRawCacheReadTokens(i int) {
+	if m.addraw_cache_read_tokens != nil {
+		*m.addraw_cache_read_tokens += i
+	} else {
+		m.addraw_cache_read_tokens = &i
+	}
+}
+
+// AddedRawCacheReadTokens returns the value that was added to the "raw_cache_read_tokens" field in this mutation.
+func (m *UsageLogMutation) AddedRawCacheReadTokens() (r int, exists bool) {
+	v := m.addraw_cache_read_tokens
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetRawCacheReadTokens resets all changes to the "raw_cache_read_tokens" field.
+func (m *UsageLogMutation) ResetRawCacheReadTokens() {
+	m.raw_cache_read_tokens = nil
+	m.addraw_cache_read_tokens = nil
+}
+
+// SetGroupInputTokenMultiplier sets the "group_input_token_multiplier" field.
+func (m *UsageLogMutation) SetGroupInputTokenMultiplier(f float64) {
+	m.group_input_token_multiplier = &f
+	m.addgroup_input_token_multiplier = nil
+}
+
+// GroupInputTokenMultiplier returns the value of the "group_input_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupInputTokenMultiplier() (r float64, exists bool) {
+	v := m.group_input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupInputTokenMultiplier returns the old "group_input_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupInputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupInputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupInputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupInputTokenMultiplier: %w", err)
+	}
+	return oldValue.GroupInputTokenMultiplier, nil
+}
+
+// AddGroupInputTokenMultiplier adds f to the "group_input_token_multiplier" field.
+func (m *UsageLogMutation) AddGroupInputTokenMultiplier(f float64) {
+	if m.addgroup_input_token_multiplier != nil {
+		*m.addgroup_input_token_multiplier += f
+	} else {
+		m.addgroup_input_token_multiplier = &f
+	}
+}
+
+// AddedGroupInputTokenMultiplier returns the value that was added to the "group_input_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupInputTokenMultiplier() (r float64, exists bool) {
+	v := m.addgroup_input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupInputTokenMultiplier resets all changes to the "group_input_token_multiplier" field.
+func (m *UsageLogMutation) ResetGroupInputTokenMultiplier() {
+	m.group_input_token_multiplier = nil
+	m.addgroup_input_token_multiplier = nil
+}
+
+// SetGroupOutputTokenMultiplier sets the "group_output_token_multiplier" field.
+func (m *UsageLogMutation) SetGroupOutputTokenMultiplier(f float64) {
+	m.group_output_token_multiplier = &f
+	m.addgroup_output_token_multiplier = nil
+}
+
+// GroupOutputTokenMultiplier returns the value of the "group_output_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.group_output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupOutputTokenMultiplier returns the old "group_output_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupOutputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupOutputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupOutputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupOutputTokenMultiplier: %w", err)
+	}
+	return oldValue.GroupOutputTokenMultiplier, nil
+}
+
+// AddGroupOutputTokenMultiplier adds f to the "group_output_token_multiplier" field.
+func (m *UsageLogMutation) AddGroupOutputTokenMultiplier(f float64) {
+	if m.addgroup_output_token_multiplier != nil {
+		*m.addgroup_output_token_multiplier += f
+	} else {
+		m.addgroup_output_token_multiplier = &f
+	}
+}
+
+// AddedGroupOutputTokenMultiplier returns the value that was added to the "group_output_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.addgroup_output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupOutputTokenMultiplier resets all changes to the "group_output_token_multiplier" field.
+func (m *UsageLogMutation) ResetGroupOutputTokenMultiplier() {
+	m.group_output_token_multiplier = nil
+	m.addgroup_output_token_multiplier = nil
+}
+
+// SetGroupCacheCreationTokenMultiplier sets the "group_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) SetGroupCacheCreationTokenMultiplier(f float64) {
+	m.group_cache_creation_token_multiplier = &f
+	m.addgroup_cache_creation_token_multiplier = nil
+}
+
+// GroupCacheCreationTokenMultiplier returns the value of the "group_cache_creation_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.group_cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupCacheCreationTokenMultiplier returns the old "group_cache_creation_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupCacheCreationTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupCacheCreationTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupCacheCreationTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupCacheCreationTokenMultiplier: %w", err)
+	}
+	return oldValue.GroupCacheCreationTokenMultiplier, nil
+}
+
+// AddGroupCacheCreationTokenMultiplier adds f to the "group_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) AddGroupCacheCreationTokenMultiplier(f float64) {
+	if m.addgroup_cache_creation_token_multiplier != nil {
+		*m.addgroup_cache_creation_token_multiplier += f
+	} else {
+		m.addgroup_cache_creation_token_multiplier = &f
+	}
+}
+
+// AddedGroupCacheCreationTokenMultiplier returns the value that was added to the "group_cache_creation_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.addgroup_cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupCacheCreationTokenMultiplier resets all changes to the "group_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) ResetGroupCacheCreationTokenMultiplier() {
+	m.group_cache_creation_token_multiplier = nil
+	m.addgroup_cache_creation_token_multiplier = nil
+}
+
+// SetGroupCacheReadTokenMultiplier sets the "group_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) SetGroupCacheReadTokenMultiplier(f float64) {
+	m.group_cache_read_token_multiplier = &f
+	m.addgroup_cache_read_token_multiplier = nil
+}
+
+// GroupCacheReadTokenMultiplier returns the value of the "group_cache_read_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.group_cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupCacheReadTokenMultiplier returns the old "group_cache_read_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupCacheReadTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupCacheReadTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupCacheReadTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupCacheReadTokenMultiplier: %w", err)
+	}
+	return oldValue.GroupCacheReadTokenMultiplier, nil
+}
+
+// AddGroupCacheReadTokenMultiplier adds f to the "group_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) AddGroupCacheReadTokenMultiplier(f float64) {
+	if m.addgroup_cache_read_token_multiplier != nil {
+		*m.addgroup_cache_read_token_multiplier += f
+	} else {
+		m.addgroup_cache_read_token_multiplier = &f
+	}
+}
+
+// AddedGroupCacheReadTokenMultiplier returns the value that was added to the "group_cache_read_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.addgroup_cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupCacheReadTokenMultiplier resets all changes to the "group_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) ResetGroupCacheReadTokenMultiplier() {
+	m.group_cache_read_token_multiplier = nil
+	m.addgroup_cache_read_token_multiplier = nil
+}
+
+// SetGroupHiddenInputRateMultiplier sets the "group_hidden_input_rate_multiplier" field.
+func (m *UsageLogMutation) SetGroupHiddenInputRateMultiplier(f float64) {
+	m.group_hidden_input_rate_multiplier = &f
+	m.addgroup_hidden_input_rate_multiplier = nil
+}
+
+// GroupHiddenInputRateMultiplier returns the value of the "group_hidden_input_rate_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupHiddenInputRateMultiplier() (r float64, exists bool) {
+	v := m.group_hidden_input_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupHiddenInputRateMultiplier returns the old "group_hidden_input_rate_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupHiddenInputRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupHiddenInputRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupHiddenInputRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupHiddenInputRateMultiplier: %w", err)
+	}
+	return oldValue.GroupHiddenInputRateMultiplier, nil
+}
+
+// AddGroupHiddenInputRateMultiplier adds f to the "group_hidden_input_rate_multiplier" field.
+func (m *UsageLogMutation) AddGroupHiddenInputRateMultiplier(f float64) {
+	if m.addgroup_hidden_input_rate_multiplier != nil {
+		*m.addgroup_hidden_input_rate_multiplier += f
+	} else {
+		m.addgroup_hidden_input_rate_multiplier = &f
+	}
+}
+
+// AddedGroupHiddenInputRateMultiplier returns the value that was added to the "group_hidden_input_rate_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupHiddenInputRateMultiplier() (r float64, exists bool) {
+	v := m.addgroup_hidden_input_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupHiddenInputRateMultiplier resets all changes to the "group_hidden_input_rate_multiplier" field.
+func (m *UsageLogMutation) ResetGroupHiddenInputRateMultiplier() {
+	m.group_hidden_input_rate_multiplier = nil
+	m.addgroup_hidden_input_rate_multiplier = nil
+}
+
+// SetGroupHiddenOutputRateMultiplier sets the "group_hidden_output_rate_multiplier" field.
+func (m *UsageLogMutation) SetGroupHiddenOutputRateMultiplier(f float64) {
+	m.group_hidden_output_rate_multiplier = &f
+	m.addgroup_hidden_output_rate_multiplier = nil
+}
+
+// GroupHiddenOutputRateMultiplier returns the value of the "group_hidden_output_rate_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupHiddenOutputRateMultiplier() (r float64, exists bool) {
+	v := m.group_hidden_output_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupHiddenOutputRateMultiplier returns the old "group_hidden_output_rate_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupHiddenOutputRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupHiddenOutputRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupHiddenOutputRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupHiddenOutputRateMultiplier: %w", err)
+	}
+	return oldValue.GroupHiddenOutputRateMultiplier, nil
+}
+
+// AddGroupHiddenOutputRateMultiplier adds f to the "group_hidden_output_rate_multiplier" field.
+func (m *UsageLogMutation) AddGroupHiddenOutputRateMultiplier(f float64) {
+	if m.addgroup_hidden_output_rate_multiplier != nil {
+		*m.addgroup_hidden_output_rate_multiplier += f
+	} else {
+		m.addgroup_hidden_output_rate_multiplier = &f
+	}
+}
+
+// AddedGroupHiddenOutputRateMultiplier returns the value that was added to the "group_hidden_output_rate_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupHiddenOutputRateMultiplier() (r float64, exists bool) {
+	v := m.addgroup_hidden_output_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupHiddenOutputRateMultiplier resets all changes to the "group_hidden_output_rate_multiplier" field.
+func (m *UsageLogMutation) ResetGroupHiddenOutputRateMultiplier() {
+	m.group_hidden_output_rate_multiplier = nil
+	m.addgroup_hidden_output_rate_multiplier = nil
+}
+
+// SetGroupHiddenCacheCreationRateMultiplier sets the "group_hidden_cache_creation_rate_multiplier" field.
+func (m *UsageLogMutation) SetGroupHiddenCacheCreationRateMultiplier(f float64) {
+	m.group_hidden_cache_creation_rate_multiplier = &f
+	m.addgroup_hidden_cache_creation_rate_multiplier = nil
+}
+
+// GroupHiddenCacheCreationRateMultiplier returns the value of the "group_hidden_cache_creation_rate_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupHiddenCacheCreationRateMultiplier() (r float64, exists bool) {
+	v := m.group_hidden_cache_creation_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupHiddenCacheCreationRateMultiplier returns the old "group_hidden_cache_creation_rate_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupHiddenCacheCreationRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupHiddenCacheCreationRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupHiddenCacheCreationRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupHiddenCacheCreationRateMultiplier: %w", err)
+	}
+	return oldValue.GroupHiddenCacheCreationRateMultiplier, nil
+}
+
+// AddGroupHiddenCacheCreationRateMultiplier adds f to the "group_hidden_cache_creation_rate_multiplier" field.
+func (m *UsageLogMutation) AddGroupHiddenCacheCreationRateMultiplier(f float64) {
+	if m.addgroup_hidden_cache_creation_rate_multiplier != nil {
+		*m.addgroup_hidden_cache_creation_rate_multiplier += f
+	} else {
+		m.addgroup_hidden_cache_creation_rate_multiplier = &f
+	}
+}
+
+// AddedGroupHiddenCacheCreationRateMultiplier returns the value that was added to the "group_hidden_cache_creation_rate_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupHiddenCacheCreationRateMultiplier() (r float64, exists bool) {
+	v := m.addgroup_hidden_cache_creation_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupHiddenCacheCreationRateMultiplier resets all changes to the "group_hidden_cache_creation_rate_multiplier" field.
+func (m *UsageLogMutation) ResetGroupHiddenCacheCreationRateMultiplier() {
+	m.group_hidden_cache_creation_rate_multiplier = nil
+	m.addgroup_hidden_cache_creation_rate_multiplier = nil
+}
+
+// SetGroupHiddenCacheReadRateMultiplier sets the "group_hidden_cache_read_rate_multiplier" field.
+func (m *UsageLogMutation) SetGroupHiddenCacheReadRateMultiplier(f float64) {
+	m.group_hidden_cache_read_rate_multiplier = &f
+	m.addgroup_hidden_cache_read_rate_multiplier = nil
+}
+
+// GroupHiddenCacheReadRateMultiplier returns the value of the "group_hidden_cache_read_rate_multiplier" field in the mutation.
+func (m *UsageLogMutation) GroupHiddenCacheReadRateMultiplier() (r float64, exists bool) {
+	v := m.group_hidden_cache_read_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldGroupHiddenCacheReadRateMultiplier returns the old "group_hidden_cache_read_rate_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldGroupHiddenCacheReadRateMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldGroupHiddenCacheReadRateMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldGroupHiddenCacheReadRateMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldGroupHiddenCacheReadRateMultiplier: %w", err)
+	}
+	return oldValue.GroupHiddenCacheReadRateMultiplier, nil
+}
+
+// AddGroupHiddenCacheReadRateMultiplier adds f to the "group_hidden_cache_read_rate_multiplier" field.
+func (m *UsageLogMutation) AddGroupHiddenCacheReadRateMultiplier(f float64) {
+	if m.addgroup_hidden_cache_read_rate_multiplier != nil {
+		*m.addgroup_hidden_cache_read_rate_multiplier += f
+	} else {
+		m.addgroup_hidden_cache_read_rate_multiplier = &f
+	}
+}
+
+// AddedGroupHiddenCacheReadRateMultiplier returns the value that was added to the "group_hidden_cache_read_rate_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedGroupHiddenCacheReadRateMultiplier() (r float64, exists bool) {
+	v := m.addgroup_hidden_cache_read_rate_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetGroupHiddenCacheReadRateMultiplier resets all changes to the "group_hidden_cache_read_rate_multiplier" field.
+func (m *UsageLogMutation) ResetGroupHiddenCacheReadRateMultiplier() {
+	m.group_hidden_cache_read_rate_multiplier = nil
+	m.addgroup_hidden_cache_read_rate_multiplier = nil
+}
+
+// SetAccountInputTokenMultiplier sets the "account_input_token_multiplier" field.
+func (m *UsageLogMutation) SetAccountInputTokenMultiplier(f float64) {
+	m.account_input_token_multiplier = &f
+	m.addaccount_input_token_multiplier = nil
+}
+
+// AccountInputTokenMultiplier returns the value of the "account_input_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) AccountInputTokenMultiplier() (r float64, exists bool) {
+	v := m.account_input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountInputTokenMultiplier returns the old "account_input_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldAccountInputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountInputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountInputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountInputTokenMultiplier: %w", err)
+	}
+	return oldValue.AccountInputTokenMultiplier, nil
+}
+
+// AddAccountInputTokenMultiplier adds f to the "account_input_token_multiplier" field.
+func (m *UsageLogMutation) AddAccountInputTokenMultiplier(f float64) {
+	if m.addaccount_input_token_multiplier != nil {
+		*m.addaccount_input_token_multiplier += f
+	} else {
+		m.addaccount_input_token_multiplier = &f
+	}
+}
+
+// AddedAccountInputTokenMultiplier returns the value that was added to the "account_input_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedAccountInputTokenMultiplier() (r float64, exists bool) {
+	v := m.addaccount_input_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccountInputTokenMultiplier resets all changes to the "account_input_token_multiplier" field.
+func (m *UsageLogMutation) ResetAccountInputTokenMultiplier() {
+	m.account_input_token_multiplier = nil
+	m.addaccount_input_token_multiplier = nil
+}
+
+// SetAccountOutputTokenMultiplier sets the "account_output_token_multiplier" field.
+func (m *UsageLogMutation) SetAccountOutputTokenMultiplier(f float64) {
+	m.account_output_token_multiplier = &f
+	m.addaccount_output_token_multiplier = nil
+}
+
+// AccountOutputTokenMultiplier returns the value of the "account_output_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) AccountOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.account_output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountOutputTokenMultiplier returns the old "account_output_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldAccountOutputTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountOutputTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountOutputTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountOutputTokenMultiplier: %w", err)
+	}
+	return oldValue.AccountOutputTokenMultiplier, nil
+}
+
+// AddAccountOutputTokenMultiplier adds f to the "account_output_token_multiplier" field.
+func (m *UsageLogMutation) AddAccountOutputTokenMultiplier(f float64) {
+	if m.addaccount_output_token_multiplier != nil {
+		*m.addaccount_output_token_multiplier += f
+	} else {
+		m.addaccount_output_token_multiplier = &f
+	}
+}
+
+// AddedAccountOutputTokenMultiplier returns the value that was added to the "account_output_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedAccountOutputTokenMultiplier() (r float64, exists bool) {
+	v := m.addaccount_output_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccountOutputTokenMultiplier resets all changes to the "account_output_token_multiplier" field.
+func (m *UsageLogMutation) ResetAccountOutputTokenMultiplier() {
+	m.account_output_token_multiplier = nil
+	m.addaccount_output_token_multiplier = nil
+}
+
+// SetAccountCacheCreationTokenMultiplier sets the "account_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) SetAccountCacheCreationTokenMultiplier(f float64) {
+	m.account_cache_creation_token_multiplier = &f
+	m.addaccount_cache_creation_token_multiplier = nil
+}
+
+// AccountCacheCreationTokenMultiplier returns the value of the "account_cache_creation_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) AccountCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.account_cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountCacheCreationTokenMultiplier returns the old "account_cache_creation_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldAccountCacheCreationTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountCacheCreationTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountCacheCreationTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountCacheCreationTokenMultiplier: %w", err)
+	}
+	return oldValue.AccountCacheCreationTokenMultiplier, nil
+}
+
+// AddAccountCacheCreationTokenMultiplier adds f to the "account_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) AddAccountCacheCreationTokenMultiplier(f float64) {
+	if m.addaccount_cache_creation_token_multiplier != nil {
+		*m.addaccount_cache_creation_token_multiplier += f
+	} else {
+		m.addaccount_cache_creation_token_multiplier = &f
+	}
+}
+
+// AddedAccountCacheCreationTokenMultiplier returns the value that was added to the "account_cache_creation_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedAccountCacheCreationTokenMultiplier() (r float64, exists bool) {
+	v := m.addaccount_cache_creation_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccountCacheCreationTokenMultiplier resets all changes to the "account_cache_creation_token_multiplier" field.
+func (m *UsageLogMutation) ResetAccountCacheCreationTokenMultiplier() {
+	m.account_cache_creation_token_multiplier = nil
+	m.addaccount_cache_creation_token_multiplier = nil
+}
+
+// SetAccountCacheReadTokenMultiplier sets the "account_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) SetAccountCacheReadTokenMultiplier(f float64) {
+	m.account_cache_read_token_multiplier = &f
+	m.addaccount_cache_read_token_multiplier = nil
+}
+
+// AccountCacheReadTokenMultiplier returns the value of the "account_cache_read_token_multiplier" field in the mutation.
+func (m *UsageLogMutation) AccountCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.account_cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAccountCacheReadTokenMultiplier returns the old "account_cache_read_token_multiplier" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldAccountCacheReadTokenMultiplier(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAccountCacheReadTokenMultiplier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAccountCacheReadTokenMultiplier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAccountCacheReadTokenMultiplier: %w", err)
+	}
+	return oldValue.AccountCacheReadTokenMultiplier, nil
+}
+
+// AddAccountCacheReadTokenMultiplier adds f to the "account_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) AddAccountCacheReadTokenMultiplier(f float64) {
+	if m.addaccount_cache_read_token_multiplier != nil {
+		*m.addaccount_cache_read_token_multiplier += f
+	} else {
+		m.addaccount_cache_read_token_multiplier = &f
+	}
+}
+
+// AddedAccountCacheReadTokenMultiplier returns the value that was added to the "account_cache_read_token_multiplier" field in this mutation.
+func (m *UsageLogMutation) AddedAccountCacheReadTokenMultiplier() (r float64, exists bool) {
+	v := m.addaccount_cache_read_token_multiplier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAccountCacheReadTokenMultiplier resets all changes to the "account_cache_read_token_multiplier" field.
+func (m *UsageLogMutation) ResetAccountCacheReadTokenMultiplier() {
+	m.account_cache_read_token_multiplier = nil
+	m.addaccount_cache_read_token_multiplier = nil
+}
+
+// SetMultiplierSnapshot sets the "multiplier_snapshot" field.
+func (m *UsageLogMutation) SetMultiplierSnapshot(value map[string]interface{}) {
+	m.multiplier_snapshot = &value
+}
+
+// MultiplierSnapshot returns the value of the "multiplier_snapshot" field in the mutation.
+func (m *UsageLogMutation) MultiplierSnapshot() (r map[string]interface{}, exists bool) {
+	v := m.multiplier_snapshot
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldMultiplierSnapshot returns the old "multiplier_snapshot" field's value of the UsageLog entity.
+// If the UsageLog object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *UsageLogMutation) OldMultiplierSnapshot(ctx context.Context) (v map[string]interface{}, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldMultiplierSnapshot is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldMultiplierSnapshot requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldMultiplierSnapshot: %w", err)
+	}
+	return oldValue.MultiplierSnapshot, nil
+}
+
+// ResetMultiplierSnapshot resets all changes to the "multiplier_snapshot" field.
+func (m *UsageLogMutation) ResetMultiplierSnapshot() {
+	m.multiplier_snapshot = nil
 }
 
 // SetInputCost sets the "input_cost" field.
@@ -46019,7 +47680,7 @@ func (m *UsageLogMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *UsageLogMutation) Fields() []string {
-	fields := make([]string, 0, 44)
+	fields := make([]string, 0, 61)
 	if m.user != nil {
 		fields = append(fields, usagelog.FieldUserID)
 	}
@@ -46076,6 +47737,57 @@ func (m *UsageLogMutation) Fields() []string {
 	}
 	if m.cache_creation_1h_tokens != nil {
 		fields = append(fields, usagelog.FieldCacheCreation1hTokens)
+	}
+	if m.raw_input_tokens != nil {
+		fields = append(fields, usagelog.FieldRawInputTokens)
+	}
+	if m.raw_output_tokens != nil {
+		fields = append(fields, usagelog.FieldRawOutputTokens)
+	}
+	if m.raw_cache_creation_tokens != nil {
+		fields = append(fields, usagelog.FieldRawCacheCreationTokens)
+	}
+	if m.raw_cache_read_tokens != nil {
+		fields = append(fields, usagelog.FieldRawCacheReadTokens)
+	}
+	if m.group_input_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupInputTokenMultiplier)
+	}
+	if m.group_output_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupOutputTokenMultiplier)
+	}
+	if m.group_cache_creation_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupCacheCreationTokenMultiplier)
+	}
+	if m.group_cache_read_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupCacheReadTokenMultiplier)
+	}
+	if m.group_hidden_input_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenInputRateMultiplier)
+	}
+	if m.group_hidden_output_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenOutputRateMultiplier)
+	}
+	if m.group_hidden_cache_creation_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenCacheCreationRateMultiplier)
+	}
+	if m.group_hidden_cache_read_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenCacheReadRateMultiplier)
+	}
+	if m.account_input_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountInputTokenMultiplier)
+	}
+	if m.account_output_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountOutputTokenMultiplier)
+	}
+	if m.account_cache_creation_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountCacheCreationTokenMultiplier)
+	}
+	if m.account_cache_read_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountCacheReadTokenMultiplier)
+	}
+	if m.multiplier_snapshot != nil {
+		fields = append(fields, usagelog.FieldMultiplierSnapshot)
 	}
 	if m.input_cost != nil {
 		fields = append(fields, usagelog.FieldInputCost)
@@ -46198,6 +47910,40 @@ func (m *UsageLogMutation) Field(name string) (ent.Value, bool) {
 		return m.CacheCreation5mTokens()
 	case usagelog.FieldCacheCreation1hTokens:
 		return m.CacheCreation1hTokens()
+	case usagelog.FieldRawInputTokens:
+		return m.RawInputTokens()
+	case usagelog.FieldRawOutputTokens:
+		return m.RawOutputTokens()
+	case usagelog.FieldRawCacheCreationTokens:
+		return m.RawCacheCreationTokens()
+	case usagelog.FieldRawCacheReadTokens:
+		return m.RawCacheReadTokens()
+	case usagelog.FieldGroupInputTokenMultiplier:
+		return m.GroupInputTokenMultiplier()
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		return m.GroupOutputTokenMultiplier()
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		return m.GroupCacheCreationTokenMultiplier()
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		return m.GroupCacheReadTokenMultiplier()
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		return m.GroupHiddenInputRateMultiplier()
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		return m.GroupHiddenOutputRateMultiplier()
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		return m.GroupHiddenCacheCreationRateMultiplier()
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		return m.GroupHiddenCacheReadRateMultiplier()
+	case usagelog.FieldAccountInputTokenMultiplier:
+		return m.AccountInputTokenMultiplier()
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		return m.AccountOutputTokenMultiplier()
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		return m.AccountCacheCreationTokenMultiplier()
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		return m.AccountCacheReadTokenMultiplier()
+	case usagelog.FieldMultiplierSnapshot:
+		return m.MultiplierSnapshot()
 	case usagelog.FieldInputCost:
 		return m.InputCost()
 	case usagelog.FieldOutputCost:
@@ -46295,6 +48041,40 @@ func (m *UsageLogMutation) OldField(ctx context.Context, name string) (ent.Value
 		return m.OldCacheCreation5mTokens(ctx)
 	case usagelog.FieldCacheCreation1hTokens:
 		return m.OldCacheCreation1hTokens(ctx)
+	case usagelog.FieldRawInputTokens:
+		return m.OldRawInputTokens(ctx)
+	case usagelog.FieldRawOutputTokens:
+		return m.OldRawOutputTokens(ctx)
+	case usagelog.FieldRawCacheCreationTokens:
+		return m.OldRawCacheCreationTokens(ctx)
+	case usagelog.FieldRawCacheReadTokens:
+		return m.OldRawCacheReadTokens(ctx)
+	case usagelog.FieldGroupInputTokenMultiplier:
+		return m.OldGroupInputTokenMultiplier(ctx)
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		return m.OldGroupOutputTokenMultiplier(ctx)
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		return m.OldGroupCacheCreationTokenMultiplier(ctx)
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		return m.OldGroupCacheReadTokenMultiplier(ctx)
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		return m.OldGroupHiddenInputRateMultiplier(ctx)
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		return m.OldGroupHiddenOutputRateMultiplier(ctx)
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		return m.OldGroupHiddenCacheCreationRateMultiplier(ctx)
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		return m.OldGroupHiddenCacheReadRateMultiplier(ctx)
+	case usagelog.FieldAccountInputTokenMultiplier:
+		return m.OldAccountInputTokenMultiplier(ctx)
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		return m.OldAccountOutputTokenMultiplier(ctx)
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		return m.OldAccountCacheCreationTokenMultiplier(ctx)
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		return m.OldAccountCacheReadTokenMultiplier(ctx)
+	case usagelog.FieldMultiplierSnapshot:
+		return m.OldMultiplierSnapshot(ctx)
 	case usagelog.FieldInputCost:
 		return m.OldInputCost(ctx)
 	case usagelog.FieldOutputCost:
@@ -46486,6 +48266,125 @@ func (m *UsageLogMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetCacheCreation1hTokens(v)
+		return nil
+	case usagelog.FieldRawInputTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawInputTokens(v)
+		return nil
+	case usagelog.FieldRawOutputTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawOutputTokens(v)
+		return nil
+	case usagelog.FieldRawCacheCreationTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawCacheCreationTokens(v)
+		return nil
+	case usagelog.FieldRawCacheReadTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetRawCacheReadTokens(v)
+		return nil
+	case usagelog.FieldGroupInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupInputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupOutputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupCacheCreationTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupCacheReadTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupHiddenInputRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupHiddenOutputRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupHiddenCacheCreationRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetGroupHiddenCacheReadRateMultiplier(v)
+		return nil
+	case usagelog.FieldAccountInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountInputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountOutputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountCacheCreationTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAccountCacheReadTokenMultiplier(v)
+		return nil
+	case usagelog.FieldMultiplierSnapshot:
+		v, ok := value.(map[string]interface{})
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetMultiplierSnapshot(v)
 		return nil
 	case usagelog.FieldInputCost:
 		v, ok := value.(float64)
@@ -46691,6 +48590,54 @@ func (m *UsageLogMutation) AddedFields() []string {
 	if m.addcache_creation_1h_tokens != nil {
 		fields = append(fields, usagelog.FieldCacheCreation1hTokens)
 	}
+	if m.addraw_input_tokens != nil {
+		fields = append(fields, usagelog.FieldRawInputTokens)
+	}
+	if m.addraw_output_tokens != nil {
+		fields = append(fields, usagelog.FieldRawOutputTokens)
+	}
+	if m.addraw_cache_creation_tokens != nil {
+		fields = append(fields, usagelog.FieldRawCacheCreationTokens)
+	}
+	if m.addraw_cache_read_tokens != nil {
+		fields = append(fields, usagelog.FieldRawCacheReadTokens)
+	}
+	if m.addgroup_input_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupInputTokenMultiplier)
+	}
+	if m.addgroup_output_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupOutputTokenMultiplier)
+	}
+	if m.addgroup_cache_creation_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupCacheCreationTokenMultiplier)
+	}
+	if m.addgroup_cache_read_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupCacheReadTokenMultiplier)
+	}
+	if m.addgroup_hidden_input_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenInputRateMultiplier)
+	}
+	if m.addgroup_hidden_output_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenOutputRateMultiplier)
+	}
+	if m.addgroup_hidden_cache_creation_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenCacheCreationRateMultiplier)
+	}
+	if m.addgroup_hidden_cache_read_rate_multiplier != nil {
+		fields = append(fields, usagelog.FieldGroupHiddenCacheReadRateMultiplier)
+	}
+	if m.addaccount_input_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountInputTokenMultiplier)
+	}
+	if m.addaccount_output_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountOutputTokenMultiplier)
+	}
+	if m.addaccount_cache_creation_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountCacheCreationTokenMultiplier)
+	}
+	if m.addaccount_cache_read_token_multiplier != nil {
+		fields = append(fields, usagelog.FieldAccountCacheReadTokenMultiplier)
+	}
 	if m.addinput_cost != nil {
 		fields = append(fields, usagelog.FieldInputCost)
 	}
@@ -46755,6 +48702,38 @@ func (m *UsageLogMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedCacheCreation5mTokens()
 	case usagelog.FieldCacheCreation1hTokens:
 		return m.AddedCacheCreation1hTokens()
+	case usagelog.FieldRawInputTokens:
+		return m.AddedRawInputTokens()
+	case usagelog.FieldRawOutputTokens:
+		return m.AddedRawOutputTokens()
+	case usagelog.FieldRawCacheCreationTokens:
+		return m.AddedRawCacheCreationTokens()
+	case usagelog.FieldRawCacheReadTokens:
+		return m.AddedRawCacheReadTokens()
+	case usagelog.FieldGroupInputTokenMultiplier:
+		return m.AddedGroupInputTokenMultiplier()
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		return m.AddedGroupOutputTokenMultiplier()
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		return m.AddedGroupCacheCreationTokenMultiplier()
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		return m.AddedGroupCacheReadTokenMultiplier()
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		return m.AddedGroupHiddenInputRateMultiplier()
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		return m.AddedGroupHiddenOutputRateMultiplier()
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		return m.AddedGroupHiddenCacheCreationRateMultiplier()
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		return m.AddedGroupHiddenCacheReadRateMultiplier()
+	case usagelog.FieldAccountInputTokenMultiplier:
+		return m.AddedAccountInputTokenMultiplier()
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		return m.AddedAccountOutputTokenMultiplier()
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		return m.AddedAccountCacheCreationTokenMultiplier()
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		return m.AddedAccountCacheReadTokenMultiplier()
 	case usagelog.FieldInputCost:
 		return m.AddedInputCost()
 	case usagelog.FieldOutputCost:
@@ -46840,6 +48819,118 @@ func (m *UsageLogMutation) AddField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddCacheCreation1hTokens(v)
+		return nil
+	case usagelog.FieldRawInputTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRawInputTokens(v)
+		return nil
+	case usagelog.FieldRawOutputTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRawOutputTokens(v)
+		return nil
+	case usagelog.FieldRawCacheCreationTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRawCacheCreationTokens(v)
+		return nil
+	case usagelog.FieldRawCacheReadTokens:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddRawCacheReadTokens(v)
+		return nil
+	case usagelog.FieldGroupInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupInputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupOutputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupCacheCreationTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupCacheReadTokenMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupHiddenInputRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupHiddenOutputRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupHiddenCacheCreationRateMultiplier(v)
+		return nil
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddGroupHiddenCacheReadRateMultiplier(v)
+		return nil
+	case usagelog.FieldAccountInputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccountInputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccountOutputTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccountCacheCreationTokenMultiplier(v)
+		return nil
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAccountCacheReadTokenMultiplier(v)
 		return nil
 	case usagelog.FieldInputCost:
 		v, ok := value.(float64)
@@ -47145,6 +49236,57 @@ func (m *UsageLogMutation) ResetField(name string) error {
 		return nil
 	case usagelog.FieldCacheCreation1hTokens:
 		m.ResetCacheCreation1hTokens()
+		return nil
+	case usagelog.FieldRawInputTokens:
+		m.ResetRawInputTokens()
+		return nil
+	case usagelog.FieldRawOutputTokens:
+		m.ResetRawOutputTokens()
+		return nil
+	case usagelog.FieldRawCacheCreationTokens:
+		m.ResetRawCacheCreationTokens()
+		return nil
+	case usagelog.FieldRawCacheReadTokens:
+		m.ResetRawCacheReadTokens()
+		return nil
+	case usagelog.FieldGroupInputTokenMultiplier:
+		m.ResetGroupInputTokenMultiplier()
+		return nil
+	case usagelog.FieldGroupOutputTokenMultiplier:
+		m.ResetGroupOutputTokenMultiplier()
+		return nil
+	case usagelog.FieldGroupCacheCreationTokenMultiplier:
+		m.ResetGroupCacheCreationTokenMultiplier()
+		return nil
+	case usagelog.FieldGroupCacheReadTokenMultiplier:
+		m.ResetGroupCacheReadTokenMultiplier()
+		return nil
+	case usagelog.FieldGroupHiddenInputRateMultiplier:
+		m.ResetGroupHiddenInputRateMultiplier()
+		return nil
+	case usagelog.FieldGroupHiddenOutputRateMultiplier:
+		m.ResetGroupHiddenOutputRateMultiplier()
+		return nil
+	case usagelog.FieldGroupHiddenCacheCreationRateMultiplier:
+		m.ResetGroupHiddenCacheCreationRateMultiplier()
+		return nil
+	case usagelog.FieldGroupHiddenCacheReadRateMultiplier:
+		m.ResetGroupHiddenCacheReadRateMultiplier()
+		return nil
+	case usagelog.FieldAccountInputTokenMultiplier:
+		m.ResetAccountInputTokenMultiplier()
+		return nil
+	case usagelog.FieldAccountOutputTokenMultiplier:
+		m.ResetAccountOutputTokenMultiplier()
+		return nil
+	case usagelog.FieldAccountCacheCreationTokenMultiplier:
+		m.ResetAccountCacheCreationTokenMultiplier()
+		return nil
+	case usagelog.FieldAccountCacheReadTokenMultiplier:
+		m.ResetAccountCacheReadTokenMultiplier()
+		return nil
+	case usagelog.FieldMultiplierSnapshot:
+		m.ResetMultiplierSnapshot()
 		return nil
 	case usagelog.FieldInputCost:
 		m.ResetInputCost()

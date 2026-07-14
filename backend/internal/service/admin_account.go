@@ -68,6 +68,38 @@ func normalizeAccountConcurrency(platform, accountType string, concurrency int) 
 	return concurrency
 }
 
+func applyAccountTokenMultiplierUpdates(extra map[string]any, input, output, cacheCreation, cacheRead *float64) (map[string]any, error) {
+	updates := []struct {
+		key   string
+		value *float64
+	}{
+		{key: accountInputTokenMultiplierExtraKey, value: input},
+		{key: accountOutputTokenMultiplierExtraKey, value: output},
+		{key: accountCacheCreationTokenMultiplierExtraKey, value: cacheCreation},
+		{key: accountCacheReadTokenMultiplierExtraKey, value: cacheRead},
+	}
+
+	for _, update := range updates {
+		if update.value == nil {
+			continue
+		}
+		if _, err := resolveConfiguredPositiveMultiplier(update.value); err != nil {
+			return nil, fmt.Errorf("%s: %w", update.key, err)
+		}
+	}
+
+	for _, update := range updates {
+		if update.value == nil {
+			continue
+		}
+		if extra == nil {
+			extra = make(map[string]any, len(updates))
+		}
+		extra[update.key] = *update.value
+	}
+	return extra, nil
+}
+
 func (s *adminServiceImpl) CreateAccount(ctx context.Context, input *CreateAccountInput) (*Account, error) {
 	// 绑定分组
 	groupIDs := input.GroupIDs
@@ -97,13 +129,24 @@ func (s *adminServiceImpl) CreateAccount(ctx context.Context, input *CreateAccou
 		return nil, err
 	}
 
+	extra, err := applyAccountTokenMultiplierUpdates(
+		input.Extra,
+		input.InputTokenMultiplier,
+		input.OutputTokenMultiplier,
+		input.CacheCreationTokenMultiplier,
+		input.CacheReadTokenMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
+
 	account := &Account{
 		Name:        input.Name,
 		Notes:       normalizeAccountNotes(input.Notes),
 		Platform:    input.Platform,
 		Type:        input.Type,
 		Credentials: input.Credentials,
-		Extra:       input.Extra,
+		Extra:       extra,
 		ProxyID:     input.ProxyID,
 		Concurrency: normalizeAccountConcurrency(input.Platform, input.Type, input.Concurrency),
 		Priority:    input.Priority,
@@ -259,6 +302,16 @@ func (s *adminServiceImpl) UpdateAccount(ctx context.Context, id int64, input *U
 		}
 		ComputeQuotaResetAt(account.Extra)
 		NormalizeFixedQuotaWindows(account.Extra)
+	}
+	account.Extra, err = applyAccountTokenMultiplierUpdates(
+		account.Extra,
+		input.InputTokenMultiplier,
+		input.OutputTokenMultiplier,
+		input.CacheCreationTokenMultiplier,
+		input.CacheReadTokenMultiplier,
+	)
+	if err != nil {
+		return nil, err
 	}
 	// 影子代理恒继承母账号(由 propagateProxyToShadows 同步),不接受独立编辑——外审 B/P1;
 	// 否则要等母账号下次改 proxy 才被覆盖,期间影子会出现"有时继承、有时独立"的漂移。
@@ -448,6 +501,17 @@ func (s *adminServiceImpl) BulkUpdateAccounts(ctx context.Context, input *BulkUp
 			return nil, errors.New("rate_multiplier must be >= 0")
 		}
 	}
+	extra, err := applyAccountTokenMultiplierUpdates(
+		input.Extra,
+		input.InputTokenMultiplier,
+		input.OutputTokenMultiplier,
+		input.CacheCreationTokenMultiplier,
+		input.CacheReadTokenMultiplier,
+	)
+	if err != nil {
+		return nil, err
+	}
+	input.Extra = extra
 
 	// 校验并规范化请求头覆写配置（批量路径为 JSONB 顶层 key 合并，直接校验增量即可）
 	if err := NormalizeHeaderOverrideCredentials(input.Credentials); err != nil {

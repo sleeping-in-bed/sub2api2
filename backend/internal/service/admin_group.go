@@ -190,6 +190,22 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 		}
 		videoRateMultiplier = *input.VideoRateMultiplier
 	}
+	inputTokenMultiplier, err := resolveConfiguredPositiveMultiplier(input.InputTokenMultiplier)
+	if err != nil { return nil, fmt.Errorf("input_token_multiplier: %w", err) }
+	outputTokenMultiplier, err := resolveConfiguredPositiveMultiplier(input.OutputTokenMultiplier)
+	if err != nil { return nil, fmt.Errorf("output_token_multiplier: %w", err) }
+	cacheCreationTokenMultiplier, err := resolveConfiguredPositiveMultiplier(input.CacheCreationTokenMultiplier)
+	if err != nil { return nil, fmt.Errorf("cache_creation_token_multiplier: %w", err) }
+	cacheReadTokenMultiplier, err := resolveConfiguredPositiveMultiplier(input.CacheReadTokenMultiplier)
+	if err != nil { return nil, fmt.Errorf("cache_read_token_multiplier: %w", err) }
+	hiddenInputRateMultiplier, err := resolveConfiguredPositiveMultiplier(input.HiddenInputRateMultiplier)
+	if err != nil { return nil, fmt.Errorf("hidden_input_rate_multiplier: %w", err) }
+	hiddenOutputRateMultiplier, err := resolveConfiguredPositiveMultiplier(input.HiddenOutputRateMultiplier)
+	if err != nil { return nil, fmt.Errorf("hidden_output_rate_multiplier: %w", err) }
+	hiddenCacheCreationRateMultiplier, err := resolveConfiguredPositiveMultiplier(input.HiddenCacheCreationRateMultiplier)
+	if err != nil { return nil, fmt.Errorf("hidden_cache_creation_rate_multiplier: %w", err) }
+	hiddenCacheReadRateMultiplier, err := resolveConfiguredPositiveMultiplier(input.HiddenCacheReadRateMultiplier)
+	if err != nil { return nil, fmt.Errorf("hidden_cache_read_rate_multiplier: %w", err) }
 
 	peakRateMultiplier := 1.0
 	if input.PeakRateMultiplier != nil {
@@ -264,6 +280,14 @@ func (s *adminServiceImpl) CreateGroup(ctx context.Context, input *CreateGroupIn
 		Description:                     input.Description,
 		Platform:                        platform,
 		RateMultiplier:                  input.RateMultiplier,
+		InputTokenMultiplier:            inputTokenMultiplier,
+		OutputTokenMultiplier:           outputTokenMultiplier,
+		CacheCreationTokenMultiplier:    cacheCreationTokenMultiplier,
+		CacheReadTokenMultiplier:        cacheReadTokenMultiplier,
+		HiddenInputRateMultiplier:       hiddenInputRateMultiplier,
+		HiddenOutputRateMultiplier:      hiddenOutputRateMultiplier,
+		HiddenCacheCreationRateMultiplier: hiddenCacheCreationRateMultiplier,
+		HiddenCacheReadRateMultiplier:   hiddenCacheReadRateMultiplier,
 		IsExclusive:                     input.IsExclusive,
 		Status:                          StatusActive,
 		SubscriptionType:                subscriptionType,
@@ -446,6 +470,14 @@ func (s *adminServiceImpl) UpdateGroup(ctx context.Context, id int64, input *Upd
 		}
 		group.RateMultiplier = *input.RateMultiplier
 	}
+	if err := applyPositiveMultiplierUpdate(input.InputTokenMultiplier, &group.InputTokenMultiplier); err != nil { return nil, fmt.Errorf("input_token_multiplier: %w", err) }
+	if err := applyPositiveMultiplierUpdate(input.OutputTokenMultiplier, &group.OutputTokenMultiplier); err != nil { return nil, fmt.Errorf("output_token_multiplier: %w", err) }
+	if err := applyPositiveMultiplierUpdate(input.CacheCreationTokenMultiplier, &group.CacheCreationTokenMultiplier); err != nil { return nil, fmt.Errorf("cache_creation_token_multiplier: %w", err) }
+	if err := applyPositiveMultiplierUpdate(input.CacheReadTokenMultiplier, &group.CacheReadTokenMultiplier); err != nil { return nil, fmt.Errorf("cache_read_token_multiplier: %w", err) }
+	if err := applyPositiveMultiplierUpdate(input.HiddenInputRateMultiplier, &group.HiddenInputRateMultiplier); err != nil { return nil, fmt.Errorf("hidden_input_rate_multiplier: %w", err) }
+	if err := applyPositiveMultiplierUpdate(input.HiddenOutputRateMultiplier, &group.HiddenOutputRateMultiplier); err != nil { return nil, fmt.Errorf("hidden_output_rate_multiplier: %w", err) }
+	if err := applyPositiveMultiplierUpdate(input.HiddenCacheCreationRateMultiplier, &group.HiddenCacheCreationRateMultiplier); err != nil { return nil, fmt.Errorf("hidden_cache_creation_rate_multiplier: %w", err) }
+	if err := applyPositiveMultiplierUpdate(input.HiddenCacheReadRateMultiplier, &group.HiddenCacheReadRateMultiplier); err != nil { return nil, fmt.Errorf("hidden_cache_read_rate_multiplier: %w", err) }
 	if input.IsExclusive != nil {
 		group.IsExclusive = *input.IsExclusive
 	}

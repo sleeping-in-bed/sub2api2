@@ -28,6 +28,22 @@ const (
 	FieldDescription = "description"
 	// FieldRateMultiplier holds the string denoting the rate_multiplier field in the database.
 	FieldRateMultiplier = "rate_multiplier"
+	// FieldInputTokenMultiplier holds the string denoting the input_token_multiplier field in the database.
+	FieldInputTokenMultiplier = "input_token_multiplier"
+	// FieldOutputTokenMultiplier holds the string denoting the output_token_multiplier field in the database.
+	FieldOutputTokenMultiplier = "output_token_multiplier"
+	// FieldCacheCreationTokenMultiplier holds the string denoting the cache_creation_token_multiplier field in the database.
+	FieldCacheCreationTokenMultiplier = "cache_creation_token_multiplier"
+	// FieldCacheReadTokenMultiplier holds the string denoting the cache_read_token_multiplier field in the database.
+	FieldCacheReadTokenMultiplier = "cache_read_token_multiplier"
+	// FieldHiddenInputRateMultiplier holds the string denoting the hidden_input_rate_multiplier field in the database.
+	FieldHiddenInputRateMultiplier = "hidden_input_rate_multiplier"
+	// FieldHiddenOutputRateMultiplier holds the string denoting the hidden_output_rate_multiplier field in the database.
+	FieldHiddenOutputRateMultiplier = "hidden_output_rate_multiplier"
+	// FieldHiddenCacheCreationRateMultiplier holds the string denoting the hidden_cache_creation_rate_multiplier field in the database.
+	FieldHiddenCacheCreationRateMultiplier = "hidden_cache_creation_rate_multiplier"
+	// FieldHiddenCacheReadRateMultiplier holds the string denoting the hidden_cache_read_rate_multiplier field in the database.
+	FieldHiddenCacheReadRateMultiplier = "hidden_cache_read_rate_multiplier"
 	// FieldPeakRateEnabled holds the string denoting the peak_rate_enabled field in the database.
 	FieldPeakRateEnabled = "peak_rate_enabled"
 	// FieldPeakStart holds the string denoting the peak_start field in the database.
@@ -193,6 +209,14 @@ var Columns = []string{
 	FieldName,
 	FieldDescription,
 	FieldRateMultiplier,
+	FieldInputTokenMultiplier,
+	FieldOutputTokenMultiplier,
+	FieldCacheCreationTokenMultiplier,
+	FieldCacheReadTokenMultiplier,
+	FieldHiddenInputRateMultiplier,
+	FieldHiddenOutputRateMultiplier,
+	FieldHiddenCacheCreationRateMultiplier,
+	FieldHiddenCacheReadRateMultiplier,
 	FieldPeakRateEnabled,
 	FieldPeakStart,
 	FieldPeakEnd,
@@ -274,6 +298,22 @@ var (
 	NameValidator func(string) error
 	// DefaultRateMultiplier holds the default value on creation for the "rate_multiplier" field.
 	DefaultRateMultiplier float64
+	// DefaultInputTokenMultiplier holds the default value on creation for the "input_token_multiplier" field.
+	DefaultInputTokenMultiplier float64
+	// DefaultOutputTokenMultiplier holds the default value on creation for the "output_token_multiplier" field.
+	DefaultOutputTokenMultiplier float64
+	// DefaultCacheCreationTokenMultiplier holds the default value on creation for the "cache_creation_token_multiplier" field.
+	DefaultCacheCreationTokenMultiplier float64
+	// DefaultCacheReadTokenMultiplier holds the default value on creation for the "cache_read_token_multiplier" field.
+	DefaultCacheReadTokenMultiplier float64
+	// DefaultHiddenInputRateMultiplier holds the default value on creation for the "hidden_input_rate_multiplier" field.
+	DefaultHiddenInputRateMultiplier float64
+	// DefaultHiddenOutputRateMultiplier holds the default value on creation for the "hidden_output_rate_multiplier" field.
+	DefaultHiddenOutputRateMultiplier float64
+	// DefaultHiddenCacheCreationRateMultiplier holds the default value on creation for the "hidden_cache_creation_rate_multiplier" field.
+	DefaultHiddenCacheCreationRateMultiplier float64
+	// DefaultHiddenCacheReadRateMultiplier holds the default value on creation for the "hidden_cache_read_rate_multiplier" field.
+	DefaultHiddenCacheReadRateMultiplier float64
 	// DefaultPeakRateEnabled holds the default value on creation for the "peak_rate_enabled" field.
 	DefaultPeakRateEnabled bool
 	// DefaultPeakStart holds the default value on creation for the "peak_start" field.
@@ -382,6 +422,46 @@ func ByDescription(opts ...sql.OrderTermOption) OrderOption {
 // ByRateMultiplier orders the results by the rate_multiplier field.
 func ByRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldRateMultiplier, opts...).ToFunc()
+}
+
+// ByInputTokenMultiplier orders the results by the input_token_multiplier field.
+func ByInputTokenMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldInputTokenMultiplier, opts...).ToFunc()
+}
+
+// ByOutputTokenMultiplier orders the results by the output_token_multiplier field.
+func ByOutputTokenMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOutputTokenMultiplier, opts...).ToFunc()
+}
+
+// ByCacheCreationTokenMultiplier orders the results by the cache_creation_token_multiplier field.
+func ByCacheCreationTokenMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCacheCreationTokenMultiplier, opts...).ToFunc()
+}
+
+// ByCacheReadTokenMultiplier orders the results by the cache_read_token_multiplier field.
+func ByCacheReadTokenMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCacheReadTokenMultiplier, opts...).ToFunc()
+}
+
+// ByHiddenInputRateMultiplier orders the results by the hidden_input_rate_multiplier field.
+func ByHiddenInputRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHiddenInputRateMultiplier, opts...).ToFunc()
+}
+
+// ByHiddenOutputRateMultiplier orders the results by the hidden_output_rate_multiplier field.
+func ByHiddenOutputRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHiddenOutputRateMultiplier, opts...).ToFunc()
+}
+
+// ByHiddenCacheCreationRateMultiplier orders the results by the hidden_cache_creation_rate_multiplier field.
+func ByHiddenCacheCreationRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHiddenCacheCreationRateMultiplier, opts...).ToFunc()
+}
+
+// ByHiddenCacheReadRateMultiplier orders the results by the hidden_cache_read_rate_multiplier field.
+func ByHiddenCacheReadRateMultiplier(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldHiddenCacheReadRateMultiplier, opts...).ToFunc()
 }
 
 // ByPeakRateEnabled orders the results by the peak_rate_enabled field.

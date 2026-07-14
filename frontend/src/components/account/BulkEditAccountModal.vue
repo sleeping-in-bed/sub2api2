@@ -757,6 +757,33 @@
         </div>
       </div>
 
+      <div class="grid grid-cols-1 gap-4 border-t border-gray-200 pt-4 dark:border-dark-600 md:grid-cols-2">
+        <div v-for="field in accountTokenMultiplierFields" :key="field.key">
+          <div class="mb-3 flex items-center justify-between">
+            <label class="input-label mb-0" :for="`bulk-edit-${field.key}-enabled`">
+              {{ t(field.label) }}
+            </label>
+            <input
+              v-model="enableTokenMultipliers[field.key]"
+              :id="`bulk-edit-${field.key}-enabled`"
+              type="checkbox"
+              class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            />
+          </div>
+          <input
+            v-model.number="tokenMultipliers[field.key]"
+            :id="`bulk-edit-${field.key}`"
+            type="number"
+            min="0.001"
+            step="0.001"
+            :disabled="!enableTokenMultipliers[field.key]"
+            class="input"
+            :class="!enableTokenMultipliers[field.key] && 'cursor-not-allowed opacity-50'"
+          />
+          <p class="input-hint">{{ t('admin.accounts.tokenMultiplierHint') }}</p>
+        </div>
+      </div>
+
       <!-- Status -->
       <div class="border-t border-gray-200 pt-4 dark:border-dark-600">
         <div class="mb-3 flex items-center justify-between">
@@ -1256,7 +1283,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAppStore } from '@/stores/app'
 import { adminAPI } from '@/api/admin'
@@ -1402,6 +1429,33 @@ const enableConcurrency = ref(false)
 const enableLoadFactor = ref(false)
 const enablePriority = ref(false)
 const enableRateMultiplier = ref(false)
+type AccountTokenMultiplierKey =
+  | 'input_token_multiplier'
+  | 'output_token_multiplier'
+  | 'cache_creation_token_multiplier'
+  | 'cache_read_token_multiplier'
+
+const accountTokenMultiplierFields: Array<{
+  key: AccountTokenMultiplierKey
+  label: string
+}> = [
+  { key: 'input_token_multiplier', label: 'admin.accounts.inputTokenMultiplier' },
+  { key: 'output_token_multiplier', label: 'admin.accounts.outputTokenMultiplier' },
+  { key: 'cache_creation_token_multiplier', label: 'admin.accounts.cacheCreationTokenMultiplier' },
+  { key: 'cache_read_token_multiplier', label: 'admin.accounts.cacheReadTokenMultiplier' }
+]
+const enableTokenMultipliers = reactive<Record<AccountTokenMultiplierKey, boolean>>({
+  input_token_multiplier: false,
+  output_token_multiplier: false,
+  cache_creation_token_multiplier: false,
+  cache_read_token_multiplier: false
+})
+const tokenMultipliers = reactive<Record<AccountTokenMultiplierKey, number>>({
+  input_token_multiplier: 1,
+  output_token_multiplier: 1,
+  cache_creation_token_multiplier: 1,
+  cache_read_token_multiplier: 1
+})
 const enableStatus = ref(false)
 const enableGroups = ref(false)
 const enableOpenAIPassthrough = ref(false)
@@ -1646,6 +1700,12 @@ const buildUpdatePayload = (): Record<string, unknown> | null => {
     updates.rate_multiplier = rateMultiplier.value
   }
 
+  for (const field of accountTokenMultiplierFields) {
+    if (enableTokenMultipliers[field.key]) {
+      updates[field.key] = tokenMultipliers[field.key]
+    }
+  }
+
   if (enableStatus.value) {
     updates.status = status.value
   }
@@ -1843,6 +1903,7 @@ const handleSubmit = async () => {
     enableLoadFactor.value ||
     enablePriority.value ||
     enableRateMultiplier.value ||
+    accountTokenMultiplierFields.some((field) => enableTokenMultipliers[field.key]) ||
     enableStatus.value ||
     enableGroups.value ||
     enableOpenAIWSMode.value ||
@@ -1960,6 +2021,10 @@ watch(
       enableLoadFactor.value = false
       enablePriority.value = false
       enableRateMultiplier.value = false
+      for (const field of accountTokenMultiplierFields) {
+        enableTokenMultipliers[field.key] = false
+        tokenMultipliers[field.key] = 1
+      }
       enableStatus.value = false
       enableGroups.value = false
       enableOpenAIPassthrough.value = false

@@ -676,6 +676,16 @@ func (s *GatewayService) recordUsageCore(ctx context.Context, input *recordUsage
 	if input.BillingModelSource == BillingModelSourceRequested && input.OriginalModel != "" {
 		billingModel = input.OriginalModel
 	}
+	rawTokens := UsageTokens{
+		InputTokens: result.Usage.InputTokens,
+		OutputTokens: result.Usage.OutputTokens,
+		CacheCreationTokens: result.Usage.CacheCreationInputTokens,
+		CacheReadTokens: result.Usage.CacheReadInputTokens,
+		CacheCreation5mTokens: result.Usage.CacheCreation5mTokens,
+		CacheCreation1hTokens: result.Usage.CacheCreation1hTokens,
+		ImageOutputTokens: result.Usage.ImageOutputTokens,
+	}
+	adjustedTokens := applyGroupTokenMultipliers(apiKey.Group, rawTokens)
 
 	// 确定 RequestedModel（渠道映射前的原始模型）
 	requestedModel := result.Model
@@ -684,7 +694,10 @@ func (s *GatewayService) recordUsageCore(ctx context.Context, input *recordUsage
 	}
 
 	// 计算费用
-	cost := s.calculateRecordUsageCost(ctx, result, apiKey, billingModel, multiplier, imageMultiplier, opts)
+	cost := s.calculateRecordUsageCost(ctx, result, apiKey, billingModel, multiplier, imageMultiplier, adjustedTokens, opts)
+	if result.ImageCount == 0 || (cost != nil && cost.BillingMode == string(BillingModeToken)) {
+		applyHiddenAndAccountTokenMultipliers(apiKey.Group, account, multiplier, cost)
+	}
 
 	// 判断计费方式：订阅模式 vs 余额模式
 	isSubscriptionBilling := subscription != nil && apiKey.Group != nil && apiKey.Group.IsSubscriptionType()
@@ -696,7 +709,7 @@ func (s *GatewayService) recordUsageCore(ctx context.Context, input *recordUsage
 	// 创建使用日志
 	accountRateMultiplier := account.BillingRateMultiplier()
 	usageLog := s.buildRecordUsageLog(ctx, input, result, apiKey, user, account, subscription,
-		requestedModel, multiplier, imageMultiplier, accountRateMultiplier, billingType, cacheTTLOverridden, cost, opts)
+		requestedModel, multiplier, imageMultiplier, accountRateMultiplier, billingType, cacheTTLOverridden, rawTokens, adjustedTokens, cost, opts)
 
 	// 计算账号统计定价费用（使用最终上游模型匹配自定义规则）
 	if apiKey.GroupID != nil {
@@ -759,18 +772,19 @@ func (s *GatewayService) calculateRecordUsageCost(
 	billingModel string,
 	multiplier float64,
 	imageMultiplier float64,
+	tokens UsageTokens,
 	opts *recordUsageOpts,
 ) *CostBreakdown {
 	// 图片生成：渠道定价为 token 计费时走 token 路径，否则走图片计费
 	if result.ImageCount > 0 {
 		if resolved := s.resolveChannelPricing(ctx, billingModel, apiKey); resolved != nil && resolved.Mode == BillingModeToken {
-			return s.calculateTokenCost(ctx, result, apiKey, billingModel, multiplier, opts)
+			return s.calculateTokenCost(ctx, apiKey, billingModel, multiplier, tokens, opts)
 		}
 		return s.calculateImageCost(ctx, result, apiKey, billingModel, imageMultiplier)
 	}
 
 	// Token 计费
-	return s.calculateTokenCost(ctx, result, apiKey, billingModel, multiplier, opts)
+	return s.calculateTokenCost(ctx, apiKey, billingModel, multiplier, tokens, opts)
 }
 
 // resolveChannelPricing 检查指定模型是否存在渠道级别定价。
@@ -831,22 +845,12 @@ func (s *GatewayService) calculateImageCost(
 // calculateTokenCost 计算 Token 计费：根据 opts 决定走普通/长上下文/渠道统一计费。
 func (s *GatewayService) calculateTokenCost(
 	ctx context.Context,
-	result *ForwardResult,
 	apiKey *APIKey,
 	billingModel string,
 	multiplier float64,
+	tokens UsageTokens,
 	opts *recordUsageOpts,
 ) *CostBreakdown {
-	tokens := UsageTokens{
-		InputTokens:           result.Usage.InputTokens,
-		OutputTokens:          result.Usage.OutputTokens,
-		CacheCreationTokens:   result.Usage.CacheCreationInputTokens,
-		CacheReadTokens:       result.Usage.CacheReadInputTokens,
-		CacheCreation5mTokens: result.Usage.CacheCreation5mTokens,
-		CacheCreation1hTokens: result.Usage.CacheCreation1hTokens,
-		ImageOutputTokens:     result.Usage.ImageOutputTokens,
-	}
-
 	var cost *CostBreakdown
 	var err error
 
@@ -891,6 +895,8 @@ func (s *GatewayService) buildRecordUsageLog(
 	accountRateMultiplier float64,
 	billingType int8,
 	cacheTTLOverridden bool,
+	rawTokens UsageTokens,
+	adjustedTokens UsageTokens,
 	cost *CostBreakdown,
 	opts *recordUsageOpts,
 ) *UsageLog {
@@ -907,12 +913,12 @@ func (s *GatewayService) buildRecordUsageLog(
 		ReasoningEffort:       result.ReasoningEffort,
 		InboundEndpoint:       optionalTrimmedStringPtr(input.InboundEndpoint),
 		UpstreamEndpoint:      optionalTrimmedStringPtr(input.UpstreamEndpoint),
-		InputTokens:           result.Usage.InputTokens,
-		OutputTokens:          result.Usage.OutputTokens,
-		CacheCreationTokens:   result.Usage.CacheCreationInputTokens,
-		CacheReadTokens:       result.Usage.CacheReadInputTokens,
-		CacheCreation5mTokens: result.Usage.CacheCreation5mTokens,
-		CacheCreation1hTokens: result.Usage.CacheCreation1hTokens,
+		InputTokens:           adjustedTokens.InputTokens,
+		OutputTokens:          adjustedTokens.OutputTokens,
+		CacheCreationTokens:   adjustedTokens.CacheCreationTokens,
+		CacheReadTokens:       adjustedTokens.CacheReadTokens,
+		CacheCreation5mTokens: adjustedTokens.CacheCreation5mTokens,
+		CacheCreation1hTokens: adjustedTokens.CacheCreation1hTokens,
 		ImageOutputTokens:     result.Usage.ImageOutputTokens,
 		RateMultiplier:        multiplier,
 		AccountRateMultiplier: &accountRateMultiplier,
@@ -935,6 +941,7 @@ func (s *GatewayService) buildRecordUsageLog(
 		GroupID:               apiKey.GroupID,
 		SubscriptionID:        optionalSubscriptionID(subscription),
 		CreatedAt:             time.Now(),
+		MultiplierSnapshot:    buildUsageMultiplierSnapshot(apiKey.Group, account, rawTokens, adjustedTokens, multiplier, accountRateMultiplier),
 	}
 	if result.ImageCount > 0 && (cost == nil || cost.BillingMode != string(BillingModeToken)) {
 		usageLog.RateMultiplier = imageMultiplier

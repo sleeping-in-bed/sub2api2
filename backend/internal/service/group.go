@@ -19,6 +19,14 @@ type Group struct {
 	Description    string
 	Platform       string
 	RateMultiplier float64
+	InputTokenMultiplier              float64
+	OutputTokenMultiplier             float64
+	CacheCreationTokenMultiplier      float64
+	CacheReadTokenMultiplier          float64
+	HiddenInputRateMultiplier         float64
+	HiddenOutputRateMultiplier        float64
+	HiddenCacheCreationRateMultiplier float64
+	HiddenCacheReadRateMultiplier     float64
 	// 高峰时段倍率：peak_rate_enabled 为 true 且当前时刻处于 [PeakStart, PeakEnd) 时，
 	// token 计费倍率额外乘以 PeakRateMultiplier。详见 PeakMultiplierAt。
 	PeakRateEnabled    bool
@@ -99,6 +107,67 @@ type Group struct {
 
 func (g *Group) IsActive() bool {
 	return g.Status == StatusActive
+}
+
+func positiveMultiplierOrDefault(value float64) float64 {
+	if value <= 0 {
+		return 1
+	}
+	return value
+}
+
+func resolveConfiguredPositiveMultiplier(value *float64) (float64, error) {
+	if value == nil {
+		return 1, nil
+	}
+	if *value <= 0 {
+		return 0, errors.New("must be greater than 0")
+	}
+	return *value, nil
+}
+
+func applyPositiveMultiplierUpdate(value *float64, target *float64) error {
+	if value == nil {
+		return nil
+	}
+	if *value <= 0 {
+		return errors.New("must be greater than 0")
+	}
+	*target = *value
+	return nil
+}
+
+func (g *Group) InputTokenMultiplierOrDefault() float64 {
+	if g == nil { return 1 }
+	return positiveMultiplierOrDefault(g.InputTokenMultiplier)
+}
+func (g *Group) OutputTokenMultiplierOrDefault() float64 {
+	if g == nil { return 1 }
+	return positiveMultiplierOrDefault(g.OutputTokenMultiplier)
+}
+func (g *Group) CacheCreationTokenMultiplierOrDefault() float64 {
+	if g == nil { return 1 }
+	return positiveMultiplierOrDefault(g.CacheCreationTokenMultiplier)
+}
+func (g *Group) CacheReadTokenMultiplierOrDefault() float64 {
+	if g == nil { return 1 }
+	return positiveMultiplierOrDefault(g.CacheReadTokenMultiplier)
+}
+func (g *Group) HiddenInputRateMultiplierOrDefault() float64 {
+	if g == nil { return 1 }
+	return positiveMultiplierOrDefault(g.HiddenInputRateMultiplier)
+}
+func (g *Group) HiddenOutputRateMultiplierOrDefault() float64 {
+	if g == nil { return 1 }
+	return positiveMultiplierOrDefault(g.HiddenOutputRateMultiplier)
+}
+func (g *Group) HiddenCacheCreationRateMultiplierOrDefault() float64 {
+	if g == nil { return 1 }
+	return positiveMultiplierOrDefault(g.HiddenCacheCreationRateMultiplier)
+}
+func (g *Group) HiddenCacheReadRateMultiplierOrDefault() float64 {
+	if g == nil { return 1 }
+	return positiveMultiplierOrDefault(g.HiddenCacheReadRateMultiplier)
 }
 
 func (g *Group) IsSubscriptionType() bool {

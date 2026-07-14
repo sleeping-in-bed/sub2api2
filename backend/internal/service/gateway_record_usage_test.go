@@ -286,6 +286,66 @@ func TestGatewayServiceRecordUsage_PeakRateAffectsTokenModeImageOutputTokens(t *
 	require.InDelta(t, expectedActual, userRepo.lastAmount, 1e-12)
 }
 
+func TestGatewayServiceRecordUsage_AppliesTokenAndCostMultipliers(t *testing.T) {
+	groupID := int64(903)
+	usageRepo := &openAIRecordUsageLogRepoStub{inserted: true}
+	userRepo := &openAIRecordUsageUserRepoStub{}
+	svc := newGatewayRecordUsageServiceForTest(usageRepo, userRepo, &openAIRecordUsageSubRepoStub{})
+	group := &Group{
+		ID:                                    groupID,
+		RateMultiplier:                        1.5,
+		InputTokenMultiplier:                  2,
+		OutputTokenMultiplier:                 3,
+		CacheCreationTokenMultiplier:          0.5,
+		CacheReadTokenMultiplier:              4,
+		HiddenInputRateMultiplier:             0.8,
+		HiddenOutputRateMultiplier:            0.7,
+		HiddenCacheCreationRateMultiplier:     0.6,
+		HiddenCacheReadRateMultiplier:         0.5,
+	}
+	account := &Account{ID: 703, Extra: map[string]any{
+		accountInputTokenMultiplierExtraKey:         1.1,
+		accountOutputTokenMultiplierExtraKey:        1.2,
+		accountCacheCreationTokenMultiplierExtraKey: 1.3,
+		accountCacheReadTokenMultiplierExtraKey:     1.4,
+	}}
+
+	err := svc.RecordUsage(context.Background(), &RecordUsageInput{
+		Result: &ForwardResult{
+			RequestID: "gateway_token_multipliers",
+			Usage: ClaudeUsage{
+				InputTokens:              1000,
+				OutputTokens:             100,
+				CacheCreationInputTokens: 200,
+				CacheReadInputTokens:     300,
+			},
+			Model:    "claude-sonnet-4",
+			Duration: time.Second,
+		},
+		APIKey:  &APIKey{ID: 803, GroupID: i64p(groupID), Group: group},
+		User:    &User{ID: 603},
+		Account: account,
+	})
+
+	require.NoError(t, err)
+	require.NotNil(t, usageRepo.lastLog)
+	log := usageRepo.lastLog
+	require.Equal(t, 2000, log.InputTokens)
+	require.Equal(t, 300, log.OutputTokens)
+	require.Equal(t, 100, log.CacheCreationTokens)
+	require.Equal(t, 1200, log.CacheReadTokens)
+	require.Equal(t, 1000, log.MultiplierSnapshot["raw_input_tokens"])
+	require.Equal(t, 1.5, log.MultiplierSnapshot["public_rate_multiplier"])
+
+	wantActual :=
+		log.InputCost*1.5*0.8*1.1 +
+			log.OutputCost*1.5*0.7*1.2 +
+			log.CacheCreationCost*1.5*0.6*1.3 +
+			log.CacheReadCost*1.5*0.5*1.4
+	require.InDelta(t, wantActual, log.ActualCost, 1e-12)
+	require.InDelta(t, wantActual, userRepo.lastAmount, 1e-12)
+}
+
 func TestGatewayServiceRecordUsage_UsageLogWriteErrorDoesNotSkipBilling(t *testing.T) {
 	usageRepo := &openAIRecordUsageLogRepoStub{inserted: false, err: MarkUsageLogCreateNotPersisted(context.Canceled)}
 	userRepo := &openAIRecordUsageUserRepoStub{}

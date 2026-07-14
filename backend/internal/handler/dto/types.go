@@ -92,6 +92,10 @@ type Group struct {
 	Description    string  `json:"description"`
 	Platform       string  `json:"platform"`
 	RateMultiplier float64 `json:"rate_multiplier"`
+	InputTokenMultiplier              float64 `json:"input_token_multiplier"`
+	OutputTokenMultiplier             float64 `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier      float64 `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier          float64 `json:"cache_read_token_multiplier"`
 	IsExclusive    bool    `json:"is_exclusive"`
 	Status         string  `json:"status"`
 
@@ -147,6 +151,10 @@ type Group struct {
 // 注意：普通用户接口不得返回 model_routing/account_count/account_groups 等内部信息。
 type AdminGroup struct {
 	Group
+	HiddenInputRateMultiplier         float64 `json:"hidden_input_rate_multiplier"`
+	HiddenOutputRateMultiplier        float64 `json:"hidden_output_rate_multiplier"`
+	HiddenCacheCreationRateMultiplier float64 `json:"hidden_cache_creation_rate_multiplier"`
+	HiddenCacheReadRateMultiplier     float64 `json:"hidden_cache_read_rate_multiplier"`
 
 	// 模型路由配置（仅 anthropic 平台使用）
 	ModelRouting        map[string][]int64 `json:"model_routing"`
@@ -189,6 +197,10 @@ type Account struct {
 	LoadFactor              *int            `json:"load_factor,omitempty"`
 	Priority                int             `json:"priority"`
 	RateMultiplier          float64         `json:"rate_multiplier"`
+	InputTokenMultiplier         float64 `json:"input_token_multiplier"`
+	OutputTokenMultiplier        float64 `json:"output_token_multiplier"`
+	CacheCreationTokenMultiplier float64 `json:"cache_creation_token_multiplier"`
+	CacheReadTokenMultiplier     float64 `json:"cache_read_token_multiplier"`
 	Status                  string          `json:"status"`
 	ErrorMessage            string          `json:"error_message"`
 	LastUsedAt              *time.Time      `json:"last_used_at"`

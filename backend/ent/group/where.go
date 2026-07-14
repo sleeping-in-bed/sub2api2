@@ -85,6 +85,46 @@ func RateMultiplier(v float64) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldRateMultiplier, v))
 }
 
+// InputTokenMultiplier applies equality check predicate on the "input_token_multiplier" field. It's identical to InputTokenMultiplierEQ.
+func InputTokenMultiplier(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldInputTokenMultiplier, v))
+}
+
+// OutputTokenMultiplier applies equality check predicate on the "output_token_multiplier" field. It's identical to OutputTokenMultiplierEQ.
+func OutputTokenMultiplier(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldOutputTokenMultiplier, v))
+}
+
+// CacheCreationTokenMultiplier applies equality check predicate on the "cache_creation_token_multiplier" field. It's identical to CacheCreationTokenMultiplierEQ.
+func CacheCreationTokenMultiplier(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldCacheCreationTokenMultiplier, v))
+}
+
+// CacheReadTokenMultiplier applies equality check predicate on the "cache_read_token_multiplier" field. It's identical to CacheReadTokenMultiplierEQ.
+func CacheReadTokenMultiplier(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldCacheReadTokenMultiplier, v))
+}
+
+// HiddenInputRateMultiplier applies equality check predicate on the "hidden_input_rate_multiplier" field. It's identical to HiddenInputRateMultiplierEQ.
+func HiddenInputRateMultiplier(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldHiddenInputRateMultiplier, v))
+}
+
+// HiddenOutputRateMultiplier applies equality check predicate on the "hidden_output_rate_multiplier" field. It's identical to HiddenOutputRateMultiplierEQ.
+func HiddenOutputRateMultiplier(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldHiddenOutputRateMultiplier, v))
+}
+
+// HiddenCacheCreationRateMultiplier applies equality check predicate on the "hidden_cache_creation_rate_multiplier" field. It's identical to HiddenCacheCreationRateMultiplierEQ.
+func HiddenCacheCreationRateMultiplier(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldHiddenCacheCreationRateMultiplier, v))
+}
+
+// HiddenCacheReadRateMultiplier applies equality check predicate on the "hidden_cache_read_rate_multiplier" field. It's identical to HiddenCacheReadRateMultiplierEQ.
+func HiddenCacheReadRateMultiplier(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldHiddenCacheReadRateMultiplier, v))
+}
+
 // PeakRateEnabled applies equality check predicate on the "peak_rate_enabled" field. It's identical to PeakRateEnabledEQ.
 func PeakRateEnabled(v bool) predicate.Group {
 	return predicate.Group(sql.FieldEQ(FieldPeakRateEnabled, v))
@@ -583,6 +623,326 @@ func RateMultiplierLT(v float64) predicate.Group {
 // RateMultiplierLTE applies the LTE predicate on the "rate_multiplier" field.
 func RateMultiplierLTE(v float64) predicate.Group {
 	return predicate.Group(sql.FieldLTE(FieldRateMultiplier, v))
+}
+
+// InputTokenMultiplierEQ applies the EQ predicate on the "input_token_multiplier" field.
+func InputTokenMultiplierEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldInputTokenMultiplier, v))
+}
+
+// InputTokenMultiplierNEQ applies the NEQ predicate on the "input_token_multiplier" field.
+func InputTokenMultiplierNEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldInputTokenMultiplier, v))
+}
+
+// InputTokenMultiplierIn applies the In predicate on the "input_token_multiplier" field.
+func InputTokenMultiplierIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldInputTokenMultiplier, vs...))
+}
+
+// InputTokenMultiplierNotIn applies the NotIn predicate on the "input_token_multiplier" field.
+func InputTokenMultiplierNotIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldInputTokenMultiplier, vs...))
+}
+
+// InputTokenMultiplierGT applies the GT predicate on the "input_token_multiplier" field.
+func InputTokenMultiplierGT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldInputTokenMultiplier, v))
+}
+
+// InputTokenMultiplierGTE applies the GTE predicate on the "input_token_multiplier" field.
+func InputTokenMultiplierGTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldInputTokenMultiplier, v))
+}
+
+// InputTokenMultiplierLT applies the LT predicate on the "input_token_multiplier" field.
+func InputTokenMultiplierLT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldInputTokenMultiplier, v))
+}
+
+// InputTokenMultiplierLTE applies the LTE predicate on the "input_token_multiplier" field.
+func InputTokenMultiplierLTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldInputTokenMultiplier, v))
+}
+
+// OutputTokenMultiplierEQ applies the EQ predicate on the "output_token_multiplier" field.
+func OutputTokenMultiplierEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldOutputTokenMultiplier, v))
+}
+
+// OutputTokenMultiplierNEQ applies the NEQ predicate on the "output_token_multiplier" field.
+func OutputTokenMultiplierNEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldOutputTokenMultiplier, v))
+}
+
+// OutputTokenMultiplierIn applies the In predicate on the "output_token_multiplier" field.
+func OutputTokenMultiplierIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldOutputTokenMultiplier, vs...))
+}
+
+// OutputTokenMultiplierNotIn applies the NotIn predicate on the "output_token_multiplier" field.
+func OutputTokenMultiplierNotIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldOutputTokenMultiplier, vs...))
+}
+
+// OutputTokenMultiplierGT applies the GT predicate on the "output_token_multiplier" field.
+func OutputTokenMultiplierGT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldOutputTokenMultiplier, v))
+}
+
+// OutputTokenMultiplierGTE applies the GTE predicate on the "output_token_multiplier" field.
+func OutputTokenMultiplierGTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldOutputTokenMultiplier, v))
+}
+
+// OutputTokenMultiplierLT applies the LT predicate on the "output_token_multiplier" field.
+func OutputTokenMultiplierLT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldOutputTokenMultiplier, v))
+}
+
+// OutputTokenMultiplierLTE applies the LTE predicate on the "output_token_multiplier" field.
+func OutputTokenMultiplierLTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldOutputTokenMultiplier, v))
+}
+
+// CacheCreationTokenMultiplierEQ applies the EQ predicate on the "cache_creation_token_multiplier" field.
+func CacheCreationTokenMultiplierEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldCacheCreationTokenMultiplier, v))
+}
+
+// CacheCreationTokenMultiplierNEQ applies the NEQ predicate on the "cache_creation_token_multiplier" field.
+func CacheCreationTokenMultiplierNEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldCacheCreationTokenMultiplier, v))
+}
+
+// CacheCreationTokenMultiplierIn applies the In predicate on the "cache_creation_token_multiplier" field.
+func CacheCreationTokenMultiplierIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldCacheCreationTokenMultiplier, vs...))
+}
+
+// CacheCreationTokenMultiplierNotIn applies the NotIn predicate on the "cache_creation_token_multiplier" field.
+func CacheCreationTokenMultiplierNotIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldCacheCreationTokenMultiplier, vs...))
+}
+
+// CacheCreationTokenMultiplierGT applies the GT predicate on the "cache_creation_token_multiplier" field.
+func CacheCreationTokenMultiplierGT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldCacheCreationTokenMultiplier, v))
+}
+
+// CacheCreationTokenMultiplierGTE applies the GTE predicate on the "cache_creation_token_multiplier" field.
+func CacheCreationTokenMultiplierGTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldCacheCreationTokenMultiplier, v))
+}
+
+// CacheCreationTokenMultiplierLT applies the LT predicate on the "cache_creation_token_multiplier" field.
+func CacheCreationTokenMultiplierLT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldCacheCreationTokenMultiplier, v))
+}
+
+// CacheCreationTokenMultiplierLTE applies the LTE predicate on the "cache_creation_token_multiplier" field.
+func CacheCreationTokenMultiplierLTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldCacheCreationTokenMultiplier, v))
+}
+
+// CacheReadTokenMultiplierEQ applies the EQ predicate on the "cache_read_token_multiplier" field.
+func CacheReadTokenMultiplierEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldCacheReadTokenMultiplier, v))
+}
+
+// CacheReadTokenMultiplierNEQ applies the NEQ predicate on the "cache_read_token_multiplier" field.
+func CacheReadTokenMultiplierNEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldCacheReadTokenMultiplier, v))
+}
+
+// CacheReadTokenMultiplierIn applies the In predicate on the "cache_read_token_multiplier" field.
+func CacheReadTokenMultiplierIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldCacheReadTokenMultiplier, vs...))
+}
+
+// CacheReadTokenMultiplierNotIn applies the NotIn predicate on the "cache_read_token_multiplier" field.
+func CacheReadTokenMultiplierNotIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldCacheReadTokenMultiplier, vs...))
+}
+
+// CacheReadTokenMultiplierGT applies the GT predicate on the "cache_read_token_multiplier" field.
+func CacheReadTokenMultiplierGT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldCacheReadTokenMultiplier, v))
+}
+
+// CacheReadTokenMultiplierGTE applies the GTE predicate on the "cache_read_token_multiplier" field.
+func CacheReadTokenMultiplierGTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldCacheReadTokenMultiplier, v))
+}
+
+// CacheReadTokenMultiplierLT applies the LT predicate on the "cache_read_token_multiplier" field.
+func CacheReadTokenMultiplierLT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldCacheReadTokenMultiplier, v))
+}
+
+// CacheReadTokenMultiplierLTE applies the LTE predicate on the "cache_read_token_multiplier" field.
+func CacheReadTokenMultiplierLTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldCacheReadTokenMultiplier, v))
+}
+
+// HiddenInputRateMultiplierEQ applies the EQ predicate on the "hidden_input_rate_multiplier" field.
+func HiddenInputRateMultiplierEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldHiddenInputRateMultiplier, v))
+}
+
+// HiddenInputRateMultiplierNEQ applies the NEQ predicate on the "hidden_input_rate_multiplier" field.
+func HiddenInputRateMultiplierNEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldHiddenInputRateMultiplier, v))
+}
+
+// HiddenInputRateMultiplierIn applies the In predicate on the "hidden_input_rate_multiplier" field.
+func HiddenInputRateMultiplierIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldHiddenInputRateMultiplier, vs...))
+}
+
+// HiddenInputRateMultiplierNotIn applies the NotIn predicate on the "hidden_input_rate_multiplier" field.
+func HiddenInputRateMultiplierNotIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldHiddenInputRateMultiplier, vs...))
+}
+
+// HiddenInputRateMultiplierGT applies the GT predicate on the "hidden_input_rate_multiplier" field.
+func HiddenInputRateMultiplierGT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldHiddenInputRateMultiplier, v))
+}
+
+// HiddenInputRateMultiplierGTE applies the GTE predicate on the "hidden_input_rate_multiplier" field.
+func HiddenInputRateMultiplierGTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldHiddenInputRateMultiplier, v))
+}
+
+// HiddenInputRateMultiplierLT applies the LT predicate on the "hidden_input_rate_multiplier" field.
+func HiddenInputRateMultiplierLT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldHiddenInputRateMultiplier, v))
+}
+
+// HiddenInputRateMultiplierLTE applies the LTE predicate on the "hidden_input_rate_multiplier" field.
+func HiddenInputRateMultiplierLTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldHiddenInputRateMultiplier, v))
+}
+
+// HiddenOutputRateMultiplierEQ applies the EQ predicate on the "hidden_output_rate_multiplier" field.
+func HiddenOutputRateMultiplierEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldHiddenOutputRateMultiplier, v))
+}
+
+// HiddenOutputRateMultiplierNEQ applies the NEQ predicate on the "hidden_output_rate_multiplier" field.
+func HiddenOutputRateMultiplierNEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldHiddenOutputRateMultiplier, v))
+}
+
+// HiddenOutputRateMultiplierIn applies the In predicate on the "hidden_output_rate_multiplier" field.
+func HiddenOutputRateMultiplierIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldHiddenOutputRateMultiplier, vs...))
+}
+
+// HiddenOutputRateMultiplierNotIn applies the NotIn predicate on the "hidden_output_rate_multiplier" field.
+func HiddenOutputRateMultiplierNotIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldHiddenOutputRateMultiplier, vs...))
+}
+
+// HiddenOutputRateMultiplierGT applies the GT predicate on the "hidden_output_rate_multiplier" field.
+func HiddenOutputRateMultiplierGT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldHiddenOutputRateMultiplier, v))
+}
+
+// HiddenOutputRateMultiplierGTE applies the GTE predicate on the "hidden_output_rate_multiplier" field.
+func HiddenOutputRateMultiplierGTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldHiddenOutputRateMultiplier, v))
+}
+
+// HiddenOutputRateMultiplierLT applies the LT predicate on the "hidden_output_rate_multiplier" field.
+func HiddenOutputRateMultiplierLT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldHiddenOutputRateMultiplier, v))
+}
+
+// HiddenOutputRateMultiplierLTE applies the LTE predicate on the "hidden_output_rate_multiplier" field.
+func HiddenOutputRateMultiplierLTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldHiddenOutputRateMultiplier, v))
+}
+
+// HiddenCacheCreationRateMultiplierEQ applies the EQ predicate on the "hidden_cache_creation_rate_multiplier" field.
+func HiddenCacheCreationRateMultiplierEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldHiddenCacheCreationRateMultiplier, v))
+}
+
+// HiddenCacheCreationRateMultiplierNEQ applies the NEQ predicate on the "hidden_cache_creation_rate_multiplier" field.
+func HiddenCacheCreationRateMultiplierNEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldHiddenCacheCreationRateMultiplier, v))
+}
+
+// HiddenCacheCreationRateMultiplierIn applies the In predicate on the "hidden_cache_creation_rate_multiplier" field.
+func HiddenCacheCreationRateMultiplierIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldHiddenCacheCreationRateMultiplier, vs...))
+}
+
+// HiddenCacheCreationRateMultiplierNotIn applies the NotIn predicate on the "hidden_cache_creation_rate_multiplier" field.
+func HiddenCacheCreationRateMultiplierNotIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldHiddenCacheCreationRateMultiplier, vs...))
+}
+
+// HiddenCacheCreationRateMultiplierGT applies the GT predicate on the "hidden_cache_creation_rate_multiplier" field.
+func HiddenCacheCreationRateMultiplierGT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldHiddenCacheCreationRateMultiplier, v))
+}
+
+// HiddenCacheCreationRateMultiplierGTE applies the GTE predicate on the "hidden_cache_creation_rate_multiplier" field.
+func HiddenCacheCreationRateMultiplierGTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldHiddenCacheCreationRateMultiplier, v))
+}
+
+// HiddenCacheCreationRateMultiplierLT applies the LT predicate on the "hidden_cache_creation_rate_multiplier" field.
+func HiddenCacheCreationRateMultiplierLT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldHiddenCacheCreationRateMultiplier, v))
+}
+
+// HiddenCacheCreationRateMultiplierLTE applies the LTE predicate on the "hidden_cache_creation_rate_multiplier" field.
+func HiddenCacheCreationRateMultiplierLTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldHiddenCacheCreationRateMultiplier, v))
+}
+
+// HiddenCacheReadRateMultiplierEQ applies the EQ predicate on the "hidden_cache_read_rate_multiplier" field.
+func HiddenCacheReadRateMultiplierEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldEQ(FieldHiddenCacheReadRateMultiplier, v))
+}
+
+// HiddenCacheReadRateMultiplierNEQ applies the NEQ predicate on the "hidden_cache_read_rate_multiplier" field.
+func HiddenCacheReadRateMultiplierNEQ(v float64) predicate.Group {
+	return predicate.Group(sql.FieldNEQ(FieldHiddenCacheReadRateMultiplier, v))
+}
+
+// HiddenCacheReadRateMultiplierIn applies the In predicate on the "hidden_cache_read_rate_multiplier" field.
+func HiddenCacheReadRateMultiplierIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldIn(FieldHiddenCacheReadRateMultiplier, vs...))
+}
+
+// HiddenCacheReadRateMultiplierNotIn applies the NotIn predicate on the "hidden_cache_read_rate_multiplier" field.
+func HiddenCacheReadRateMultiplierNotIn(vs ...float64) predicate.Group {
+	return predicate.Group(sql.FieldNotIn(FieldHiddenCacheReadRateMultiplier, vs...))
+}
+
+// HiddenCacheReadRateMultiplierGT applies the GT predicate on the "hidden_cache_read_rate_multiplier" field.
+func HiddenCacheReadRateMultiplierGT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGT(FieldHiddenCacheReadRateMultiplier, v))
+}
+
+// HiddenCacheReadRateMultiplierGTE applies the GTE predicate on the "hidden_cache_read_rate_multiplier" field.
+func HiddenCacheReadRateMultiplierGTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldGTE(FieldHiddenCacheReadRateMultiplier, v))
+}
+
+// HiddenCacheReadRateMultiplierLT applies the LT predicate on the "hidden_cache_read_rate_multiplier" field.
+func HiddenCacheReadRateMultiplierLT(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLT(FieldHiddenCacheReadRateMultiplier, v))
+}
+
+// HiddenCacheReadRateMultiplierLTE applies the LTE predicate on the "hidden_cache_read_rate_multiplier" field.
+func HiddenCacheReadRateMultiplierLTE(v float64) predicate.Group {
+	return predicate.Group(sql.FieldLTE(FieldHiddenCacheReadRateMultiplier, v))
 }
 
 // PeakRateEnabledEQ applies the EQ predicate on the "peak_rate_enabled" field.
